@@ -9,7 +9,7 @@
 
 ---
 
-## Mission Scope: Republic of Cameroun
+## Mission Scope
 
 This project aims to solve the "Data Gap" in local football. While international apps focus on European leagues, Scoreboards Mobile is built for the fans, scouts, and analysts of the 237 ecosystem.
 
