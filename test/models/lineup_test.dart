@@ -16,7 +16,7 @@ void main() {
           "slug": "team-a",
           "name": "Team A",
           "logo": null,
-          "stadium": "Team A Stadium",
+          "stadium": null,
           "country": "England"
         },
         "player": {

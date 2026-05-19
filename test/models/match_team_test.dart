@@ -9,7 +9,6 @@ void main() {
         'slug': 'fc-barcelona',
         'name': 'FC Barcelona',
         'logo': 'barca.png',
-        'stadium': 'Camp Nou',
         'country': 'Spain',
       };
 
@@ -19,7 +18,6 @@ void main() {
       expect(team.slug, 'fc-barcelona');
       expect(team.name, 'FC Barcelona');
       expect(team.logo, 'barca.png');
-      expect(team.stadium, 'Camp Nou');
       expect(team.country, 'Spain');
     });
 
