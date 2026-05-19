@@ -19,7 +19,7 @@ void main() {
           'country': 'germany',
           'capacity': 15000,
           'is_opened': true,
-          'opened_year': "2025"
+          'opened_year': 2025
         },
         'league': 'Premier League',
         'country': 'Cameroon',

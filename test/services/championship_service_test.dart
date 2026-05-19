@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/services/championship.dart';
 import 'package:scoreboards/models/championship.dart';
 import 'package:scoreboards/models/standing.dart';
 import 'package:scoreboards/models/editions.dart';
 
 void main() {
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
   group('ChampionshipService Tests', () {
     test('getChampionships returns list of championships', () async {
       // Mock API response

@@ -3,11 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/models/match.dart';
 
 void main() {
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
   group("MatchService Tests", () {
     setUp(() {
       // Ensure MATCHS map exists
