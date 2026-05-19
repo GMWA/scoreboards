@@ -75,7 +75,7 @@ class MatchService {
 
       if (res.statusCode == 200) {
         List<dynamic> matchsList = jsonDecode(res.body);
-        // print(matchsList);
+        // final logger = Logger();(matchsList);
         return matchsList.map((item) => MatchBase.fromJson(item)).toList();
       } else {
         throw Exception(

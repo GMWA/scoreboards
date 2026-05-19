@@ -69,7 +69,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                       letterSpacing: 1.2,
                     ),
                   ),
-                  // Icon(Icons.ball, color: brandRed.withOpacity(0.5), size: 16),
+                  // Icon(Icons.ball, color: brandRed.withValues(alpha: 0.5), size: 16),
                 ],
               ),
               const SizedBox(height: 16),
@@ -79,7 +79,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                 decoration: BoxDecoration(
                   color: surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
                 child: Column(
                   children: [
@@ -121,7 +121,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.05), width: 0.5),
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 0.5),
         ),
       ),
       child: Row(
@@ -172,7 +172,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: brandRed.withOpacity(0.1),
+              color: brandRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

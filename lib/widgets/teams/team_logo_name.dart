@@ -26,10 +26,10 @@ class TeamLogoName extends StatelessWidget {
             height: 72,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.04), // Subtle glass effect
+              color: Colors.white.withValues(alpha: 0.04), // Subtle glass effect
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 width: 1.5,
               ),
             ),
@@ -73,7 +73,7 @@ class TeamLogoName extends StatelessWidget {
   Widget _buildFallbackIcon() {
     return Icon(
       Icons.shield_outlined,
-      color: Colors.white.withOpacity(0.2),
+      color: Colors.white.withValues(alpha: 0.2),
       size: 32,
     );
   }

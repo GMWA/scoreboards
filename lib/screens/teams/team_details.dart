@@ -91,7 +91,7 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [brandRed.withOpacity(0.2), darkBg],
+                        colors: [brandRed.withValues(alpha: 0.2), darkBg],
                       ),
                     ),
                   ),
@@ -161,7 +161,7 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Divider(color: Colors.white.withOpacity(0.1))),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
       ],
     );
   }
@@ -174,7 +174,7 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: const Color(0xFFE64C52), size: 20),

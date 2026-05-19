@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -11,6 +12,8 @@ import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/ws/websocket_manager.dart';
 import 'package:scoreboards/services/notification_service.dart';
 
+
+final logger = Logger();
 WebSocketChannel? _channel;
 
 Future<void> initializeBackgroundService() async {
@@ -75,20 +78,20 @@ void _connectWebSocket(String url, ServiceInstance service) {
 
           service.invoke("notification", {"payload": event});
         } catch (e) {
-          print("Error processing WS message: $e");
+          logger.i("Error processing WS message: $e");
         }
       },
       onError: (err) {
-        print("WS ERROR (BG): $err");
+        logger.i("WS ERROR (BG): $err");
         _reconnect(url, service);
       },
       onDone: () {
-        print("WS CLOSED... reconnecting");
+        logger.i("WS CLOSED... reconnecting");
         _reconnect(url, service);
       },
     );
   } catch (e) {
-    print("WS Connection Error: $e");
+    logger.i("WS Connection Error: $e");
     _reconnect(url, service);
   }
 }

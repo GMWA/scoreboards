@@ -105,7 +105,7 @@ class _TeamsTableState extends State<ChampionshipTeamList> {
       decoration: BoxDecoration(
         color: surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int>(
