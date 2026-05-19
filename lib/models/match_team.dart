@@ -1,10 +1,13 @@
+import 'package:scoreboards/models/stadium.dart';
+
 class MatchTeam {
   final int id;
   final String slug;
   final String name;
   final String? logo;
-  final String? stadium;
+  final Stadium? stadium;
   final String? country;
+  final String? website;
 
   MatchTeam({
     required this.id,
@@ -13,6 +16,7 @@ class MatchTeam {
     this.logo,
     this.stadium,
     this.country,
+    this.website
   });
 
   factory MatchTeam.fromJson(Map<String, dynamic> json) {
@@ -21,8 +25,10 @@ class MatchTeam {
       slug: json['slug'],
       name: json['name']?.toString() ?? 'Unknown Team',
       logo: json['logo']?.toString(),
-      stadium: json['stadium']?.toString(),
+      stadium:
+          json['stadium'] != null ? Stadium.fromJson(json['stadium']) : null,
       country: json['country']?.toString(),
+      website: json['website'],
     );
   }
 
