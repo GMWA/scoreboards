@@ -2,12 +2,17 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/constants/urls.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
 
   group("DeviceService Tests", () {
     late DeviceService service;

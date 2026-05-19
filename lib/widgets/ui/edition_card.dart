@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:scoreboards/models/editions.dart';
+
+final logger = Logger();
 
 class EditionCard extends StatelessWidget {
   final Edition edition;
@@ -32,7 +35,7 @@ class EditionCard extends StatelessWidget {
                     ? CachedNetworkImageProvider(edition.championship.logo!)
                     : null,
                 onBackgroundImageError: (exception, stackTrace) {
-                  debugPrint('Error loading image: $exception');
+                  logger.i('Error loading image: $exception');
                 },
               ),
               const SizedBox(width: 12),

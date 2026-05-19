@@ -16,7 +16,7 @@ class PlayerService {
           playersList.map((dynamic item) => Player.fromJson(item)).toList();
       return players;
     } else {
-      throw "Can't get players.";
+      throw Exception('Failed to load players');
     }
   }
 

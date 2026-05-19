@@ -34,7 +34,7 @@ class TeamCard extends StatelessWidget {
                 height: 64,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.03),
+                  color: Colors.white.withValues(alpha: 0.03),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.white10),
                 ),
@@ -76,7 +76,7 @@ class TeamCard extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Lexend',
                                 fontSize: 11,
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                                 fontWeight: FontWeight.w500,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -90,7 +90,7 @@ class TeamCard extends StatelessWidget {
 
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 size: 16,
               ),
             ],
@@ -104,7 +104,7 @@ class TeamCard extends StatelessWidget {
     return Icon(
       Icons.shield_outlined,
       size: 32,
-      color: Colors.white.withOpacity(0.1),
+      color: Colors.white.withValues(alpha: 0.1),
     );
   }
 }

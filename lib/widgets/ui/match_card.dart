@@ -60,7 +60,7 @@ class MatchCard extends StatelessWidget {
               ),
 
               // 2. Center Score / Time Area
-              Container(
+              SizedBox(
                 width: 100,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -82,7 +82,7 @@ class MatchCard extends StatelessWidget {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color:
-                            isLive ? brandRed.withOpacity(0.1) : Colors.black26,
+                            isLive ? brandRed.withValues(alpha: 0.1) : Colors.black26,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -148,7 +148,7 @@ class MatchCard extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white10),
       ),

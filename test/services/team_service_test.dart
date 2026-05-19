@@ -2,10 +2,14 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/testing.dart';
 import 'package:http/http.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/services/teams.dart';
 import 'package:scoreboards/models/team.dart';
 
 void main() {
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
   group('TeamService Tests', () {
     test('getTeamsByChampionshipAndYear returns list of teams', () async {
       TeamService.client = MockClient((request) async {

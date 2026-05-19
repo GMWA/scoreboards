@@ -2,11 +2,15 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/services/player.dart';
 import 'package:scoreboards/models/player.dart';
 import 'package:scoreboards/models/transfert.dart';
 
 void main() {
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
   group('PlayerService Tests', () {
     test('getPlayersByTeam returns list of players', () async {
       PlayerService.client = MockClient((request) async {
@@ -174,7 +178,7 @@ void main() {
 
       expect(
         () async => await PlayerService.getPlayersByTeam(99),
-        throwsA(isA<String>()),
+        throwsA(isA<Exception>()),
       );
     });
   });

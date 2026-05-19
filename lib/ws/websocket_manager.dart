@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:scoreboards/services/notification_service.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+
+
+final logger = Logger();
 
 class WebSocketManager {
   WebSocketChannel? _channel;
@@ -10,24 +14,24 @@ class WebSocketManager {
   void connect(String url, {ServiceInstance? service}) {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      print("WS Connected: $url");
+      logger.i("WS Connected: $url");
 
       _channel!.stream.listen(
         (event) async {
-          print("WS Message: $event");
+          logger.i("WS Message: $event");
           _handleMessage(event, service);
         },
         onError: (err) {
-          print("WS Error: $err");
+          logger.i("WS Error: $err");
           _reconnect(url, service);
         },
         onDone: () {
-          print("WS Closed");
+          logger.i("WS Closed");
           _reconnect(url, service);
         },
       );
     } catch (e) {
-      print("WS Connection Exception: $e");
+      logger.i("WS Connection Exception: $e");
       _reconnect(url, service);
     }
   }
@@ -46,10 +50,10 @@ class WebSocketManager {
       if (service != null) {
         service.invoke("notification", {"payload": event});
       } else {
-        print("Linux UI Update: $event");
+        logger.i("Linux UI Update: $event");
       }
     } catch (e) {
-      print("Error parsing message: $e");
+      logger.i("Error parsing message: $e");
     }
   }
 

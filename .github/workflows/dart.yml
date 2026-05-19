@@ -21,7 +21,7 @@ jobs:
 
       # Add this step here to satisfy the asset compiler
       - name: Create dummy .env file
-        run: touch .env
+        run: cp .env.example .env
 
       # Sets up the Flutter SDK
       - name: Set up Flutter

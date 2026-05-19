@@ -24,7 +24,7 @@ class MatchHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            brandRed.withOpacity(0.15),
+            brandRed.withValues(alpha: 0.15),
             darkBg,
           ],
         ),
@@ -50,7 +50,7 @@ class MatchHeader extends StatelessWidget {
                 ),
               ),
 
-              Container(
+              SizedBox(
                 width: 120,
                 child: Column(
                   children: [
@@ -71,7 +71,7 @@ class MatchHeader extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -102,9 +102,9 @@ class MatchHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
+              color: Colors.white.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Column(
               children: [
@@ -158,7 +158,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: isLive ? brandRed : Colors.white.withOpacity(0.05),
+        color: isLive ? brandRed : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isLive ? brandRed : Colors.white10,

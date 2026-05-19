@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scoreboards/services/matchs.dart';
@@ -223,16 +222,16 @@ class MatchListScreenState extends State<MatchListScreen> {
         width: 65,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: isLive ? brandRed : surface.withOpacity(0.5),
+          color: isLive ? brandRed : surface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isLive ? brandRed : Colors.white.withOpacity(0.1),
+            color: isLive ? brandRed : Colors.white.withValues(alpha: 0.1),
             width: 1.5,
           ),
           boxShadow: isLive
               ? [
                   BoxShadow(
-                      color: brandRed.withOpacity(0.3),
+                      color: brandRed.withValues(alpha: 0.3),
                       blurRadius: 10,
                       spreadRadius: 1)
                 ]
@@ -296,10 +295,12 @@ class MatchListScreenState extends State<MatchListScreen> {
               width: 55,
               margin: const EdgeInsets.symmetric(horizontal: 5),
               decoration: BoxDecoration(
-                color: isSelected ? brandRed : surface.withOpacity(0.5),
+                color: isSelected ? brandRed : surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isSelected ? brandRed : Colors.white.withOpacity(0.05),
+                  color: isSelected
+                      ? brandRed
+                      : Colors.white.withValues(alpha: 0.05),
                 ),
               ),
               child: Column(
@@ -375,7 +376,7 @@ class MatchListScreenState extends State<MatchListScreen> {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Image.network(
@@ -410,12 +411,10 @@ class MatchListScreenState extends State<MatchListScreen> {
                 ),
               ),
             ),
-            ...(group['matches'] as List<MatchBase>)
-                .map((match) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: MatchCard(match: match),
-                    ))
-                .toList(),
+            ...(group['matches'] as List<MatchBase>).map((match) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: MatchCard(match: match),
+                )),
           ],
         );
       },

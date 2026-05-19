@@ -34,7 +34,7 @@ class StandingsTable extends StatelessWidget {
 
         return Theme(
           data: Theme.of(context).copyWith(
-            dividerColor: Colors.white.withOpacity(0.05),
+            dividerColor: Colors.white.withValues(alpha: 0.05),
             // This ensures the checkbox/control area doesn't force white backgrounds
             unselectedWidgetColor: textSecondary,
           ),
@@ -156,7 +156,7 @@ class StandingsTable extends StatelessWidget {
       height: 24,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(4),
       ),
       child: url != null && url.isNotEmpty

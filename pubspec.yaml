@@ -49,6 +49,8 @@ dependencies:
   flutter_local_notifications_platform_interface: ^9.1.0
   flutter_background_service: ^5.1.0
   flutter_background_service_android: ^6.3.1
+  logger: ^2.7.0
+  network_image_mock: ^2.1.1
 
 dev_dependencies:
   flutter_test:

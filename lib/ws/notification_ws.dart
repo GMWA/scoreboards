@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'package:logger/logger.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:scoreboards/services/device_service.dart';
+
+
+final logger = Logger();
 
 class NotificationWebSocket {
   WebSocketChannel? _channel;
@@ -20,15 +24,15 @@ class NotificationWebSocket {
           final data = jsonDecode(event);
           if (onMessage != null) onMessage!(data);
         } catch (e) {
-          print("Invalid WS message: $event");
+          logger.i("Invalid WS message: $event");
         }
       },
       onDone: () {
-        print("WebSocket closed. Reconnecting...");
+        logger.i("WebSocket closed. Reconnecting...");
         reconnect();
       },
       onError: (err) {
-        print("WebSocket error: $err");
+        logger.i("WebSocket error: $err");
         reconnect();
       },
     );
