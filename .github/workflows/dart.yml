@@ -19,6 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Add this step here to satisfy the asset compiler
+      - name: Create dummy .env file
+        run: touch .env
+
       # Sets up the Flutter SDK
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
