@@ -70,7 +70,7 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
                 : TimelineEventType.goal,
         isHome: goal.team.id == match.homeTeam.id,
         title:
-            "${goal.scorer?.firstname ?? ''} ${goal.scorer?.lastname ?? 'Unknown'}",
+            "${goal.scorer?.firstname ?? ''} ${goal.scorer?.lastname ?? 'Unknown Player'}",
         description: goal.isOwnGoal
             ? "Own Goal"
             : (goal.assist != null ? "Asst: ${goal.assist!.lastname}" : null),
@@ -88,7 +88,9 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
               ? TimelineEventType.redCard
               : TimelineEventType.yellowCard,
           isHome: card.team.id == match.homeTeam.id,
-          title: "${card.player!.firstname} ${card.player!.lastname}"),
+          title: card.player == null
+              ? 'Unknown Player'
+              : "${card.player!.firstname} ${card.player!.lastname}"),
     );
   }
 
