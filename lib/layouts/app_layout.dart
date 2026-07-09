@@ -1,93 +1,104 @@
-// import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+
+/// Bottom navigation destinations: Scores (home) / Leagues / Teams / Settings.
+///
+/// Match Center and Player Profile are intentionally NOT nav destinations —
+/// they're detail screens reached by tapping through from a match card or a
+/// player row, same as they were in the design's prototype interactions.
+class _NavItem {
+  final String path;
+  final String label;
+  final IconData icon;
+
+  const _NavItem({required this.path, required this.label, required this.icon});
+}
+
+const List<_NavItem> _navItems = [
+  _NavItem(path: '/home', label: 'Scores', icon: Icons.adjust_outlined),
+  _NavItem(
+      path: '/championships', label: 'Leagues', icon: Icons.emoji_events_outlined),
+  _NavItem(path: '/teams', label: 'Teams', icon: Icons.groups_outlined),
+  _NavItem(path: '/settings', label: 'Settings', icon: Icons.settings_outlined),
+];
 
 class AppLayout extends StatelessWidget {
   final Widget body;
   const AppLayout({super.key, required this.body});
 
+  int _selectedIndex(String location) {
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/championships')) return 1;
+    if (location.startsWith('/teams')) return 2;
+    if (location.startsWith('/settings')) return 3;
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Better way to handle location in GoRouter 13+
     final String location = GoRouterState.of(context).uri.toString();
-
-    int getSelectedIndex() {
-      if (location.startsWith('/home')) return 0;
-      if (location.startsWith('/championships')) return 1;
-      if (location.startsWith('/teams')) return 2;
-      if (location.startsWith('/settings')) return 3;
-      return 0;
-    }
-
-    const Color brandRed = AppColors.brand;
-    const Color darkBg = AppColors.darkBg;
-    // const Color surface = Color(0xFF1A1A1A);
+    final int selected = _selectedIndex(location);
+    final double bottomSafeInset = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: AppColors.bg,
+      resizeToAvoidBottomInset: false,
       body: body,
       bottomNavigationBar: Container(
+        // Intentionally no fixed height — sized to its content (icon + label
+        // + padding) so it can't overflow if font metrics differ slightly
+        // across platforms. Bottom padding accounts for the device safe area.
+        padding: EdgeInsets.fromLTRB(6, 8, 6, bottomSafeInset > 0 ? bottomSafeInset : 10),
         decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Color(0xFF222222), width: 0.5),
-          ),
+          color: Color(0xFF111316),
+          border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         ),
-        child: BottomNavigationBar(
-          elevation: 0,
-          backgroundColor: darkBg,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: getSelectedIndex(),
-          selectedItemColor: brandRed,
-          unselectedItemColor: Colors.grey.shade600,
-          selectedLabelStyle: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-            fontFamily: 'Lexend',
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 10,
-            fontFamily: 'Lexend',
-          ),
-          onTap: (index) {
-            final paths = ['/home', '/championships', '/teams', '/settings'];
-            context.go(paths[index]);
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(Icons.sports_soccer_outlined, size: 22),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(_navItems.length, (index) {
+            final item = _navItems[index];
+            final bool active = index == selected;
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (!active) context.go(item.path);
+                },
+                child: Center(
+                  heightFactor: 1,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: active ? AppColors.coral : Colors.transparent,
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          item.icon,
+                          size: 21,
+                          color: active ? Colors.white : AppColors.textSecondary,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.label,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: active ? Colors.white : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              activeIcon: Icon(Icons.sports_soccer, size: 22),
-              label: 'GAMES',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: FaIcon(FontAwesomeIcons.trophy, size: 18),
-              ),
-              label: 'LEAGUES',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(Icons.group_outlined, size: 22),
-              ),
-              activeIcon: Icon(Icons.group, size: 22),
-              label: 'TEAMS',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(Icons.settings_outlined, size: 22),
-              ),
-              activeIcon: Icon(Icons.settings, size: 22),
-              label: 'SETTINGS',
-            ),
-          ],
+            );
+          }),
         ),
       ),
     );
