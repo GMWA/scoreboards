@@ -222,10 +222,10 @@ class MatchCard extends StatelessWidget {
 }
 
 /// Compact follow control for a match card — tapping the star opens a
-/// two-row menu ("Follow <home>" / "Follow <away>") rather than committing
-/// to one team, since a single star icon can't unambiguously represent two
-/// teams on the same card. The star itself fills in if either team is
-/// already followed.
+/// two-row menu ("Follow" home team / "Follow" away team) rather than
+/// committing to one team, since a single star icon can't unambiguously
+/// represent two teams on the same card. The star itself fills in if
+/// either team is already followed.
 class _FollowMenu extends StatelessWidget {
   final MatchTeam homeTeam;
   final MatchTeam awayTeam;
