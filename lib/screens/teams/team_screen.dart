@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/team.dart';
 import 'package:scoreboards/services/teams.dart';
 import 'package:scoreboards/widgets/ui/team_card.dart';
@@ -55,30 +56,39 @@ class TeamListScreenState extends State<TeamListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Teams")),
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: AppColors.bg,
+        elevation: 0,
+        title: const Text('Teams', style: TextStyle(color: AppColors.textPrimary)),
+      ),
       body: Column(
         children: [
-          // 🔍 Search Input
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchController,
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Search teams',
-                prefixIcon: const Icon(Icons.search),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                labelStyle: const TextStyle(color: AppColors.textSecondary),
+                prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                filled: true,
+                fillColor: AppColors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: AppColors.border),
+                ),
               ),
             ),
           ),
-
-          // 🧾 Team List
           Expanded(
             child: FutureBuilder<List<Team>>(
               future: _teamsFuture,
               builder: (ctx, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(color: AppColors.coral));
                 }
 
                 if (snapshot.hasError) {
@@ -86,11 +96,12 @@ class TeamListScreenState extends State<TeamListScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("An error occurred while loading!"),
+                        const Text('An error occurred while loading!',
+                            style: TextStyle(color: AppColors.textSecondary)),
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: _refreshTeams,
-                          child: const Text("Retry"),
+                          child: const Text('Retry'),
                         ),
                       ],
                     ),
@@ -98,21 +109,20 @@ class TeamListScreenState extends State<TeamListScreen> {
                 }
 
                 if (_filteredTeams.isEmpty) {
-                  return const Center(child: Text("No teams found."));
+                  return const Center(
+                      child: Text('No teams found.',
+                          style: TextStyle(color: AppColors.textSecondary)));
                 }
 
                 return RefreshIndicator(
+                  color: AppColors.coral,
+                  backgroundColor: AppColors.surface,
                   onRefresh: _refreshTeams,
                   child: ListView.builder(
                     itemCount: _filteredTeams.length,
                     itemBuilder: (context, index) {
                       final team = _filteredTeams[index];
-                      return InkWell(
-                        onTap: () {
-                          // Navigate to team details if needed
-                        },
-                        child: TeamCard(team: team),
-                      );
+                      return TeamCard(team: team);
                     },
                   ),
                 );

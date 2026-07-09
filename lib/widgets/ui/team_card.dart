@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:scoreboards/models/team.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/models/team.dart';
+import 'package:scoreboards/models/favorite_item.dart';
+import 'package:scoreboards/widgets/ui/favorite_star.dart';
 
 class TeamCard extends StatelessWidget {
   final Team team;
@@ -9,16 +13,12 @@ class TeamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color surfaceColor = Color(0xFF1A1A1A);
-    const Color brandRed = Color(0xFFE64C52);
-    const Color borderSubtle = Color(0xFF2A2A2A);
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderSubtle, width: 1),
+        border: Border.all(color: AppColors.border, width: 1),
       ),
       child: InkWell(
         onTap: () {
@@ -34,9 +34,9 @@ class TeamCard extends StatelessWidget {
                 height: 64,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.03),
+                  color: AppColors.surfaceAlt,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: team.logo != null && team.logo!.isNotEmpty
                     ? Image.network(
@@ -46,21 +46,17 @@ class TeamCard extends StatelessWidget {
                       )
                     : _buildFallback(),
               ),
-
               const SizedBox(width: 16),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      team.name.toUpperCase(),
-                      style: const TextStyle(
-                        fontFamily: 'Lexend',
+                      team.name,
+                      style: GoogleFonts.hankenGrotesk(
                         fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -68,15 +64,14 @@ class TeamCard extends StatelessWidget {
                       Row(
                         children: [
                           const Icon(Icons.location_on_outlined,
-                              color: brandRed, size: 12),
+                              color: AppColors.coral, size: 12),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               team.stadium!.name,
-                              style: TextStyle(
-                                fontFamily: 'Lexend',
+                              style: GoogleFonts.hankenGrotesk(
                                 fontSize: 11,
-                                color: Colors.white.withValues(alpha: 0.4),
+                                color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -87,10 +82,20 @@ class TeamCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Icon(
+              FavoriteStar(
+                item: FavoriteItem(
+                  id: team.id,
+                  slug: team.slug,
+                  name: team.name,
+                  logo: team.logo,
+                  kind: FavoriteKind.team,
+                ),
+                size: 19,
+              ),
+              const SizedBox(width: 2),
+              const Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Colors.white.withValues(alpha: 0.1),
+                color: AppColors.textSecondary,
                 size: 16,
               ),
             ],
@@ -101,10 +106,10 @@ class TeamCard extends StatelessWidget {
   }
 
   Widget _buildFallback() {
-    return Icon(
+    return const Icon(
       Icons.shield_outlined,
       size: 32,
-      color: Colors.white.withValues(alpha: 0.1),
+      color: AppColors.textSecondary,
     );
   }
 }
