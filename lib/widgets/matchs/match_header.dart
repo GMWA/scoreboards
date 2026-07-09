@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/enums/matchs.dart';
-// Note: I'm assuming TeamLogoName exists, but I'll style the wrapper here
 import 'package:scoreboards/widgets/teams/team_logo_name.dart';
 
 class MatchHeader extends StatelessWidget {
@@ -11,21 +12,18 @@ class MatchHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandRed = Color(0xFFE64C52);
-    const Color darkBg = Color(0xFF0A0A0A);
     final bool isLive = match.status == MatchStatus.inProgress;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-          20, 60, 20, 30),
+      padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            brandRed.withValues(alpha: 0.15),
-            darkBg,
+            AppColors.coral.withValues(alpha: 0.15),
+            AppColors.bg,
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -37,84 +35,65 @@ class MatchHeader extends StatelessWidget {
         children: [
           _StatusBadge(status: match.status),
           const SizedBox(height: 24),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Home Team
-              Expanded(
-                child: TeamLogoName(
-                  isHome: true,
-                  team: match.homeTeam,
-                ),
-              ),
-
+              Expanded(child: TeamLogoName(isHome: true, team: match.homeTeam, showFollow: true)),
               SizedBox(
                 width: 120,
                 child: Column(
                   children: [
                     Text(
                       match.status == MatchStatus.planned
-                          ? "VS"
-                          : "${match.scoreFinalHome} - ${match.scoreFinalAway}",
-                      style: TextStyle(
-                        fontFamily: 'Lexend',
-                        fontSize: 48,
-                        color: isLive ? brandRed : Colors.white,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -2,
+                          ? 'VS'
+                          : '${match.scoreFinalHome} - ${match.scoreFinalAway}',
+                      style: GoogleFonts.archivo(
+                        fontSize: 40,
+                        color: isLive ? AppColors.coral : AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1,
                       ),
                     ),
                     if (match.wentToPenalties && match.scorePsoHome != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: AppColors.surfaceAlt,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          "(${match.scorePsoHome} - ${match.scorePsoAway} PEN)",
-                          style: const TextStyle(
-                            fontFamily: 'Lexend',
-                            color: Colors.white38,
+                          '(${match.scorePsoHome} - ${match.scorePsoAway} PEN)',
+                          style: GoogleFonts.hankenGrotesk(
+                            color: AppColors.textSecondary,
                             fontSize: 10,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-
-              Expanded(
-                child: TeamLogoName(
-                  isHome: false,
-                  team: match.awayTeam,
-                ),
-              ),
+              Expanded(child: TeamLogoName(isHome: false, team: match.awayTeam, showFollow: true)),
             ],
           ),
-
           const SizedBox(height: 30),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.03),
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               children: [
                 Text(
                   match.round.toUpperCase(),
-                  style: const TextStyle(
-                    fontFamily: 'Lexend',
-                    color: Colors.white70,
+                  style: GoogleFonts.hankenGrotesk(
+                    color: AppColors.textPrimary,
                     fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 1,
                   ),
                 ),
@@ -123,13 +102,12 @@ class MatchHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.location_on_outlined,
-                        color: brandRed, size: 12),
+                        color: AppColors.coral, size: 12),
                     const SizedBox(width: 4),
                     Text(
                       match.location.toUpperCase(),
-                      style: const TextStyle(
-                        fontFamily: 'Lexend',
-                        color: Colors.white38,
+                      style: GoogleFonts.hankenGrotesk(
+                        color: AppColors.textSecondary,
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
@@ -153,15 +131,14 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLive = status == MatchStatus.inProgress;
-    const Color brandRed = Color(0xFFE64C52);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: isLive ? brandRed : Colors.white.withValues(alpha: 0.05),
+        color: isLive ? AppColors.coral : AppColors.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isLive ? brandRed : Colors.white10,
+          color: isLive ? AppColors.coral : AppColors.border,
           width: 1,
         ),
       ),
@@ -174,11 +151,10 @@ class _StatusBadge extends StatelessWidget {
           ],
           Text(
             _getStatusText().toUpperCase(),
-            style: const TextStyle(
-              fontFamily: 'Lexend',
+            style: GoogleFonts.hankenGrotesk(
               color: Colors.white,
               fontSize: 10,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w800,
               letterSpacing: 1.5,
             ),
           ),
@@ -190,11 +166,11 @@ class _StatusBadge extends StatelessWidget {
   String _getStatusText() {
     switch (status) {
       case MatchStatus.inProgress:
-        return "Live";
+        return 'Live';
       case MatchStatus.completed:
-        return "Full Time";
+        return 'Full Time';
       case MatchStatus.planned:
-        return "Scheduled";
+        return 'Scheduled';
       default:
         return status.value;
     }

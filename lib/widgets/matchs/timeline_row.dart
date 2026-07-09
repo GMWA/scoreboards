@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/timeline_event.dart';
-
 
 class TimelineRow extends StatelessWidget {
   final TimelineEvent event;
@@ -14,11 +15,10 @@ class TimelineRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: event.isHome 
-              ? _EventBubble(event: event, align: TextAlign.right) 
-              : const SizedBox(),
+            child: event.isHome
+                ? _EventBubble(event: event, align: TextAlign.right)
+                : const SizedBox(),
           ),
-
           SizedBox(
             width: 60,
             child: Column(
@@ -26,32 +26,31 @@ class TimelineRow extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: AppColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     "${event.minute}${event.stoppageMinute != null && event.stoppageMinute! > 0 ? '+${event.stoppageMinute}' : ''}'",
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: Container(width: 2, color: Colors.grey.shade200),
-                ),
+                Expanded(child: Container(width: 2, color: AppColors.divider)),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: _getIcon(event),
                 ),
-                Expanded(
-                  child: Container(width: 2, color: Colors.grey.shade200),
-                ),
+                Expanded(child: Container(width: 2, color: AppColors.divider)),
               ],
             ),
           ),
-
           Expanded(
-            child: !event.isHome 
-              ? _EventBubble(event: event, align: TextAlign.left) 
-              : const SizedBox(),
+            child: !event.isHome
+                ? _EventBubble(event: event, align: TextAlign.left)
+                : const SizedBox(),
           ),
         ],
       ),
@@ -63,12 +62,21 @@ class TimelineRow extends StatelessWidget {
     IconData icon = timelineIcon(event.type);
 
     switch (event.type) {
-      case TimelineEventType.redCard: color = Colors.red; break;
-      case TimelineEventType.yellowCard: color = Colors.amber; break;
-      case TimelineEventType.goal: color = Colors.green; break;
-      case TimelineEventType.ownGoal: color = Colors.red; break;
-      case TimelineEventType.substitution: color = Colors.blue; break;
-      default: color = Colors.grey;
+      case TimelineEventType.redCard:
+        color = AppColors.coral;
+        break;
+      case TimelineEventType.yellowCard:
+        color = AppColors.yellowCard;
+        break;
+      case TimelineEventType.goal || TimelineEventType.penaltyGoal:
+        color = AppColors.mint;
+        break;
+      case TimelineEventType.ownGoal:
+        color = AppColors.coral;
+        break;
+      case TimelineEventType.substitution:
+        color = AppColors.textSecondary;
+        break;
     }
 
     return Icon(icon, color: color, size: 18);
@@ -86,18 +94,26 @@ class _EventBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
-        crossAxisAlignment: align == TextAlign.right ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            align == TextAlign.right ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
             event.title,
             textAlign: align,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: GoogleFonts.hankenGrotesk(
+              fontWeight: FontWeight.w600,
+              fontSize: 13.5,
+              color: AppColors.textPrimary,
+            ),
           ),
           if (event.description != null)
             Text(
               event.description!,
               textAlign: align,
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
             ),
         ],
       ),
