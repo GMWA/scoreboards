@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/editions.dart';
 import 'package:scoreboards/services/championship.dart';
@@ -14,9 +15,6 @@ class ChampionshipListScreen extends StatefulWidget {
 
 class ChampionshipListScreenState extends State<ChampionshipListScreen> {
   late Future<List<Edition>> _editionsFuture;
-  int _selectedEdition = 2026; // Match current year context
-
-  final List<int> _editions = [2024, 2025, 2026];
 
   @override
   void initState() {
@@ -36,76 +34,71 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandRed = Color(0xFFE64C52);
-    const Color surface = Color(0xFF1A1A1A);
-
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "ALL LEAGUES",
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white38,
-                  letterSpacing: 1.5,
-                ),
-              ),
-              _buildModernDropdown(surface, brandRed),
-            ],
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
+          child: Text(
+            'Competitions',
+            style: GoogleFonts.spaceGrotesk(
+              color: AppColors.textPrimary,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-
         Expanded(
           child: FutureBuilder<List<Edition>>(
             future: _editionsFuture,
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                    child: CircularProgressIndicator(color: brandRed));
+                    child: CircularProgressIndicator(color: AppColors.coral));
               }
 
               if (snapshot.hasError) {
-                return _buildErrorState(brandRed);
+                return _buildErrorState();
               }
 
               final editions = snapshot.data ?? [];
 
               if (editions.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    "No championships found.",
-                    style:
-                        TextStyle(color: Colors.white24, fontFamily: 'Lexend'),
+                    'No championships found.',
+                    style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
                   ),
                 );
               }
 
+              final active = editions.where((e) => e.isCurrent).toList();
+              final archived = editions.where((e) => !e.isCurrent).toList()
+                ..sort((a, b) {
+                  final aDate = a.startDate;
+                  final bDate = b.startDate;
+                  if (aDate == null || bDate == null) return 0;
+                  return bDate.compareTo(aDate);
+                });
+
               return RefreshIndicator(
-                backgroundColor: surface,
-                color: brandRed,
+                backgroundColor: AppColors.surface,
+                color: AppColors.coral,
                 onRefresh: _refreshChampionships,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  itemCount: editions.length,
-                  itemBuilder: (context, index) {
-                    final championship = editions[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: EditionCard(
-                        edition: championship,
-                        onTap: () {
-                          context.push('/championships/${championship.slug}');
-                        },
-                      ),
-                    );
-                  },
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
+                  children: [
+                    if (active.isNotEmpty) ...[
+                      _buildSectionHeader('Live Competitions'),
+                      const SizedBox(height: 10),
+                      ...active.map((e) => _buildEditionCard(e)),
+                      const SizedBox(height: 8),
+                    ],
+                    if (archived.isNotEmpty) ...[
+                      _buildSectionHeader('Archive'),
+                      const SizedBox(height: 10),
+                      ...archived.map((e) => _buildEditionCard(e)),
+                    ],
+                  ],
                 ),
               );
             },
@@ -115,61 +108,50 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
     );
   }
 
-  Widget _buildModernDropdown(Color surface, Color brandRed) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _selectedEdition,
-          dropdownColor: surface,
-          icon: const Icon(Icons.keyboard_arrow_down,
-              color: AppColors.brand, size: 18),
-          style: const TextStyle(
-            fontFamily: 'Lexend',
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-          items: _editions
-              .map((e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e.toString()),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            if (value != null) {
-              setState(() => _selectedEdition = value);
-              _loadChampionships();
-            }
-          },
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 2),
+      child: Text(
+        title.toUpperCase(),
+        style: GoogleFonts.hankenGrotesk(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+          color: AppColors.textSecondary,
         ),
       ),
     );
   }
 
-  Widget _buildErrorState(Color brandRed) {
+  Widget _buildEditionCard(Edition edition) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: EditionCard(
+        edition: edition,
+        onTap: () {
+          context.push('/championships/${edition.slug}');
+        },
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.white24, size: 48),
+          const Icon(Icons.error_outline, color: AppColors.border, size: 48),
           const SizedBox(height: 16),
-          const Text(
-            "Connection Error",
-            style: TextStyle(
-                color: Colors.white70,
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.bold),
+          Text(
+            'Connection Error',
+            style: GoogleFonts.hankenGrotesk(   
+                color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           ),
           TextButton(
             onPressed: _refreshChampionships,
-            child: Text("RETRY",
-                style: TextStyle(color: brandRed, fontWeight: FontWeight.w900)),
+            child: Text('RETRY',
+                style: GoogleFonts.hankenGrotesk(
+                    color: AppColors.coral, fontWeight: FontWeight.w800)),
           ),
         ],
       ),

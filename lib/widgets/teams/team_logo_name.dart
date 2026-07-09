@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:scoreboards/models/match_team.dart';
+import 'package:scoreboards/models/favorite_item.dart';
+import 'package:scoreboards/widgets/ui/favorite_star.dart';
 
 class TeamLogoName extends StatelessWidget {
   final MatchTeam team;
   final double?
       width;
   final bool isHome;
+  final bool showFollow;
 
   const TeamLogoName({
     super.key,
     required this.team,
     this.width,
     required this.isHome,
+    this.showFollow = false,
   });
 
   @override
@@ -65,6 +69,20 @@ class TeamLogoName extends StatelessWidget {
               height: 1.2,
             ),
           ),
+          if (showFollow) ...[
+            const SizedBox(height: 6),
+            FavoriteStar(
+              item: FavoriteItem(
+                id: team.id,
+                slug: team.slug,
+                name: team.name,
+                logo: team.logo,
+                kind: FavoriteKind.team,
+              ),
+              size: 18,
+              inactiveColor: Colors.white38,
+            ),
+          ],
         ],
       ),
     );

@@ -2,6 +2,12 @@
     <!-- Permissions MUST be inside <manifest> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- Android 14+ (API 34) requires a permission matching each
+         foregroundServiceType declared on the <service> below. The service
+         only keeps a websocket open for live-score updates — it never does
+         location tracking or FCM remote messaging — so it declares just
+         dataSync, matching what it actually needs. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <application
         android:label="Scoreboards"
         android:name="${applicationName}"
@@ -33,7 +39,7 @@
         <!-- Background service MUST be inside <application> -->
         <service
             android:name="com.ekasetiawans.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="location|dataSync|remoteMessaging"
+            android:foregroundServiceType="dataSync"
             android:exported="false" />
 
         <!-- Flutter required -->

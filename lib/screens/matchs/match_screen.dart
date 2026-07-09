@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/models/match.dart';
+import 'package:scoreboards/enums/matchs.dart';
 import 'package:scoreboards/widgets/ui/match_card.dart';
 import 'package:scoreboards/helpers/utils.dart';
+import 'package:scoreboards/models/favorite_item.dart';
+import 'package:scoreboards/services/favorites_service.dart';
 import 'package:go_router/go_router.dart';
+
+enum _ScoreFilter { all, live, upcoming, finished }
 
 class MatchListScreen extends StatefulWidget {
   final Function? onViewAllTap;
@@ -23,10 +30,7 @@ class MatchListScreenState extends State<MatchListScreen> {
   List<Map<String, dynamic>> _groupedMatches = [];
   bool isLoading = false;
   bool isLive = false;
-
-  // Constants for sizing
-  final double itemWidth = 50.0;
-  final double itemMargin = 2.0;
+  _ScoreFilter _filter = _ScoreFilter.all;
 
   @override
   void initState() {
@@ -37,7 +41,6 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   void _generateDateRange() {
     final now = DateTime.now();
-    // Generate 180 days before and 180 days after today
     _dateRange = List.generate(365, (index) {
       return now.subtract(Duration(days: 182 - index));
     });
@@ -77,7 +80,7 @@ class MatchListScreenState extends State<MatchListScreen> {
 
       setState(() {
         _matches = matches;
-        _groupedMatches = groupMatchesByEditionData(matches);
+        _applyFilter();
         isLoading = false;
       });
     } catch (e) {
@@ -89,19 +92,61 @@ class MatchListScreenState extends State<MatchListScreen> {
     }
   }
 
+  void _applyFilter() {
+    Iterable<MatchBase> filtered = _matches;
+    switch (_filter) {
+      case _ScoreFilter.live:
+        filtered = _matches.where((m) => m.status == MatchStatus.inProgress);
+        break;
+      case _ScoreFilter.upcoming:
+        filtered = _matches.where((m) => m.status == MatchStatus.planned);
+        break;
+      case _ScoreFilter.finished:
+        filtered = _matches.where((m) =>
+            m.status == MatchStatus.completed || m.status == MatchStatus.awarded);
+        break;
+      case _ScoreFilter.all:
+        break;
+    }
+
+    // Live matches float to the top, regardless of scheduled kickoff order —
+    // the thing people most want to see first on a day with mixed
+    // live/upcoming/finished matches. Partitioned (not List.sort, which
+    // isn't guaranteed stable) so relative order within each group is
+    // otherwise preserved.
+    final live = <MatchBase>[];
+    final rest = <MatchBase>[];
+    for (final m in filtered) {
+      (m.status == MatchStatus.inProgress ? live : rest).add(m);
+    }
+
+    _groupedMatches = groupMatchesByEditionData([...live, ...rest]);
+  }
+
+  void _setFilter(_ScoreFilter filter) {
+    setState(() {
+      _filter = filter;
+      _applyFilter();
+    });
+  }
+
   void _centerDate(int index) {
     if (!_scrollController.hasClients) return;
 
-    const double itemWidth = 55.0;
-    const double itemMargin = 5.0;
+    const double itemWidth = 44.0;
+    const double itemMargin = 4.0;
     const double totalItemWidth = itemWidth + (itemMargin * 2);
+    const double listPadding = 16.0;
+    // The "Live" button occupies slot 0 of the list (with no corresponding
+    // entry in _dateRange), so date cells start after its own footprint —
+    // width plus its right-only margin — not right after the list padding.
+    const double liveButtonFootprint = 52.0 + 10.0;
 
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final double offset = (index * totalItemWidth) -
-        (screenWidth / 2) +
-        (totalItemWidth / 2) +
-        16;
+    final double itemStart =
+        listPadding + liveButtonFootprint + (index * totalItemWidth);
+    final double offset = itemStart + (totalItemWidth / 2) - (screenWidth / 2);
 
     _scrollController.animateTo(
       offset.clamp(0.0, _scrollController.position.maxScrollExtent),
@@ -138,18 +183,6 @@ class MatchListScreenState extends State<MatchListScreen> {
       initialDate: selectedDate,
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue, // Header background color
-              onPrimary: Colors.white, // Header text color
-              onSurface: Colors.black, // Body text color
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
 
     if (picked != null && picked != selectedDate) {
@@ -179,60 +212,190 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color darkBg = Color(0xFF0A0A0A);
-
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        backgroundColor: darkBg,
+        backgroundColor: AppColors.bg,
         elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          "SCOREBOARDS",
-          style: TextStyle(
-            fontFamily: 'Lexend',
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-            letterSpacing: -1,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Scoreboards',
+          style: GoogleFonts.spaceGrotesk(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w700,
+            fontSize: 19,
           ),
         ),
         actions: [
           IconButton(
-            icon:
-                const Icon(Icons.calendar_month_outlined, color: Colors.white),
+            icon: const Icon(Icons.calendar_month_outlined,
+                color: AppColors.textPrimary),
             onPressed: _openCalendar,
           ),
         ],
       ),
       body: Column(
         children: [
+          _buildFollowingRow(),
           _buildDateSelector(),
-          const SizedBox(height: 8),
+          _buildFilterChips(),
+          const SizedBox(height: 4),
           Expanded(child: _buildMatchList()),
         ],
       ),
     );
   }
 
-  Widget _buildLiveButton(Color brandRed, Color surface) {
+  /// Personalization row shown above the date strip once the user has
+  /// followed at least one team/competition — tapping a chip jumps straight
+  /// to that team or competition. Hidden entirely until there's something to
+  /// show, so it never costs a brand-new user any screen space.
+  Widget _buildFollowingRow() {
+    return AnimatedBuilder(
+      animation: FavoritesService.instance,
+      builder: (context, _) {
+        final followed = FavoritesService.instance.allFollowed;
+        if (followed.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          height: 62,
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
+          ),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            itemCount: followed.length,
+            itemBuilder: (context, index) {
+              final item = followed[index];
+              return GestureDetector(
+                onTap: () {
+                  context.push(item.kind == FavoriteKind.team
+                      ? '/teams/${item.slug}'
+                      : '/championships/${item.slug}');
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        alignment: Alignment.center,
+                        child: item.logo != null && item.logo!.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(7),
+                                child: Image.network(
+                                  item.logo!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    item.kind == FavoriteKind.team
+                                        ? Icons.shield_outlined
+                                        : Icons.emoji_events,
+                                    size: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              )
+                            : Icon(
+                                item.kind == FavoriteKind.team
+                                    ? Icons.shield_outlined
+                                    : Icons.emoji_events,
+                                size: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        item.name,
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterChips() {
+    Widget chip(String label, _ScoreFilter value) {
+      final bool active = _filter == value;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => _setFilter(value),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 7),
+            decoration: BoxDecoration(
+              color: active ? AppColors.surfaceAlt : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: active ? AppColors.textPrimary : AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+      child: Row(
+        children: [
+          chip('All', _ScoreFilter.all),
+          chip('● Live', _ScoreFilter.live),
+          chip('Upcoming', _ScoreFilter.upcoming),
+          chip('Finished', _ScoreFilter.finished),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveButton() {
     return GestureDetector(
       onTap: _showLiveMatches,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 65,
-        margin: const EdgeInsets.only(right: 12),
+        width: 52,
+        margin: const EdgeInsets.only(right: 10),
         decoration: BoxDecoration(
-          color: isLive ? brandRed : surface.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(14),
+          color: isLive ? AppColors.coral : AppColors.surface.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isLive ? brandRed : Colors.white.withValues(alpha: 0.1),
+            color: isLive ? AppColors.coral : AppColors.border,
             width: 1.5,
           ),
           boxShadow: isLive
               ? [
                   BoxShadow(
-                      color: brandRed.withValues(alpha: 0.3),
-                      blurRadius: 10,
+                      color: AppColors.coral.withValues(alpha: 0.3),
+                      blurRadius: 8,
                       spreadRadius: 1)
                 ]
               : [],
@@ -242,18 +405,17 @@ class MatchListScreenState extends State<MatchListScreen> {
           children: [
             Icon(
               isLive ? Icons.sensors : Icons.sensors_off_outlined,
-              color: isLive ? Colors.white : Colors.grey.shade600,
-              size: 16,
+              color: isLive ? Colors.white : AppColors.textSecondary,
+              size: 13,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
-              "LIVE",
-              style: TextStyle(
-                fontFamily: 'Lexend',
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: isLive ? Colors.white : Colors.grey.shade500,
+              'LIVE',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.4,
+                color: isLive ? Colors.white : AppColors.textSecondary,
               ),
             ),
           ],
@@ -263,25 +425,20 @@ class MatchListScreenState extends State<MatchListScreen> {
   }
 
   Widget _buildDateSelector() {
-    const Color brandRed = Color(0xFFE64C52);
-    const Color surface = Color(0xFF1A1A1A);
-
     return Container(
-      height: 90,
+      height: 68,
       decoration: const BoxDecoration(
-        color: Color(0xFF0A0A0A),
-        border: Border(
-          bottom: BorderSide(color: Colors.white10, width: 0.5),
-        ),
+        color: AppColors.bg,
+        border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
       ),
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: _dateRange.length + 1,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _buildLiveButton(brandRed, surface);
+            return _buildLiveButton();
           }
 
           final date = _dateRange[index - 1];
@@ -292,15 +449,13 @@ class MatchListScreenState extends State<MatchListScreen> {
             onTap: () => _selectDate(date),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              width: 55,
-              margin: const EdgeInsets.symmetric(horizontal: 5),
+              width: 44,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: isSelected ? brandRed : surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(14),
+                color: isSelected ? AppColors.coral : AppColors.surface.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected
-                      ? brandRed
-                      : Colors.white.withValues(alpha: 0.05),
+                  color: isSelected ? AppColors.coral : AppColors.border,
                 ),
               ),
               child: Column(
@@ -308,28 +463,28 @@ class MatchListScreenState extends State<MatchListScreen> {
                 children: [
                   Text(
                     DateFormat('E').format(date).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 9,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 8,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white70 : Colors.grey.shade500,
+                      color: isSelected ? Colors.white70 : AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     DateFormat('dd').format(date),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
+                    style: GoogleFonts.archivo(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
                     ),
                   ),
                   if (isToday)
                     Container(
                       margin: const EdgeInsets.only(top: 2),
-                      width: 4,
-                      height: 4,
+                      width: 3,
+                      height: 3,
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.white : brandRed,
+                        color: isSelected ? Colors.white : AppColors.coral,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -348,73 +503,73 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   Widget _buildMatchList() {
     if (isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(color: Color(0xFFE64C52)));
+      return const Center(child: CircularProgressIndicator(color: AppColors.coral));
     }
 
-    if (_matches.isEmpty) {
+    if (_groupedMatches.isEmpty) {
       return _buildEmptyState();
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: _groupedMatches.length,
       itemBuilder: (context, groupIndex) {
         final group = _groupedMatches[groupIndex];
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
               onTap: () {
                 context.push('/championships/${group['slug']}');
               },
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                 child: Row(
                   children: [
-                    if (group['logo'] != null)
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Image.network(
-                          group['logo'],
-                          width: 24,
-                          height: 24,
-                          errorBuilder: (_, __, ___) => const Icon(
-                              Icons.emoji_events,
-                              size: 20,
-                              color: Colors.white24),
-                        ),
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceAlt,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    const SizedBox(width: 12),
+                      alignment: Alignment.center,
+                      child: group['logo'] != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                group['logo'],
+                                width: 18,
+                                height: 18,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                    Icons.emoji_events,
+                                    size: 14,
+                                    color: AppColors.textSecondary),
+                              ),
+                            )
+                          : const Icon(Icons.emoji_events,
+                              size: 14, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        group['label'].toString().toUpperCase(),
-                        style: const TextStyle(
-                          fontFamily: 'Lexend',
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
+                        group['label'].toString(),
+                        style: GoogleFonts.hankenGrotesk(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Color(0xFFE64C52),
-                      size: 14,
-                    ),
+                    const Icon(Icons.arrow_forward_ios,
+                        color: AppColors.coral, size: 12),
                   ],
                 ),
               ),
             ),
-            ...(group['matches'] as List<MatchBase>).map((match) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: MatchCard(match: match),
-                )),
+            ...(group['matches'] as List<MatchBase>).map(
+              (match) => MatchCard(match: match),
+            ),
           ],
         );
       },
@@ -423,24 +578,19 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   Widget _buildEmptyState() {
     return Center(
-      child: Opacity(
-        opacity: 0.5,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.sports_soccer, size: 80, color: Colors.white10),
-            const SizedBox(height: 16),
-            Text(
-              isLive ? "NO LIVE MATCHES" : "NO MATCHES SCHEDULED",
-              style: const TextStyle(
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.w800,
-                color: Colors.white30,
-                letterSpacing: 1,
-              ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.sports_soccer, size: 64, color: AppColors.border),
+          const SizedBox(height: 16),
+          Text(
+            'No matches in this view.',
+            style: GoogleFonts.hankenGrotesk(
+              color: AppColors.textSecondary,
+              fontSize: 13,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

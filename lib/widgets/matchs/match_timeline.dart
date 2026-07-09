@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/widgets/matchs/timeline_row.dart';
 import 'package:scoreboards/models/timeline_event.dart';
 
@@ -11,7 +13,12 @@ class MatchTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (events.isEmpty) {
-      return const Center(child: Text("No match events yet"));
+      return Center(
+        child: Text(
+          'No match events yet',
+          style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
+        ),
+      );
     }
 
     return ListView.separated(

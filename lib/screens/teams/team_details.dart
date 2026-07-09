@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/team.dart';
+import 'package:scoreboards/models/favorite_item.dart';
 import 'package:scoreboards/services/teams.dart';
+import 'package:scoreboards/widgets/ui/favorite_star.dart';
 
 class TeamDetailsScreen extends StatefulWidget {
   final String slug;
@@ -42,8 +45,8 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color darkBg = Color(0xFF0A0A0A);
-    const Color brandRed = Color(0xFFE64C52);
+    const Color darkBg = AppColors.bg;
+    const Color brandRed = AppColors.coral;
 
     if (isLoading) {
       return const Scaffold(
@@ -72,6 +75,22 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
             pinned: true,
             backgroundColor: darkBg,
             elevation: 0,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FavoriteStar(
+                  item: FavoriteItem(
+                    id: team!.id,
+                    slug: team!.slug,
+                    name: team!.name,
+                    logo: team!.logo,
+                    kind: FavoriteKind.team,
+                  ),
+                  size: 22,
+                  inactiveColor: Colors.white70,
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Text(
@@ -177,7 +196,7 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFFE64C52), size: 20),
+            child: Icon(icon, color: AppColors.coral, size: 20),
           ),
           const SizedBox(width: 16),
           Column(

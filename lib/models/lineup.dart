@@ -9,7 +9,6 @@ class MatchLineup {
   final int minutesPlayed;
   final bool isStarting;
   final bool isCaptain;
-  final num points;
   final String? position;
 
   MatchLineup({
@@ -20,7 +19,6 @@ class MatchLineup {
     required this.minutesPlayed,
     required this.isStarting,
     required this.isCaptain,
-    required this.points,
     this.position,
   });
 
@@ -33,7 +31,6 @@ class MatchLineup {
       minutesPlayed: json['minutes_played'],
       isStarting: json['is_starting'],
       isCaptain: json['is_captain'],
-      points: json['points'],
       position: json['position'],
     );
   }
