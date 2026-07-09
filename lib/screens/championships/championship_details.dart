@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/widgets/championships/standing_table.dart';
 import 'package:scoreboards/widgets/championships/championship_team_list.dart';
 import 'package:scoreboards/widgets/championships/player_stats.dart';
 import 'package:scoreboards/widgets/championships/match_list.dart';
 import 'package:scoreboards/models/editions.dart';
+import 'package:scoreboards/models/favorite_item.dart';
 import 'package:scoreboards/services/championship.dart';
+import 'package:scoreboards/widgets/ui/favorite_star.dart';
 
 class ChampionshipDetails extends StatefulWidget {
   final String slug;
@@ -27,7 +31,6 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
   }
 
   void loadEdition() async {
-    // Replace this with your actual API call
     final edit = await ChampionshipService.getEditionBySlug(widget.slug);
     setState(() {
       edition = edit;
@@ -37,97 +40,87 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bg,
       body: edition == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.coral))
           : DefaultTabController(
               length: 4,
               child: Column(
                 children: [
-                  // Edition Header
                   Stack(
                     children: [
-                      // Background logo
                       Container(
                         height: 120,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image:
-                                NetworkImage(edition!.championship.logo ?? ""),
-                            fit: BoxFit.cover,
-                            colorFilter: ColorFilter.mode(
-                                Colors.black.withValues(alpha: 0.2),
-                                BlendMode.darken),
-                          ),
+                          color: AppColors.surface,
+                          image: edition!.championship.logo != null
+                              ? DecorationImage(
+                                  image: NetworkImage(edition!.championship.logo!),
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(
+                                      AppColors.bg.withValues(alpha: 0.55),
+                                      BlendMode.darken),
+                                )
+                              : null,
                         ),
                       ),
-                      // Edition name
                       Container(
                         height: 120,
                         alignment: Alignment.center,
                         child: Text(
-                          edition!.label ?? "",
-                          style: TextStyle(
+                          edition!.label ?? '',
+                          style: GoogleFonts.spaceGrotesk(
                             fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 4,
-                                color: Colors.black45,
-                                offset: Offset(1, 1),
-                              )
-                            ],
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
                           ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: FavoriteStar(
+                          item: FavoriteItem(
+                            id: edition!.id,
+                            slug: edition!.slug,
+                            name: edition!.label ?? edition!.championship.name,
+                            logo: edition!.championship.logo,
+                            kind: FavoriteKind.competition,
+                          ),
+                          size: 22,
+                          inactiveColor: Colors.white70,
                         ),
                       ),
                     ],
                   ),
-
-                  // Tab Bar
-                  TabBar(
-                    labelColor: Colors.blueAccent,
-                    unselectedLabelColor: Colors.blueGrey[600],
-                    indicatorColor: Colors.blueAccent,
-                    tabs: const [
-                      Tab(text: 'Standings'),
-                      Tab(text: 'Teams'),
-                      Tab(text: 'Matchs'),
-                      Tab(text: 'P. Stats'),
-                    ],
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: AppColors.divider)),
+                    ),
+                    child: TabBar(
+                      labelColor: AppColors.coral,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      indicatorColor: AppColors.coral,
+                      indicatorWeight: 2,
+                      labelStyle:
+                          GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13),
+                      unselectedLabelStyle:
+                          GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13),
+                      tabs: const [
+                        Tab(text: 'Standings'),
+                        Tab(text: 'Teams'),
+                        Tab(text: 'Matches'),
+                        Tab(text: 'P. Stats'),
+                      ],
+                    ),
                   ),
-
-                  // Tab Views
                   Expanded(
                     child: TabBarView(
                       children: [
-                        // Standings Tab
-                        Column(
-                          children: [
-                            /*Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                "Standings",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ), */
-                            Expanded(
-                              child:
-                                  StandingsTable(editionId: edition!.id),
-                            ),
-                          ],
-                        ),
-
-                        // Teams Tab
+                        StandingsTable(editionId: edition!.id),
                         ChampionshipTeamList(editionId: edition!.id),
-
-                        // Matches Tab
                         MatchList(editionId: edition!.id),
-
-                        // Player Stats Tab
                         PlayerStatsTable(editionId: edition!.id),
                       ],
                     ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/widgets/ui/match_card.dart';
@@ -21,17 +23,21 @@ class MatchList extends StatelessWidget {
           status: status),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppColors.coral));
         }
 
         if (snapshot.hasError) {
-          return const Center(child: Text("Error loading matches"));
+          return Center(
+              child: Text('Error loading matches',
+                  style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)));
         }
 
         final matches = snapshot.data ?? [];
 
         if (matches.isEmpty) {
-          return const Center(child: Text("No matches available"));
+          return Center(
+              child: Text('No matches available',
+                  style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)));
         }
 
         return ListView.builder(

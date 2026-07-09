@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/editions.dart';
-
-final logger = Logger();
+import 'package:scoreboards/models/favorite_item.dart';
+import 'package:scoreboards/widgets/ui/favorite_star.dart';
 
 class EditionCard extends StatelessWidget {
   final Edition edition;
@@ -17,52 +17,79 @@ class EditionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: const EdgeInsets.only(bottom: 10),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
       child: InkWell(
-        onTap: onTap, // <-- this now receives the function
-        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(14.0),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.blueGrey[100],
-                backgroundImage: edition.championship.logo != null
-                    ? CachedNetworkImageProvider(edition.championship.logo!)
-                    : null,
-                onBackgroundImageError: (exception, stackTrace) {
-                  logger.i('Error loading image: $exception');
-                },
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                alignment: Alignment.center,
+                child: edition.championship.logo != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: Image.network(
+                          edition.championship.logo!,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                              Icons.emoji_events,
+                              size: 18,
+                              color: AppColors.textSecondary),
+                        ),
+                      )
+                    : const Icon(Icons.emoji_events,
+                        size: 18, color: AppColors.textSecondary),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      edition.label?? "",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blueGrey[900],
+                      edition.label ?? '',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       edition.championship.country,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.blueGrey[600],
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios,
-                  size: 16, color: Colors.blueGrey[400]),
+              FavoriteStar(
+                item: FavoriteItem(
+                  id: edition.id,
+                  slug: edition.slug,
+                  name: edition.label ?? edition.championship.name,
+                  logo: edition.championship.logo,
+                  kind: FavoriteKind.competition,
+                ),
+                size: 18,
+              ),
+              const SizedBox(width: 2),
+              const Icon(Icons.arrow_forward_ios,
+                  size: 14, color: AppColors.coral),
             ],
           ),
         ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/player.dart';
 import 'package:scoreboards/services/player.dart';
 
@@ -23,8 +26,8 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandRed = Color(0xFFE64C52);
-    const Color surface = Color(0xFF1A1A1A);
+    const Color brandRed = AppColors.coral;
+    const Color surface = AppColors.surface;
 
     return FutureBuilder<List<PlayerStats>>(
       future: _statsFuture,
@@ -35,9 +38,9 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
         }
 
         if (snapshot.hasError) {
-          return const Center(
-            child: Text("Failed to load stats",
-                style: TextStyle(color: Colors.white38, fontFamily: 'Lexend')),
+          return Center(
+            child: Text('Failed to load stats',
+                style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
           );
         }
 
@@ -86,7 +89,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                     ...visibleStats.asMap().entries.map((entry) {
                       final index = entry.key;
                       final item = entry.value;
-                      return _buildPlayerRow(index + 1, item, brandRed);
+                      return _buildPlayerRow(context, index + 1, item, brandRed);
                     }),
                   ],
                 ),
@@ -116,8 +119,10 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
     );
   }
 
-  Widget _buildPlayerRow(int rank, PlayerStats item, Color brandRed) {
-    return Container(
+  Widget _buildPlayerRow(BuildContext context, int rank, PlayerStats item, Color brandRed) {
+    return InkWell(
+      onTap: () => context.push('/players/${item.player.slug}'),
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         border: Border(
@@ -186,6 +191,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

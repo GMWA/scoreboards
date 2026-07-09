@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/editions.dart';
 import 'package:scoreboards/services/championship.dart';
@@ -36,63 +37,55 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandRed = Color(0xFFE64C52);
-    const Color surface = Color(0xFF1A1A1A);
-
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "ALL LEAGUES",
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white38,
-                  letterSpacing: 1.5,
+              Text(
+                'Competitions',
+                style: GoogleFonts.spaceGrotesk(
+                  color: AppColors.textPrimary,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              _buildModernDropdown(surface, brandRed),
+              _buildModernDropdown(),
             ],
           ),
         ),
-
         Expanded(
           child: FutureBuilder<List<Edition>>(
             future: _editionsFuture,
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                    child: CircularProgressIndicator(color: brandRed));
+                    child: CircularProgressIndicator(color: AppColors.coral));
               }
 
               if (snapshot.hasError) {
-                return _buildErrorState(brandRed);
+                return _buildErrorState();
               }
 
               final editions = snapshot.data ?? [];
 
               if (editions.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    "No championships found.",
-                    style:
-                        TextStyle(color: Colors.white24, fontFamily: 'Lexend'),
+                    'No championships found.',
+                    style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
                   ),
                 );
               }
 
               return RefreshIndicator(
-                backgroundColor: surface,
-                color: brandRed,
+                backgroundColor: AppColors.surface,
+                color: AppColors.coral,
                 onRefresh: _refreshChampionships,
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
                   itemCount: editions.length,
                   itemBuilder: (context, index) {
                     final championship = editions[index];
@@ -115,25 +108,23 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
     );
   }
 
-  Widget _buildModernDropdown(Color surface, Color brandRed) {
+  Widget _buildModernDropdown() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int>(
           value: _selectedEdition,
-          dropdownColor: surface,
-          icon: const Icon(Icons.keyboard_arrow_down,
-              color: AppColors.brand, size: 18),
-          style: const TextStyle(
-            fontFamily: 'Lexend',
+          dropdownColor: AppColors.surface,
+          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.coral, size: 18),
+          style: GoogleFonts.hankenGrotesk(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
           items: _editions
               .map((e) => DropdownMenuItem(
@@ -152,24 +143,23 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
     );
   }
 
-  Widget _buildErrorState(Color brandRed) {
+  Widget _buildErrorState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.white24, size: 48),
+          const Icon(Icons.error_outline, color: AppColors.border, size: 48),
           const SizedBox(height: 16),
-          const Text(
-            "Connection Error",
-            style: TextStyle(
-                color: Colors.white70,
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.bold),
+          Text(
+            'Connection Error',
+            style: GoogleFonts.hankenGrotesk(   
+                color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           ),
           TextButton(
             onPressed: _refreshChampionships,
-            child: Text("RETRY",
-                style: TextStyle(color: brandRed, fontWeight: FontWeight.w900)),
+            child: Text('RETRY',
+                style: GoogleFonts.hankenGrotesk(
+                    color: AppColors.coral, fontWeight: FontWeight.w800)),
           ),
         ],
       ),

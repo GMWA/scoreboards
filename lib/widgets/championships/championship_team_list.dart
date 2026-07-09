@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/team.dart';
 import 'package:scoreboards/services/teams.dart';
@@ -33,56 +34,47 @@ class _TeamsTableState extends State<ChampionshipTeamList> {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandRed = AppColors.brand;
-    const Color surface = AppColors.surface;
-
     return Column(
       children: [
-        // 1. Premium Edition Selector
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "PARTICIPATING TEAMS",
-                style: TextStyle(
-                  fontFamily: 'Lexend',
+              Text(
+                'PARTICIPATING TEAMS',
+                style: GoogleFonts.hankenGrotesk(
                   fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white38,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textSecondary,
                   letterSpacing: 1.2,
                 ),
               ),
-              _buildModernDropdown(surface, brandRed),
+              _buildModernDropdown(),
             ],
           ),
         ),
-
-        // 2. The Team List
         Expanded(
           child: FutureBuilder<List<Team>>(
             future: _teamsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                    child: CircularProgressIndicator(color: brandRed));
+                    child: CircularProgressIndicator(color: AppColors.coral));
               }
 
               if (snapshot.hasError) {
-                return const Center(
-                    child: Text("Error loading teams",
-                        style: TextStyle(
-                            color: Colors.white38, fontFamily: 'Lexend')));
+                return Center(
+                    child: Text('Error loading teams',
+                        style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)));
               }
 
               final teams = snapshot.data ?? [];
 
               if (teams.isEmpty) {
-                return const Center(
-                    child: Text("No teams found for this season.",
-                        style: TextStyle(
-                            color: Colors.white24, fontFamily: 'Lexend')));
+                return Center(
+                    child: Text('No teams found for this season.',
+                        style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)));
               }
 
               return ListView.builder(
@@ -99,25 +91,23 @@ class _TeamsTableState extends State<ChampionshipTeamList> {
     );
   }
 
-  Widget _buildModernDropdown(Color surface, Color brandRed) {
+  Widget _buildModernDropdown() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       decoration: BoxDecoration(
-        color: surface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int>(
           value: _selectedEdition,
-          dropdownColor: surface,
-          icon: const Icon(Icons.keyboard_arrow_down,
-              color: AppColors.brand, size: 18),
-          style: const TextStyle(
-            fontFamily: 'Lexend',
+          dropdownColor: AppColors.surface,
+          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.coral, size: 18),
+          style: GoogleFonts.hankenGrotesk(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
           items: _editions
               .map((edition) => DropdownMenuItem(
