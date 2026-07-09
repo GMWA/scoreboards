@@ -28,7 +28,7 @@ void main() {
 
       expect(find.text('Spain'), findsOneWidget);
 
-      expect(find.byType(CircleAvatar), findsOneWidget);
+      expect(find.byType(ClipRRect), findsOneWidget);
     });
 
     testWidgets('triggers onTap when tapped', (WidgetTester tester) async {
