@@ -5,6 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 
+/// Temporarily off until there's an actual account system to back it —
+/// the profile card, account settings, and sign out are kept in place
+/// (not deleted) so they're ready to flip back on once sign-in ships.
+const bool kEnableAccountSettings = false;
+
 /// Settings screen, matching the "Scoreboards mobile" v2 design: profile
 /// card, account settings list, preference toggles, sign out.
 ///
@@ -13,7 +18,9 @@ import 'package:scoreboards/services/favorites_service.dart';
 /// built and persisted now (per-category prefs, disabled until the master
 /// toggle is on) even though push delivery isn't wired up yet — the UI is
 /// ready for when it ships, and the note under the section says so plainly
-/// rather than implying it already works.
+/// rather than implying it already works. Same idea for dark mode: the
+/// toggle is saved but the app is dark-only today, so it doesn't re-skin
+/// anything yet.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -27,12 +34,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _kGoals = 'notif_goals';
   static const _kFullTime = 'notif_fulltime';
   static const _kLineups = 'notif_lineups';
+  static const _kDarkMode = 'dark_mode';
 
   bool _notifMaster = false;
   bool _notifKickoff = true;
   bool _notifGoals = true;
   bool _notifFullTime = true;
   bool _notifLineups = false;
+  bool _darkMode = true;
 
   @override
   void initState() {
@@ -49,6 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _notifGoals = prefs.getBool(_kGoals) ?? true;
       _notifFullTime = prefs.getBool(_kFullTime) ?? true;
       _notifLineups = prefs.getBool(_kLineups) ?? false;
+      _darkMode = prefs.getBool(_kDarkMode) ?? true;
     });
   }
 
@@ -67,28 +77,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildProfileCard(),
-              const SizedBox(height: 22),
-              _sectionLabel('ACCOUNT SETTINGS'),
-              const SizedBox(height: 10),
-              _buildGroup([
-                _SettingsRow(
-                  icon: Icons.person_outline,
-                  iconColor: AppColors.coral,
-                  title: 'Personal Information',
-                  subtitle: 'Update name, email, phone',
-                  onTap: () {},
-                ),
-                _SettingsRow(
-                  icon: Icons.shield_outlined,
-                  iconColor: AppColors.coral,
-                  title: 'Security & Password',
-                  subtitle: '2FA, active sessions',
-                  onTap: () {},
-                  showDivider: false,
-                ),
-              ]),
-              const SizedBox(height: 22),
+              if (kEnableAccountSettings) ...[
+                _buildProfileCard(),
+                const SizedBox(height: 22),
+                _sectionLabel('ACCOUNT SETTINGS'),
+                const SizedBox(height: 10),
+                _buildGroup([
+                  _SettingsRow(
+                    icon: Icons.person_outline,
+                    iconColor: AppColors.coral,
+                    title: 'Personal Information',
+                    subtitle: 'Update name, email, phone',
+                    onTap: () {},
+                  ),
+                  _SettingsRow(
+                    icon: Icons.shield_outlined,
+                    iconColor: AppColors.coral,
+                    title: 'Security & Password',
+                    subtitle: '2FA, active sessions',
+                    onTap: () {},
+                    showDivider: false,
+                  ),
+                ]),
+                const SizedBox(height: 22),
+              ],
               _sectionLabel('PREFERENCES'),
               const SizedBox(height: 10),
               AnimatedBuilder(
@@ -114,6 +126,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ? 'Manage your followed leagues'
                           : '$compCount followed',
                       onTap: () => context.push('/settings/favorites/competitions'),
+                    ),
+                    _SettingsRow(
+                      icon: _darkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                      iconColor: AppColors.textPrimary,
+                      title: 'Dark Mode',
+                      subtitle: _darkMode ? 'On' : 'Off',
+                      trailing: _ToggleSwitch(
+                        value: _darkMode,
+                        onChanged: (v) {
+                          setState(() => _darkMode = v);
+                          _setPref(_kDarkMode, v);
+                        },
+                      ),
                     ),
                     _SettingsRow(
                       icon: Icons.public,
@@ -200,20 +225,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Center(
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Sign Out',
-                    style: GoogleFonts.hankenGrotesk(
-                      color: AppColors.coral,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
+              if (kEnableAccountSettings) ...[
+                const SizedBox(height: 10),
+                Center(
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Sign Out',
+                      style: GoogleFonts.hankenGrotesk(
+                        color: AppColors.coral,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
