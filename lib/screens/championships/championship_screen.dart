@@ -15,9 +15,6 @@ class ChampionshipListScreen extends StatefulWidget {
 
 class ChampionshipListScreenState extends State<ChampionshipListScreen> {
   late Future<List<Edition>> _editionsFuture;
-  int _selectedEdition = 2026; // Match current year context
-
-  final List<int> _editions = [2024, 2025, 2026];
 
   @override
   void initState() {
@@ -41,19 +38,13 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Competitions',
-                style: GoogleFonts.spaceGrotesk(
-                  color: AppColors.textPrimary,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              _buildModernDropdown(),
-            ],
+          child: Text(
+            'Competitions',
+            style: GoogleFonts.spaceGrotesk(
+              color: AppColors.textPrimary,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         Expanded(
@@ -80,25 +71,34 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
                 );
               }
 
+              final active = editions.where((e) => e.isCurrent).toList();
+              final archived = editions.where((e) => !e.isCurrent).toList()
+                ..sort((a, b) {
+                  final aDate = a.startDate;
+                  final bDate = b.startDate;
+                  if (aDate == null || bDate == null) return 0;
+                  return bDate.compareTo(aDate);
+                });
+
               return RefreshIndicator(
                 backgroundColor: AppColors.surface,
                 color: AppColors.coral,
                 onRefresh: _refreshChampionships,
-                child: ListView.builder(
+                child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-                  itemCount: editions.length,
-                  itemBuilder: (context, index) {
-                    final championship = editions[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: EditionCard(
-                        edition: championship,
-                        onTap: () {
-                          context.push('/championships/${championship.slug}');
-                        },
-                      ),
-                    );
-                  },
+                  children: [
+                    if (active.isNotEmpty) ...[
+                      _buildSectionHeader('Live Competitions'),
+                      const SizedBox(height: 10),
+                      ...active.map((e) => _buildEditionCard(e)),
+                      const SizedBox(height: 8),
+                    ],
+                    if (archived.isNotEmpty) ...[
+                      _buildSectionHeader('Archive'),
+                      const SizedBox(height: 10),
+                      ...archived.map((e) => _buildEditionCard(e)),
+                    ],
+                  ],
                 ),
               );
             },
@@ -108,37 +108,29 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
     );
   }
 
-  Widget _buildModernDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _selectedEdition,
-          dropdownColor: AppColors.surface,
-          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.coral, size: 18),
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-          items: _editions
-              .map((e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e.toString()),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            if (value != null) {
-              setState(() => _selectedEdition = value);
-              _loadChampionships();
-            }
-          },
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 2),
+      child: Text(
+        title.toUpperCase(),
+        style: GoogleFonts.hankenGrotesk(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+          color: AppColors.textSecondary,
         ),
+      ),
+    );
+  }
+
+  Widget _buildEditionCard(Edition edition) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: EditionCard(
+        edition: edition,
+        onTap: () {
+          context.push('/championships/${edition.slug}');
+        },
       ),
     );
   }

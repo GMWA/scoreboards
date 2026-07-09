@@ -53,7 +53,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
         final visibleStats =
             _showAll ? stats : stats.take(_previewLimit).toList();
 
-        return Padding(
+        return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

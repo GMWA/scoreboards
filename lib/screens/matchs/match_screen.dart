@@ -136,13 +136,17 @@ class MatchListScreenState extends State<MatchListScreen> {
     const double itemWidth = 44.0;
     const double itemMargin = 4.0;
     const double totalItemWidth = itemWidth + (itemMargin * 2);
+    const double listPadding = 16.0;
+    // The "Live" button occupies slot 0 of the list (with no corresponding
+    // entry in _dateRange), so date cells start after its own footprint —
+    // width plus its right-only margin — not right after the list padding.
+    const double liveButtonFootprint = 52.0 + 10.0;
 
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final double offset = (index * totalItemWidth) -
-        (screenWidth / 2) +
-        (totalItemWidth / 2) +
-        16;
+    final double itemStart =
+        listPadding + liveButtonFootprint + (index * totalItemWidth);
+    final double offset = itemStart + (totalItemWidth / 2) - (screenWidth / 2);
 
     _scrollController.animateTo(
       offset.clamp(0.0, _scrollController.position.maxScrollExtent),

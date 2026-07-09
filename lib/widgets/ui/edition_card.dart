@@ -77,6 +77,39 @@ class EditionCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (edition.isCurrent) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.coralTint,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: const BoxDecoration(
+                          color: AppColors.coral,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'LIVE',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                          color: AppColors.coral,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               FavoriteStar(
                 item: FavoriteItem(
                   id: edition.id,
