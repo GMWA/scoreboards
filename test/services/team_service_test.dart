@@ -88,6 +88,52 @@ void main() {
       expect(teams[0].id, 1);
     });
 
+    test('getTeams unwraps the paginated envelope and follows next pages',
+        () async {
+      TeamService.client = MockClient((request) async {
+        if (request.url.queryParameters['page'] == null) {
+          return Response(
+              jsonEncode({
+                "count": 2,
+                "next": "https://fake.dev/teams/?page=2&page_size=100",
+                "previous": null,
+                "results": [
+                  {
+                    "id": 1,
+                    "name": "T1",
+                    "slug": "t1",
+                    "team_type": "club",
+                    "coach": "Test Coach"
+                  }
+                ]
+              }),
+              200);
+        }
+
+        return Response(
+            jsonEncode({
+              "count": 2,
+              "next": null,
+              "previous": "https://fake.dev/teams/?page_size=100",
+              "results": [
+                {
+                  "id": 2,
+                  "name": "T2",
+                  "slug": "t2",
+                  "team_type": "club",
+                  "coach": "Test Coach"
+                }
+              ]
+            }),
+            200);
+      });
+
+      final teams = await TeamService.getTeams();
+
+      expect(teams.length, 2);
+      expect(teams.map((t) => t.id), containsAll([1, 2]));
+    });
+
     test('getTeamById returns a single team', () async {
       TeamService.client = MockClient((request) async {
         return Response(
@@ -114,7 +160,7 @@ void main() {
 
       expect(
         () async => await TeamService.getTeams(),
-        throwsA(isA<String>()),
+        throwsA(isA<Exception>()),
       );
     });
   });

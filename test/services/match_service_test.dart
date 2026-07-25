@@ -321,7 +321,7 @@ void main() {
       urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
 
       MatchService.client = MockClient((request) async {
-        expect(request.url.toString(), "https://fake.dev/edition/7");
+        expect(request.url.toString(), "https://fake.dev/edition/7?page_size=100");
 
         return Response(
             jsonEncode([

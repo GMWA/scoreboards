@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:scoreboards/models/team.dart';
 import 'package:scoreboards/constants/urls.dart';
+import 'package:scoreboards/services/api_pagination.dart';
 
 class TeamService {
   static Client client = Client();
@@ -37,16 +38,14 @@ class TeamService {
   }
 
   static Future<List<Team>> getTeams() async {
-    Response res = await client.get(Uri.parse(urls['TEAMS']['ALL']));
-
-    if (res.statusCode == 200) {
-      List<dynamic> teamsList = jsonDecode(res.body);
-      List<Team> teams =
-          teamsList.map((dynamic item) => Team.fromJson(item)).toList();
-      return teams;
-    } else {
-      throw "Can't get Teams.";
-    }
+    // /teams/ is now paginated ({"count","next","previous","results"})
+    // rather than a bare array, so this walks every page and flattens
+    // the results instead of assuming a plain list.
+    return fetchPaginated(
+      client: client,
+      uri: Uri.parse(urls['TEAMS']['ALL']),
+      fromJson: (item) => Team.fromJson(item),
+    );
   }
 
   static Future<Team> getTeamById(int id) async {
