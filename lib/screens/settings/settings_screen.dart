@@ -71,7 +71,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      // bottom: false — AppLayout's bottom nav bar already reserves the
+      // device's bottom safe inset.
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(18, 20, 18, 32),
           child: Column(

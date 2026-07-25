@@ -45,7 +45,16 @@ class AppLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bg,
       resizeToAvoidBottomInset: false,
-      body: body,
+      // Android is edge-to-edge by default now, so this Scaffold's body
+      // draws under the status bar unless something inserts the top inset.
+      // Screens with their own AppBar/SliverAppBar already do this
+      // themselves (and will just see a zero top inset here, so no double
+      // padding); screens with plain content (e.g. the Competitions tab and
+      // championship details) had nothing accounting for it, so their
+      // header content was rendering behind the status bar. Bottom is left
+      // alone — the nav bar below already reserves the bottom safe inset
+      // via its own padding.
+      body: SafeArea(bottom: false, child: body),
       bottomNavigationBar: Container(
         // Intentionally no fixed height — sized to its content (icon + label
         // + padding) so it can't overflow if font metrics differ slightly

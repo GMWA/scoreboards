@@ -75,7 +75,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      // bottom: false — AppLayout's bottom nav bar already reserves the
+      // device's bottom safe inset.
       body: SafeArea(
+        bottom: false,
         child: FutureBuilder<_ProfileData>(
           future: _future,
           builder: (context, snapshot) {
