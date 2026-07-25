@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/constants/urls.dart';
+import 'package:scoreboards/services/api_pagination.dart';
 
 class MatchService {
   static Client client = Client();
@@ -88,21 +89,22 @@ class MatchService {
 
   static Future<List<MatchBase>> getMatchsByEdition(int editionId,
       {String status = ""}) async {
+    // /matchs/edition/#editionId/ is now paginated
+    // ({"count","next","previous","results"}) rather than a bare array,
+    // so this walks every page and flattens the results.
     try {
       String url = urls['MATCHS']['BY_EDITION']
           .replaceAll('#editionId', editionId.toString());
 
-      if (status.isNotEmpty) {
-        url += '?status=$status';
-      }
-      final res = await client.get(Uri.parse(url));
-      if (res.statusCode == 200) {
-        List<dynamic> matchsList = jsonDecode(res.body);
-        return matchsList.map((item) => MatchBase.fromJson(item)).toList();
-      } else {
-        throw Exception(
-            "Failed to fetch matches. Status code: ${res.statusCode}");
-      }
+      final uri = Uri.parse(url).replace(queryParameters: {
+        if (status.isNotEmpty) 'status': status,
+      });
+
+      return await fetchPaginated(
+        client: client,
+        uri: uri,
+        fromJson: (item) => MatchBase.fromJson(item),
+      );
     } catch (e) {
       rethrow;
     }

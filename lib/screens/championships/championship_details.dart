@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/widgets/championships/standing_table.dart';
@@ -79,6 +80,14 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
                       ),
                       Positioned(
                         top: 12,
+                        left: 12,
+                        child: _HeaderIconButton(
+                          icon: Icons.arrow_back,
+                          onTap: () => context.pop(),
+                        ),
+                      ),
+                      Positioned(
+                        top: 12,
                         right: 12,
                         child: FavoriteStar(
                           item: FavoriteItem(
@@ -128,6 +137,32 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+/// Small circular tap target for icons placed over the header photo (back
+/// arrow, favorite star). The translucent backdrop keeps the icon legible
+/// regardless of what's underneath in the championship logo image.
+class _HeaderIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _HeaderIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.25),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: Colors.white),
+      ),
     );
   }
 }

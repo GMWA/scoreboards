@@ -38,7 +38,11 @@ class _MatchesTabScreenState extends State<MatchesTabScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      // bottom: false — AppLayout's bottom nav bar already reserves the
+      // device's bottom safe inset, so adding it again here would leave an
+      // extra gap above the nav bar.
       body: SafeArea(
+        bottom: false,
         child: FutureBuilder<List<MatchBase>>(
           future: _future,
           builder: (context, snapshot) {

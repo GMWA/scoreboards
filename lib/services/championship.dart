@@ -5,6 +5,7 @@ import 'package:scoreboards/models/editions.dart';
 import 'package:scoreboards/models/standing.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/helpers/utils.dart';
+import 'package:scoreboards/services/api_pagination.dart';
 
 class ChampionshipService {
   static Client client = Client();
@@ -29,17 +30,14 @@ class ChampionshipService {
   }
 
   static Future<List<Championship>> getChampionships() async {
-    Response res = await client.get(Uri.parse(urls['CHAMPIONSHIPS']['ALL']));
-    List<Championship> championships = [];
-    if (res.statusCode == 200) {
-      List<dynamic> championshipsList = jsonDecode(res.body);
-      championships = championshipsList
-          .map((dynamic item) => Championship.fromJson(item))
-          .toList();
-      return championships;
-    } else {
-      throw "Can't get championships.";
-    }
+    // /championships/ is now paginated
+    // ({"count","next","previous","results"}) rather than a bare array,
+    // so this walks every page and flattens the results.
+    return fetchPaginated(
+      client: client,
+      uri: Uri.parse(urls['CHAMPIONSHIPS']['ALL']),
+      fromJson: (item) => Championship.fromJson(item),
+    );
   }
 
   static Future<List<Edition>> getActiveEditions() async {
@@ -81,17 +79,11 @@ class ChampionshipService {
 
   static Future<List<Championship>> getChampionshipsByEdition(
       int edition) async {
-    Response res = await client.get(Uri.parse(urls['CHAMPIONSHIPS']['ALL']));
-    List<Championship> championships = [];
-    if (res.statusCode == 200) {
-      List<dynamic> championshipsList = jsonDecode(res.body);
-      championships = championshipsList
-          .map((dynamic item) => Championship.fromJson(item))
-          .toList();
-      return championships;
-    } else {
-      throw "Can't get championships.";
-    }
+    return fetchPaginated(
+      client: client,
+      uri: Uri.parse(urls['CHAMPIONSHIPS']['ALL']),
+      fromJson: (item) => Championship.fromJson(item),
+    );
   }
 
   static Future<Championship> getChampionshipById(String id) async {
