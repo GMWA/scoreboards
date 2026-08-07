@@ -123,7 +123,7 @@ void main() {
 
       expect(
         () async => await MatchService.getMatchsByDay(DateTime.now()),
-        throwsA(isA<String>()),
+        throwsA(isA<Exception>()),
       );
     });
 
@@ -191,7 +191,7 @@ void main() {
 
       expect(
         () async => await MatchService.getMatchById(1),
-        throwsA(isA<String>()),
+        throwsA(isA<Exception>()),
       );
     });
 

@@ -17,7 +17,7 @@ class MatchService {
           matchsList.map((dynamic item) => MatchBase.fromJson(item)).toList();
       return matchs;
     } else {
-      throw "Can't get matchs.";
+      throw Exception("Can't get matchs.");
     }
   }
 
@@ -30,7 +30,7 @@ class MatchService {
       Match match = Match.fromJson(matchItem);
       return match;
     } else {
-      throw "Can't get standings.";
+      throw Exception("Can't get standings.");
     }
   }
 
@@ -43,7 +43,7 @@ class MatchService {
       Match match = Match.fromJson(matchItem);
       return match;
     } else {
-      throw "Can't get Match.";
+      throw Exception("Can't get Match.");
     }
   }
 
@@ -56,7 +56,7 @@ class MatchService {
           matchsList.map((dynamic item) => MatchBase.fromJson(item)).toList();
       return matchs;
     } else {
-      throw "Can't get standings.";
+      throw Exception("Can't get standings.");
     }
   }
 
