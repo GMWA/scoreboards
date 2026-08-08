@@ -19,7 +19,7 @@ class TeamService {
           teamsList.map((dynamic item) => Team.fromJson(item)).toList();
       return teams;
     } else {
-      throw "Can't get Teams.";
+      throw Exception("Can't get Teams.");
     }
   }
 
@@ -33,7 +33,7 @@ class TeamService {
           teamsList.map((dynamic item) => Team.fromJson(item)).toList();
       return teams;
     } else {
-      throw "Can't get Teams.";
+      throw Exception("Can't get Teams.");
     }
   }
 
@@ -57,7 +57,7 @@ class TeamService {
       Team team = Team.fromJson(teamMap);
       return team;
     } else {
-      throw "Can't get Team.";
+      throw Exception("Can't get Team.");
     }
   }
 
@@ -70,7 +70,7 @@ class TeamService {
       Team team = Team.fromJson(teamItem);
       return team;
     } else {
-      throw "Can't get Team.";
+      throw Exception("Can't get Team.");
     }
   }
 }

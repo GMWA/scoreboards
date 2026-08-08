@@ -52,6 +52,12 @@ class MatchListScreenState extends State<MatchListScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _selectDate(DateTime date, {bool scrollTo = true}) {
     setState(() {
       selectedDate = date;
