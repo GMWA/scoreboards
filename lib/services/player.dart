@@ -29,7 +29,7 @@ class PlayerService {
       Player player = Player.fromJson(playerItem);
       return player;
     } else {
-      throw "Can't get Player.";
+      throw Exception("Can't get Player.");
     }
   }
 

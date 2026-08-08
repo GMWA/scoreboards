@@ -49,7 +49,7 @@ class ChampionshipService {
           editionsList.map((dynamic item) => Edition.fromJson(item)).toList();
       return editions;
     } else {
-      throw "Can't get Editions.";
+      throw Exception("Can't get Editions.");
     }
   }
 
@@ -60,7 +60,7 @@ class ChampionshipService {
       dynamic item = jsonDecode(res.body);
       return Edition.fromJson(item);
     } else {
-      throw "Can't get Edition.";
+      throw Exception("Can't get Edition.");
     }
   }
 
@@ -73,7 +73,7 @@ class ChampionshipService {
       Edition edition = Edition.fromJson(editionItem);
       return edition;
     } else {
-      throw "Can't get Edition.";
+      throw Exception("Can't get Edition.");
     }
   }
 
@@ -94,7 +94,7 @@ class ChampionshipService {
       Championship championship = Championship.fromJson(championshipMap);
       return championship;
     } else {
-      throw "Can't get championship.";
+      throw Exception("Can't get championship.");
     }
   }
 
@@ -110,7 +110,7 @@ class ChampionshipService {
           .toList();
       return rules;
     } else {
-      throw "Can't get edition's rules.";
+      throw Exception("Can't get edition's rules.");
     }
   }
 }
