@@ -36,7 +36,11 @@ This project relies on manual data entry for many leagues. If you want to help m
 
 ## 💬 Communication
 
-For real-time coordination, join our [Discord/Telegram - Add Link].
+We don't have a Discord or Telegram yet, all coordination happens directly on GitHub:
+
+- **Questions about an issue**: comment on the issue itself.
+- **Questions about a PR**: comment on the PR (inline on a specific line, or as a general comment).
+- **New idea or bug**: open an issue first so the discussion has a home before any code is written.
 
 **Mission Status: Expanding.**  
 *Failure to follow protocols may result in closed PRs without review. Keep the code clean, Operative.*
