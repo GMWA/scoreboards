@@ -40,7 +40,8 @@ This project aims to solve the "Data Gap" in local football. While international
 1. **Clone the repository:**
 
    ```bash
-   git clone [https://github.com/GMWA/scoreboards](https://github.com/GMWA/scoreboards)
+   git clone https://github.com/GMWA/scoreboards.git
+   ```
 
 
 ### Install dependencies
