@@ -63,7 +63,7 @@ class MatchBase {
       id: json['id'],
       slug: json['slug'],
       type: json['type'] ?? 'league',
-      date: DateTime.parse(json['date']),
+      date: DateTime.parse(json['date']).toLocal(),
       location: json['location'] ?? '',
       round: json['round'] ?? '',
       stadium:
