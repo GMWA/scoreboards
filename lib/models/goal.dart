@@ -85,7 +85,7 @@ class Goal {
   // Helper for UI: Get display time (e.g., 45+2)
   String get displayTime {
     if (goalType == GoalType.penaltyShootout) return "PSO";
-    if (stoppageMinute! > 0) return "$minute+$stoppageMinute'";
+    if ((stoppageMinute ?? 0) > 0) return "$minute+$stoppageMinute'";
     return "$minute'";
   }
 }
