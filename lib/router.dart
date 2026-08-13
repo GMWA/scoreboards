@@ -11,8 +11,10 @@ import 'package:scoreboards/screens/championships/championship_details.dart';
 import 'package:scoreboards/screens/teams/team_screen.dart';
 import 'package:scoreboards/screens/teams/team_details.dart';
 import 'package:scoreboards/screens/players/player_screen.dart';
+import 'package:scoreboards/screens/blogs/blogs_tab_screen.dart';
+import 'package:scoreboards/screens/blogs/blog_details_screen.dart';
 
-/// Bottom-nav destinations: Scores (home) / Leagues / Teams / Settings.
+/// Bottom-nav destinations: Scores (home) / Leagues / Teams / Blogs / Settings.
 /// Match Center and Player Profile are detail screens reached by tapping
 /// through from a match card or a player row — they are intentionally not
 /// nav destinations.
@@ -61,6 +63,19 @@ final GoRouter router = GoRouter(
               builder: (context, state) {
                 final slug = state.pathParameters['slug']!;
                 return TeamDetailsScreen(slug: slug);
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/blogs',
+          builder: (context, state) => const BlogsTabScreen(),
+          routes: [
+            GoRoute(
+              path: ':slug',
+              builder: (context, state) {
+                final slug = state.pathParameters['slug']!;
+                return BlogDetailsScreen(slug: slug);
               },
             ),
           ],

@@ -50,6 +50,12 @@ final Map<String, dynamic> urls = {
         '$baseUrl/matchs/championship/#championshipId/edition/#editionId/',
     'SUBTITUTIONS': '$baseUrl/matchs/#matchId/substitutions/',
   },
+  'ARTICLES': {
+    'ALL': '$baseUrl/articles/',
+    'BY_ID': '$baseUrl/articles/#articleId/',
+    'BY_SLUG': '$baseUrl/articles/slug/',
+    'VIEW': '$baseUrl/articles/#articleId/view/',
+  },
   'DEVICES': {
     'REGISTER': '$baseUrl/devices/',
   },

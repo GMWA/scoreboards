@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 
-/// Bottom navigation destinations: Scores (home) / Leagues / Teams / Settings.
+/// Bottom navigation destinations: Scores (home) / Leagues / Teams / Blogs / Settings.
 ///
 /// Match Center and Player Profile are intentionally NOT nav destinations —
 /// they're detail screens reached by tapping through from a match card or a
@@ -21,6 +21,7 @@ const List<_NavItem> _navItems = [
   _NavItem(
       path: '/championships', label: 'Leagues', icon: Icons.emoji_events_outlined),
   _NavItem(path: '/teams', label: 'Teams', icon: Icons.groups_outlined),
+  _NavItem(path: '/blogs', label: 'Blogs', icon: Icons.article_outlined),
   _NavItem(path: '/settings', label: 'Settings', icon: Icons.settings_outlined),
 ];
 
@@ -32,7 +33,8 @@ class AppLayout extends StatelessWidget {
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/championships')) return 1;
     if (location.startsWith('/teams')) return 2;
-    if (location.startsWith('/settings')) return 3;
+    if (location.startsWith('/blogs')) return 3;
+    if (location.startsWith('/settings')) return 4;
     return 0;
   }
 
