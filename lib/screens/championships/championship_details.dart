@@ -33,6 +33,7 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
 
   void loadEdition() async {
     final edit = await ChampionshipService.getEditionBySlug(widget.slug);
+    if (!mounted) return;
     setState(() {
       edition = edit;
     });
