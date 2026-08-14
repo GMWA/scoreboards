@@ -78,13 +78,16 @@ class ChampionshipService {
   }
 
   static Future<List<Championship>> getChampionshipsByEdition(
-      int edition) async {
-    return fetchPaginated(
-      client: client,
-      uri: Uri.parse(urls['CHAMPIONSHIPS']['ALL']),
-      fromJson: (item) => Championship.fromJson(item),
-    );
-  }
+    int edition) async {
+  final uri = Uri.parse(urls['CHAMPIONSHIPS']['ALL'])
+      .replace(queryParameters: {'edition': edition.toString()});
+
+  return fetchPaginated(
+    client: client,
+    uri: uri,
+    fromJson: (item) => Championship.fromJson(item),
+  );
+}
 
   static Future<Championship> getChampionshipById(String id) async {
     Response res = await client.get(Uri.parse(
