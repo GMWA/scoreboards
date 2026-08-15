@@ -8,18 +8,13 @@ import 'package:scoreboards/services/api_pagination.dart';
 class MatchService {
   static Client client = Client();
   static Future<List<MatchBase>> getMatchsByDay(DateTime date) async {
-    Response res = await client.get(Uri.parse(urls['MATCHS']['BY_DAY']
-        .replaceAll('#date', DateFormat('dd-MM-yyyy').format(date))));
-
-    if (res.statusCode == 200) {
-      List<dynamic> matchsList = jsonDecode(res.body);
-      List<MatchBase> matchs =
-          matchsList.map((dynamic item) => MatchBase.fromJson(item)).toList();
-      return matchs;
-    } else {
-      throw Exception("Can't get matchs.");
-    }
-  }
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['MATCHS']['BY_DAY']
+        .replaceAll('#date', DateFormat('dd-MM-yyyy').format(date))),
+    fromJson: (item) => MatchBase.fromJson(item),
+  );
+}
 
   static Future<Match> getMatchById(matchId) async {
     Response res = await client.get(Uri.parse(
@@ -48,17 +43,12 @@ class MatchService {
   }
 
   static Future<List<MatchBase>> getLiveMatches() async {
-    Response res = await client.get(Uri.parse(urls['MATCHS']['LIVE']));
-
-    if (res.statusCode == 200) {
-      List<dynamic> matchsList = jsonDecode(res.body);
-      List<MatchBase> matchs =
-          matchsList.map((dynamic item) => MatchBase.fromJson(item)).toList();
-      return matchs;
-    } else {
-      throw Exception("Can't get standings.");
-    }
-  }
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['MATCHS']['LIVE']),
+    fromJson: (item) => MatchBase.fromJson(item),
+  );
+}
 
   static Future<List<MatchBase>> getMatchsByChampionshipEdition(
       int championshipId, int editionId,
