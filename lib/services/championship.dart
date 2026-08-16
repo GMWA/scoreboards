@@ -9,25 +9,19 @@ import 'package:scoreboards/services/api_pagination.dart';
 
 class ChampionshipService {
   static Client client = Client();
-  static Future<List<Standing>> getStandingsByChampionship(
-      int editionId) async {
-    try {
-      final url = urls['STANDINGS']['CHAMPIONSHIP']
-          .replaceAll('#editionId', editionId.toString());
+static Future<List<Standing>> getStandingsByChampionship(
+    int editionId) async {
+  final url = urls['STANDINGS']['CHAMPIONSHIP']
+      .replaceAll('#editionId', editionId.toString());
 
-      final response = await client.get(Uri.parse(url));
+  final standings = await fetchPaginated(
+    client: client,
+    uri: Uri.parse(url),
+    fromJson: (item) => Standing.fromJson(item),
+  );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> standingsJson = jsonDecode(response.body);
-        return standingsJson.map((json) => Standing.fromJson(json)).toList()
-          ..sort(standingSort);
-      } else {
-        throw Exception("Can't get standings.");
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
+  return standings..sort(standingSort);
+}
 
   static Future<List<Championship>> getChampionships() async {
     // /championships/ is now paginated
@@ -41,17 +35,12 @@ class ChampionshipService {
   }
 
   static Future<List<Edition>> getActiveEditions() async {
-    Response res = await client.get(Uri.parse(urls['EDITIONS']['ACTIVE']));
-    List<Edition> editions = [];
-    if (res.statusCode == 200) {
-      List<dynamic> editionsList = jsonDecode(res.body);
-      editions =
-          editionsList.map((dynamic item) => Edition.fromJson(item)).toList();
-      return editions;
-    } else {
-      throw Exception("Can't get Editions.");
-    }
-  }
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['EDITIONS']['ACTIVE']),
+    fromJson: (item) => Edition.fromJson(item),
+  );
+}
 
   static Future<Edition> getEditionById(int editionId) async {
     Response res = await client
@@ -99,18 +88,12 @@ class ChampionshipService {
   }
 
   static Future<List<EditionStandingRule>> getRulesByChampionshipEdition(
-      int editionId) async {
-    Response res = await client.get(Uri.parse(urls['EDITIONS']['RULES']
-        .replaceAll('#editionId', editionId.toString())));
-    List<EditionStandingRule> rules = [];
-    if (res.statusCode == 200) {
-      List<dynamic> rulesList = jsonDecode(res.body);
-      rules = rulesList
-          .map((dynamic item) => EditionStandingRule.fromJson(item))
-          .toList();
-      return rules;
-    } else {
-      throw Exception("Can't get edition's rules.");
-    }
-  }
+    int editionId) async {
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['EDITIONS']['RULES']
+        .replaceAll('#editionId', editionId.toString())),
+    fromJson: (item) => EditionStandingRule.fromJson(item),
+  );
+}
 }

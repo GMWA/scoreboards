@@ -7,35 +7,24 @@ import 'package:scoreboards/services/api_pagination.dart';
 class TeamService {
   static Client client = Client();
   static Future<List<Team>> getTeamsByChampionshipAndYear(
-      int championship, int year) async {
-    Response res = await client.get(Uri.parse(urls['TEAMS']
-            ['BY_CHAMPIONSHIP_YEAR']
+    int championship, int year) async {
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['TEAMS']['BY_CHAMPIONSHIP_YEAR']
         .replaceAll('#championshipId', championship.toString())
-        .replaceAll('#year', year.toString())));
-
-    if (res.statusCode == 200) {
-      List<dynamic> teamsList = jsonDecode(res.body);
-      List<Team> teams =
-          teamsList.map((dynamic item) => Team.fromJson(item)).toList();
-      return teams;
-    } else {
-      throw Exception("Can't get Teams.");
-    }
-  }
+        .replaceAll('#year', year.toString())),
+    fromJson: (item) => Team.fromJson(item),
+  );
+}
 
   static Future<List<Team>> getTeamsByEdition(int edition) async {
-    Response res = await client.get(Uri.parse(urls['TEAMS']['BY_EDITION']
-        .replaceAll('#editionId', edition.toString())));
-
-    if (res.statusCode == 200) {
-      List<dynamic> teamsList = jsonDecode(res.body);
-      List<Team> teams =
-          teamsList.map((dynamic item) => Team.fromJson(item)).toList();
-      return teams;
-    } else {
-      throw Exception("Can't get Teams.");
-    }
-  }
+  return fetchPaginated(
+    client: client,
+    uri: Uri.parse(urls['TEAMS']['BY_EDITION']
+        .replaceAll('#editionId', edition.toString())),
+    fromJson: (item) => Team.fromJson(item),
+  );
+}
 
   static Future<List<Team>> getTeams() async {
     // /teams/ is now paginated ({"count","next","previous","results"})
