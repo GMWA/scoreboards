@@ -21,7 +21,7 @@ class LiveDetailItem extends StatelessWidget {
           vertical: marginStandard, horizontal: marginLarge),
       padding: const EdgeInsets.symmetric(
           vertical: marginStandard, horizontal: marginLarge),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Color(0x555075F0),
         borderRadius: BorderRadius.all(
           Radius.circular(radiusStandard),
@@ -34,19 +34,19 @@ class LiveDetailItem extends StatelessWidget {
             height: 50,
             child: SvgPicture.asset(image ?? iMGBG),
           ),
-          SizedBox(width: marginLarge),
+          const SizedBox(width: marginLarge),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
               ),
-              SizedBox(height: marginStandard),
+              const SizedBox(height: marginStandard),
               Text(
                 subTitle,
-                style: TextStyle(color: Colors.black45),
+                style: const TextStyle(color: Colors.black45),
               ),
               Visibility(
                 visible: subTitle2.isNotEmpty,
@@ -54,7 +54,7 @@ class LiveDetailItem extends StatelessWidget {
                   margin: const EdgeInsets.only(top: marginStandard),
                   child: Text(
                     subTitle2,
-                    style: TextStyle(color: Colors.black45),
+                    style: const TextStyle(color: Colors.black45),
                   ),
                 ),
               ),

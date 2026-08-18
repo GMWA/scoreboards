@@ -24,7 +24,7 @@ void main() async {
   await LocalNotificationService.initialize();
   await FavoritesService.instance.init();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

@@ -22,7 +22,7 @@ class LocalNotificationService {
       // defaultIcon: AssetsLinuxIcon('assets/icons/app_icon.png'),
     );
 
-    final settings = InitializationSettings(
+    const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
       linux: linuxSettings,
@@ -54,7 +54,7 @@ class LocalNotificationService {
        urgency: LinuxNotificationUrgency.critical,
     );
 
-    final platform = NotificationDetails(
+    const platform = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
       linux: linuxDetails,

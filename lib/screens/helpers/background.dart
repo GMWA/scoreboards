@@ -23,7 +23,7 @@ class TransparentBackground extends StatelessWidget {
           right: 0,
           left: 0,
           child: Container(
-            color: Color.fromRGBO(255, 255, 255, 0.9),
+            color: const Color.fromRGBO(255, 255, 255, 0.9),
           ),
         ),
       ],

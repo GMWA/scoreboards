@@ -59,10 +59,10 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Section Header
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "TOP GOAL SCORERS",
                     style: TextStyle(
                       fontFamily: 'Lexend',
@@ -162,7 +162,7 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                 ),
                 Text(
                   item.playerTeam.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Lexend',
                     color: Colors.white38,
                     fontSize: 10,
