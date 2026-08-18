@@ -170,7 +170,7 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
                         padding: HtmlPaddings.zero,
                         color: AppColors.textPrimary,
                         fontSize: FontSize(15),
-                        lineHeight: LineHeight(1.5),
+                        lineHeight: const LineHeight(1.5),
                         fontFamily: GoogleFonts.hankenGrotesk().fontFamily,
                       ),
                       'a': Style(color: AppColors.coral),

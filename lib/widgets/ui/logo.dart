@@ -11,7 +11,7 @@ class Logo extends StatelessWidget {
     return CircleAvatar(
       radius: 20,
       backgroundImage: url != null ? CachedNetworkImageProvider(url!) : null,
-      child: url == null ? Icon(Icons.sports_soccer) : null,
+      child: url == null ? const Icon(Icons.sports_soccer) : null,
     );
   }
 }
