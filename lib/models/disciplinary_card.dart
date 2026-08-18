@@ -1,7 +1,7 @@
 import 'package:scoreboards/models/player.dart';
 import 'package:scoreboards/models/match_team.dart';
 
-class Card {
+class DisciplinaryCard {
   final int id;
   final String cardType;
   final int minute;
@@ -12,7 +12,7 @@ class Card {
   final String? reason;
   final bool isSecondYellow;
 
-  Card({
+  DisciplinaryCard({
     required this.id,
     required this.cardType,
     required this.minute,
@@ -24,8 +24,8 @@ class Card {
     this.reason,
   });
 
-  factory Card.fromJson(Map<String, dynamic> json) {
-    return Card(
+  factory DisciplinaryCard.fromJson(Map<String, dynamic> json) {
+    return DisciplinaryCard(
       id: json['id'],
       cardType: json['card_type'],
       minute: json['minute'],

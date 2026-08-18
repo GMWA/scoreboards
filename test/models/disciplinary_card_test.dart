@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:scoreboards/models/card.dart';
+import 'package:scoreboards/models/disciplinary_card.dart';
 
 void main() {
-  group('Card', () {
+  group('DisciplinaryCard', () {
     test('fromJson creates correct model with player and reason', () {
       final json = {
         'id': 1,
@@ -26,7 +26,7 @@ void main() {
         'is_second_yellow': false,
       };
 
-      final card = Card.fromJson(json);
+      final card = DisciplinaryCard.fromJson(json);
 
       expect(card.id, 1);
       expect(card.cardType, 'Yellow');
@@ -57,7 +57,7 @@ void main() {
         'is_second_yellow': true,
       };
 
-      final card = Card.fromJson(json);
+      final card = DisciplinaryCard.fromJson(json);
 
       expect(card.id, 2);
       expect(card.cardType, 'Red');
