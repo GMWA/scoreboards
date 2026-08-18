@@ -66,6 +66,16 @@ class FavoritesService extends ChangeNotifier {
 
   bool get hasAnyFavorites => _teams.isNotEmpty || _competitions.isNotEmpty;
 
+  /// Clears in-memory state so [init] re-reads from prefs. Since this is a
+  /// singleton, tests need this to get a clean slate between cases.
+  @visibleForTesting
+  void resetForTesting() {
+    _prefs = null;
+    _teams.clear();
+    _competitions.clear();
+    _loaded = false;
+  }
+
   Future<void> toggle(FavoriteItem item) async {
     await init();
     final map = item.kind == FavoriteKind.team ? _teams : _competitions;
