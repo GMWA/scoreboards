@@ -1,6 +1,6 @@
 import 'package:scoreboards/models/match_team.dart';
 import 'package:scoreboards/models/editions.dart';
-import 'package:scoreboards/models/card.dart';
+import 'package:scoreboards/models/disciplinary_card.dart';
 import 'package:scoreboards/models/goal.dart';
 import 'package:scoreboards/models/stadium.dart';
 import 'package:scoreboards/models/subtitution.dart';
@@ -89,7 +89,7 @@ class MatchBase {
 
 class Match extends MatchBase {
   final List<Goal> goals;
-  final List<Card> cards;
+  final List<DisciplinaryCard> cards;
   final List<Substitution> substitutions;
   final List<MatchLineup> lineups;
 
@@ -154,8 +154,9 @@ class Match extends MatchBase {
       // 3. Map the lists
       goals:
           (json['goals'] as List? ?? []).map((g) => Goal.fromJson(g)).toList(),
-      cards:
-          (json['cards'] as List? ?? []).map((c) => Card.fromJson(c)).toList(),
+      cards: (json['cards'] as List? ?? [])
+          .map((c) => DisciplinaryCard.fromJson(c))
+          .toList(),
       substitutions: (json['substitutions'] as List? ?? [])
           .map((s) => Substitution.fromJson(s))
           .toList(),
