@@ -46,3 +46,43 @@ Future<List<T>> fetchPaginated<T>({
 
   return items;
 }
+
+/// Performs a single GET request expecting a bare JSON array and maps each
+/// element with [fromJson]. For endpoints that page their results, use
+/// [fetchPaginated] instead.
+///
+/// [errorMessage] is used verbatim as the thrown exception's message on a
+/// non-200 response, so call sites can keep their existing wording.
+Future<List<T>> fetchList<T>({
+  required Client client,
+  required Uri uri,
+  required T Function(dynamic json) fromJson,
+  String? errorMessage,
+}) async {
+  final res = await client.get(uri);
+  if (res.statusCode != 200) {
+    throw Exception(errorMessage ?? 'Request to $uri failed with status ${res.statusCode}');
+  }
+
+  final decoded = jsonDecode(res.body) as List;
+  return decoded.map(fromJson).toList();
+}
+
+/// Performs a single GET request expecting a single JSON object and maps
+/// it with [fromJson].
+///
+/// [errorMessage] is used verbatim as the thrown exception's message on a
+/// non-200 response, so call sites can keep their existing wording.
+Future<T> fetchJson<T>({
+  required Client client,
+  required Uri uri,
+  required T Function(dynamic json) fromJson,
+  String? errorMessage,
+}) async {
+  final res = await client.get(uri);
+  if (res.statusCode != 200) {
+    throw Exception(errorMessage ?? 'Request to $uri failed with status ${res.statusCode}');
+  }
+
+  return fromJson(jsonDecode(res.body));
+}
