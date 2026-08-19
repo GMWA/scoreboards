@@ -17,14 +17,18 @@ If the system is not behaving as expected:
 We welcome tactical improvements. To submit a Pull Request:
 
 1. **Fork the Repository**: Create your own tactical branch.
-2. **Adhere to the Aesthetic**:
+2. **Enable Git Hooks** (once per clone): `./scripts/setup-hooks.sh`
+   This runs `flutter analyze` and `flutter test` before every `git push`,
+   catching CI failures before they leave your machine. Skip a single push
+   with `git push --no-verify` if needed.
+3. **Adhere to the Aesthetic**:
    - Use our high-contrast color palette.
    - Follow the **Black/Bold Uppercase** typography rules.
    - Ensure all components are `rounded-xl` or higher.
-3. **Clean Code Protocol**:
+4. **Clean Code Protocol**:
    - Ensure all new widgets are documented.
    - Run `flutter analyze` before committing.
-4. **Submit for Review**: Tag your PR with `[FEATURE]` or `[FIX]`.
+5. **Submit for Review**: Tag your PR with `[FEATURE]` or `[FIX]`.
 
 ## 🛡️ Becoming a Sentinel (Data Management)
 
