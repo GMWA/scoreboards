@@ -43,7 +43,6 @@ This project aims to solve the "Data Gap" in local football. While international
    git clone https://github.com/GMWA/scoreboards.git
    ```
 
-
 ### Install dependencies
 
 ```bash
@@ -65,6 +64,16 @@ DEBUG_MODE=true
 ```bash
 flutter run
 ```
+
+### Release Builds
+
+```bash
+./scripts/build_apk.sh         # Android APK
+./scripts/build_appbundle.sh   # Android App Bundle (Play Store)
+./scripts/build_ios.sh         # iOS (macOS + Xcode required)
+```
+
+Each script checks that a real `.env` is present before building.
 
 ## Join the Sentinels
 
