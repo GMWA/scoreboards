@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-push checks mirroring the "Flutter CI" GitHub Actions workflow
+# (.github/workflows/dart.yml), so failures surface locally before
+# they show up in CI. Enable with: scripts/setup-hooks.sh
+# Skip once with: git push --no-verify
+
+set -euo pipefail
+
+echo "Running pre-push checks..."
+
+echo "-> flutter analyze"
+if ! flutter analyze; then
+  echo
+  echo "pre-push: 'flutter analyze' failed. Fix the issues above, or use 'git push --no-verify' to skip this check." >&2
+  exit 1
+fi
+
+echo "-> flutter test"
+if ! flutter test; then
+  echo
+  echo "pre-push: 'flutter test' failed. Fix the failing tests, or use 'git push --no-verify' to skip this check." >&2
+  exit 1
+fi
+
+echo "Pre-push checks passed."
