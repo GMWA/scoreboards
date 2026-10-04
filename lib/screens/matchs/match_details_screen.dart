@@ -5,6 +5,7 @@ import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/models/lineup.dart';
 import 'package:scoreboards/widgets/matchs/match_timeline.dart';
 import 'package:scoreboards/widgets/matchs/match_header.dart';
+import 'package:scoreboards/widgets/matchs/motm_voting_tab.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/helpers/utils.dart';
 
@@ -84,7 +85,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
     }
 
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Column(
         children: [
           MatchHeader(match: match!),
@@ -104,6 +105,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               tabs: const [
                 Tab(text: 'Timeline'),
                 Tab(text: 'Lineups'),
+                Tab(text: 'MOTM'),
                 Tab(text: 'Stats'),
                 Tab(text: 'H2H'),
               ],
@@ -114,6 +116,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               children: [
                 _buildTimelineTab(),
                 _LineupsTab(match: match!),
+                MotmVotingTab(matchId: match!.id),
                 const _NotAvailableTab(
                   message:
                       'Match statistics (possession, shots, fouls) aren\'t wired up to live data yet.',
