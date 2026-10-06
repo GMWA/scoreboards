@@ -6,7 +6,6 @@ final String wsBaseUrl = dotenv.get('WEB_SOCKET_BASE_URL', fallback: '');
 final Map<String, dynamic> urls = {
   'CHAMPIONSHIPS': {
     'ALL': '$baseUrl/championships/',
-    'BY_ID': '$baseUrl/championships/#championshipId/',
   },
   'EDITIONS': {
     'ACTIVE': '$baseUrl/championships/editions/',
@@ -48,7 +47,6 @@ final Map<String, dynamic> urls = {
     'BY_EDITION': '$baseUrl/matchs/edition/#editionId/',
     'BY_CHAMPIONSHIP_EDITION':
         '$baseUrl/matchs/championship/#championshipId/edition/#editionId/',
-    'SUBTITUTIONS': '$baseUrl/matchs/#matchId/substitutions/',
     'PLAYER_OF_THE_MATCH': '$baseUrl/matchs/#matchId/player-of-the-match/',
   },
   'ARTICLES': {

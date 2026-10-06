@@ -86,13 +86,14 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
       TimelineEvent(
           minute: card.minute,
           stoppageMinute: card.stoppageMinute,
-          type: card.cardType == 'red'
+          type: card.cardType == 'red' || card.isSecondYellow
               ? TimelineEventType.redCard
               : TimelineEventType.yellowCard,
           isHome: card.team.id == match.homeTeam.id,
           title: card.player == null
               ? 'Unknown Player'
-              : "${card.player!.firstname} ${card.player!.lastname}"),
+              : "${card.player!.firstname} ${card.player!.lastname}",
+          description: card.isSecondYellow ? 'Second yellow' : null),
     );
   }
 

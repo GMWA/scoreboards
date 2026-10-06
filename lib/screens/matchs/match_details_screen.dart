@@ -158,18 +158,18 @@ class _LineupsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final home = match.lineups
-        .where((l) => l.team.id == match.homeTeam.id && l.isStarting)
-        .toList();
-    final away = match.lineups
-        .where((l) => l.team.id == match.awayTeam.id && l.isStarting)
+    List<MatchLineup> players(int teamId, {required bool starting}) => match.lineups
+        .where((l) => l.team.id == teamId && l.isStarting == starting)
         .toList();
 
-    if (home.isEmpty && away.isEmpty) {
+    final home = players(match.homeTeam.id, starting: true);
+    final away = players(match.awayTeam.id, starting: true);
+    final homeSubs = players(match.homeTeam.id, starting: false);
+    final awaySubs = players(match.awayTeam.id, starting: false);
+
+    if (home.isEmpty && away.isEmpty && homeSubs.isEmpty && awaySubs.isEmpty) {
       return const _NotAvailableTab(message: 'Lineups have not been published yet.');
     }
-
-    final int rows = home.length > away.length ? home.length : away.length;
 
     return ListView(
       padding: const EdgeInsets.all(18),
@@ -195,9 +195,31 @@ class _LineupsTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        for (int i = 0; i < rows; i++) _lineupRow(i < home.length ? home[i] : null, i < away.length ? away[i] : null),
+        ..._pairedRows(home, away),
+        if (homeSubs.isNotEmpty || awaySubs.isNotEmpty) ...[
+          const SizedBox(height: 22),
+          Text(
+            'SUBSTITUTES',
+            style: GoogleFonts.hankenGrotesk(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          ..._pairedRows(homeSubs, awaySubs),
+        ],
       ],
     );
+  }
+
+  List<Widget> _pairedRows(List<MatchLineup> home, List<MatchLineup> away) {
+    final int rows = home.length > away.length ? home.length : away.length;
+    return [
+      for (int i = 0; i < rows; i++)
+        _lineupRow(i < home.length ? home[i] : null, i < away.length ? away[i] : null),
+    ];
   }
 
   Widget _lineupRow(MatchLineup? h, MatchLineup? a) {

@@ -41,9 +41,14 @@ class MatchListScreenState extends State<MatchListScreen> {
   }
 
   void _generateDateRange() {
-    final now = DateTime.now();
-    _dateRange = List.generate(365, (index) {
-      return now.subtract(Duration(days: 182 - index));
+    _dateRange = _daysAround(DateTime.now());
+  }
+
+  /// 365 calendar days centred on [center]. Built with calendar arithmetic
+  /// rather than 24h Durations so DST changes can't skip or repeat a day.
+  List<DateTime> _daysAround(DateTime center) {
+    return List.generate(365, (index) {
+      return DateTime(center.year, center.month, center.day - 182 + index);
     });
   }
 
@@ -200,9 +205,7 @@ class MatchListScreenState extends State<MatchListScreen> {
         selectedDate = picked;
         isLive = false;
 
-        _dateRange = List.generate(365, (index) {
-          return picked.subtract(Duration(days: 182 - index));
-        });
+        _dateRange = _daysAround(picked);
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {

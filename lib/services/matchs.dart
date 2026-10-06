@@ -40,7 +40,7 @@ class MatchService {
       uri: Uri.parse(
           urls['MATCHS']['BY_ID'].replaceAll('#matchId', matchId.toString())),
       fromJson: (item) => Match.fromJson(item),
-      errorMessage: "Can't get standings.",
+      errorMessage: "Can't get Match.",
     );
   }
 
@@ -58,7 +58,7 @@ class MatchService {
       client: client,
       uri: Uri.parse(urls['MATCHS']['LIVE']),
       fromJson: (item) => MatchBase.fromJson(item),
-      errorMessage: "Can't get standings.",
+      errorMessage: "Can't get live matches.",
     );
   }
 

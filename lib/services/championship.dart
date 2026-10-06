@@ -45,8 +45,7 @@ class ChampionshipService {
   static Future<Edition> getEditionById(int editionId) async {
     return fetchJson(
       client: client,
-      uri: Uri.parse(
-          "${urls['EDITIONS']['ACTIVE']}${editionId.toString()}"),
+      uri: Uri.parse("${urls['EDITIONS']['ACTIVE']}$editionId/"),
       fromJson: (item) => Edition.fromJson(item),
       errorMessage: "Can't get Edition.",
     );
@@ -58,25 +57,6 @@ class ChampionshipService {
       uri: Uri.parse(urls['EDITIONS']['BY_SLUG'] + "$slug/"),
       fromJson: (item) => Edition.fromJson(item),
       errorMessage: "Can't get Edition.",
-    );
-  }
-
-  static Future<List<Championship>> getChampionshipsByEdition(
-      int edition) async {
-    return fetchPaginated(
-      client: client,
-      uri: Uri.parse(urls['CHAMPIONSHIPS']['ALL']),
-      fromJson: (item) => Championship.fromJson(item),
-    );
-  }
-
-  static Future<Championship> getChampionshipById(String id) async {
-    return fetchJson(
-      client: client,
-      uri: Uri.parse(
-          urls['CHAMPIONSHIPS']['BY_ID'].replaceAll('#championshipId', id)),
-      fromJson: (item) => Championship.fromJson(item),
-      errorMessage: "Can't get championship.",
     );
   }
 
