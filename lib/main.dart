@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/notification_service.dart';
 import 'package:scoreboards/services/background_service.dart';
 import 'package:scoreboards/services/favorites_service.dart';
@@ -19,7 +20,7 @@ const bool kEnableBackgroundNotificationService = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: envFile);
 
   await LocalNotificationService.initialize();
   await FavoritesService.instance.init();

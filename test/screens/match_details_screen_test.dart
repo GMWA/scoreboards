@@ -148,4 +148,31 @@ void main() {
     expect(find.text('Vote for Man of the Match'), findsOneWidget);
     expect(find.text('Test HomeStarter'), findsOneWidget);
   });
+
+  testWidgets('a live match refreshes its score every 30 seconds',
+      (tester) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    var homeGoals = 0;
+    var requests = 0;
+    MatchService.client = MockClient((_) async {
+      requests++;
+      return Response(
+          jsonEncode({
+            ..._matchJson,
+            'status': 'ongoing',
+            'score_final_home': homeGoals,
+          }),
+          200);
+    });
+
+    await pumpScreen(tester);
+    expect(find.text('0 - 0'), findsOneWidget);
+
+    homeGoals = 1;
+    await tester.pump(const Duration(seconds: 30));
+    await tester.pumpAndSettle();
+
+    expect(requests, 2);
+    expect(find.text('1 - 0'), findsOneWidget);
+  });
 }

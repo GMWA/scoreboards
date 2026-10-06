@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,12 +33,26 @@ class MatchListScreenState extends State<MatchListScreen> {
   bool isLive = false;
   _ScoreFilter _filter = _ScoreFilter.all;
   int _loadRequestId = 0;
+  Timer? _liveRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     _generateDateRange();
     _initToday();
+    _liveRefreshTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) => _refreshLiveScores());
+  }
+
+  /// Quietly reloads while a shown match can still change, so live scores
+  /// update without the user leaving the screen.
+  void _refreshLiveScores() {
+    final appVisible =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+    if (!appVisible || isLoading) return;
+    if (isLive || _matches.any((m) => m.isLiveOrDue)) {
+      _loadMatchesForDate(selectedDate, showSpinner: false, reportErrors: false);
+    }
   }
 
   void _generateDateRange() {
@@ -60,6 +75,7 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   @override
   void dispose() {
+    _liveRefreshTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -79,10 +95,13 @@ class MatchListScreenState extends State<MatchListScreen> {
     _loadMatchesForDate(date);
   }
 
-  void _loadMatchesForDate(DateTime date) async {
+  /// Refreshes (pull-to-refresh, background polling) pass [showSpinner] false
+  /// to keep the current list on screen while reloading.
+  Future<void> _loadMatchesForDate(DateTime date,
+      {bool showSpinner = true, bool reportErrors = true}) async {
     if (!mounted) return;
     final requestId = ++_loadRequestId;
-    setState(() => isLoading = true);
+    if (showSpinner) setState(() => isLoading = true);
 
     try {
       final matches = isLive
@@ -100,6 +119,7 @@ class MatchListScreenState extends State<MatchListScreen> {
     } catch (e) {
       if (!mounted || requestId != _loadRequestId) return;
       setState(() => isLoading = false);
+      if (!reportErrors) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to load matches.")),
       );
@@ -519,11 +539,26 @@ class MatchListScreenState extends State<MatchListScreen> {
       return const Center(child: CircularProgressIndicator(color: AppColors.coral));
     }
 
-    if (_groupedMatches.isEmpty) {
-      return _buildEmptyState();
-    }
+    return RefreshIndicator(
+      color: AppColors.coral,
+      onRefresh: () => _loadMatchesForDate(selectedDate, showSpinner: false),
+      child: _groupedMatches.isEmpty
+          // Scrollable so pull-to-refresh also works on an empty day.
+          ? LayoutBuilder(
+              builder: (context, constraints) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: constraints.maxHeight, child: _buildEmptyState()),
+                ],
+              ),
+            )
+          : _buildGroupedList(),
+    );
+  }
 
+  Widget _buildGroupedList() {
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: _groupedMatches.length,
       itemBuilder: (context, groupIndex) {

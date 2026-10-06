@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
@@ -21,11 +22,36 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
   Match? match;
   bool isLoading = true;
   String? errorMessage;
+  Timer? _liveRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadMatch();
+    _liveRefreshTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) => _refreshIfLive());
+  }
+
+  @override
+  void dispose() {
+    _liveRefreshTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Quietly reloads a live (or about-to-start) match so the score, events
+  /// and lineups stay current; failures keep what's on screen.
+  Future<void> _refreshIfLive() async {
+    final current = match;
+    final appVisible =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+    if (current == null || !appVisible || !current.isLiveOrDue) return;
+
+    try {
+      final data = await MatchService.getMatchBySlug(widget.slug);
+      if (mounted) setState(() => match = data);
+    } catch (_) {
+      // Keep showing the last good data; the next tick will retry.
+    }
   }
 
   Future<void> _loadMatch() async {

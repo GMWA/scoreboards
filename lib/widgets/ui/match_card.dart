@@ -94,7 +94,7 @@ class MatchCard extends StatelessWidget {
                   Expanded(
                     child: _teamRow(match.homeTeam.name, match.homeTeam.logo),
                   ),
-                  if (!isPlanned)
+                  if (match.status.hasScore)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text.rich(

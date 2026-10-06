@@ -61,7 +61,7 @@ void onStart(ServiceInstance service) async {
   // (`Context.startForegroundService() did not then call
   // Service.startForeground()`), not just this background feature.
   try {
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: envFile);
   } catch (e) {
     logger.i("Background isolate: failed to load .env: $e");
     return;

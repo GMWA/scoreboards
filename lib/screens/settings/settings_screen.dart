@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 
 /// Temporarily off until there's an actual account system to back it —
@@ -10,17 +12,21 @@ import 'package:scoreboards/services/favorites_service.dart';
 /// (not deleted) so they're ready to flip back on once sign-in ships.
 const bool kEnableAccountSettings = false;
 
+/// Off until push delivery ships: the toggles are built and persisted, but
+/// nothing reads them yet, so showing them would promise alerts that never
+/// arrive.
+const bool kEnableNotificationSettings = false;
+
+/// Off while the app is dark-only: the toggle would change nothing.
+const bool kEnableThemeSetting = false;
+
 /// Settings screen, matching the "Scoreboards mobile" v2 design: profile
 /// card, account settings list, preference toggles, sign out.
 ///
 /// "Favorite Teams" / "Favorite Competitions" open the real management
-/// screens backed by FavoritesService. The notification toggles below are
-/// built and persisted now (per-category prefs, disabled until the master
-/// toggle is on) even though push delivery isn't wired up yet — the UI is
-/// ready for when it ships, and the note under the section says so plainly
-/// rather than implying it already works. Same idea for dark mode: the
-/// toggle is saved but the app is dark-only today, so it doesn't re-skin
-/// anything yet.
+/// screens backed by FavoritesService. The notification and dark mode
+/// toggles are built but hidden behind the flags above until those features
+/// exist.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -60,6 +66,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _notifLineups = prefs.getBool(_kLineups) ?? false;
       _darkMode = prefs.getBool(_kDarkMode) ?? true;
     });
+  }
+
+  Future<void> _openAbout() async {
+    final opened = await launchUrl(Uri.parse('$websiteUrl/about'),
+        mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open the About page.')),
+      );
+    }
   }
 
   Future<void> _setPref(String key, bool value) async {
@@ -109,8 +125,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               AnimatedBuilder(
                 animation: FavoritesService.instance,
                 builder: (context, _) {
-                  final teamCount = FavoritesService.instance.followedTeams.length;
-                  final compCount = FavoritesService.instance.followedCompetitions.length;
+                  final teamCount =
+                      FavoritesService.instance.followedTeams.length;
+                  final compCount =
+                      FavoritesService.instance.followedCompetitions.length;
                   return _buildGroup([
                     _SettingsRow(
                       icon: Icons.star_border,
@@ -128,106 +146,111 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: compCount == 0
                           ? 'Manage your followed leagues'
                           : '$compCount followed',
-                      onTap: () => context.push('/settings/favorites/competitions'),
+                      onTap: () =>
+                          context.push('/settings/favorites/competitions'),
                     ),
-                    _SettingsRow(
-                      icon: _darkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                      iconColor: AppColors.textPrimary,
-                      title: 'Dark Mode',
-                      subtitle: _darkMode ? 'On' : 'Off',
-                      trailing: _ToggleSwitch(
-                        value: _darkMode,
-                        onChanged: (v) {
-                          setState(() => _darkMode = v);
-                          _setPref(_kDarkMode, v);
-                        },
+                    if (kEnableThemeSetting)
+                      _SettingsRow(
+                        icon: _darkMode
+                            ? Icons.dark_mode_outlined
+                            : Icons.light_mode_outlined,
+                        iconColor: AppColors.textPrimary,
+                        title: 'Dark Mode',
+                        subtitle: _darkMode ? 'On' : 'Off',
+                        trailing: _ToggleSwitch(
+                          value: _darkMode,
+                          onChanged: (v) {
+                            setState(() => _darkMode = v);
+                            _setPref(_kDarkMode, v);
+                          },
+                        ),
                       ),
-                    ),
-                    _SettingsRow(
+                    const _SettingsRow(
                       icon: Icons.public,
                       iconColor: AppColors.textPrimary,
                       title: 'Language',
                       subtitle: 'English (US)',
-                      onTap: () {},
                     ),
                     _SettingsRow(
                       icon: Icons.info_outline,
                       iconColor: AppColors.textPrimary,
                       title: 'About',
                       subtitle: 'Version 1.0.0',
-                      onTap: () {},
+                      onTap: _openAbout,
                       showDivider: false,
                     ),
                   ]);
                 },
               ),
-              const SizedBox(height: 22),
-              _sectionLabel('NOTIFICATIONS'),
-              const SizedBox(height: 10),
-              _buildGroup([
-                _SettingsRow(
-                  icon: Icons.notifications_none,
-                  iconColor: AppColors.mint,
-                  title: 'Match Notifications',
-                  subtitle: 'Alerts for teams and competitions you follow',
-                  trailing: _ToggleSwitch(
-                    value: _notifMaster,
+              if (kEnableNotificationSettings) ...[
+                const SizedBox(height: 22),
+                _sectionLabel('NOTIFICATIONS'),
+                const SizedBox(height: 10),
+                _buildGroup([
+                  _SettingsRow(
+                    icon: Icons.notifications_none,
+                    iconColor: AppColors.mint,
+                    title: 'Match Notifications',
+                    subtitle: 'Alerts for teams and competitions you follow',
+                    trailing: _ToggleSwitch(
+                      value: _notifMaster,
+                      onChanged: (v) {
+                        setState(() => _notifMaster = v);
+                        _setPref(_kMaster, v);
+                      },
+                    ),
+                  ),
+                  _notificationSubRow(
+                    icon: Icons.sports_outlined,
+                    title: 'Kickoff reminders',
+                    value: _notifKickoff,
                     onChanged: (v) {
-                      setState(() => _notifMaster = v);
-                      _setPref(_kMaster, v);
+                      setState(() => _notifKickoff = v);
+                      _setPref(_kKickoff, v);
                     },
                   ),
-                ),
-                _notificationSubRow(
-                  icon: Icons.sports_outlined,
-                  title: 'Kickoff reminders',
-                  value: _notifKickoff,
-                  onChanged: (v) {
-                    setState(() => _notifKickoff = v);
-                    _setPref(_kKickoff, v);
-                  },
-                ),
-                _notificationSubRow(
-                  icon: Icons.sports_soccer,
-                  title: 'Goals',
-                  value: _notifGoals,
-                  onChanged: (v) {
-                    setState(() => _notifGoals = v);
-                    _setPref(_kGoals, v);
-                  },
-                ),
-                _notificationSubRow(
-                  icon: Icons.flag_outlined,
-                  title: 'Full-time results',
-                  value: _notifFullTime,
-                  onChanged: (v) {
-                    setState(() => _notifFullTime = v);
-                    _setPref(_kFullTime, v);
-                  },
-                ),
-                _notificationSubRow(
-                  icon: Icons.groups_outlined,
-                  title: 'Lineup announcements',
-                  value: _notifLineups,
-                  onChanged: (v) {
-                    setState(() => _notifLineups = v);
-                    _setPref(_kLineups, v);
-                  },
-                  showDivider: false,
-                ),
-              ]),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  'Notifications are prepared here now and will start working once push delivery ships.',
-                  style: GoogleFonts.hankenGrotesk(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
+                  _notificationSubRow(
+                    icon: Icons.sports_soccer,
+                    title: 'Goals',
+                    value: _notifGoals,
+                    onChanged: (v) {
+                      setState(() => _notifGoals = v);
+                      _setPref(_kGoals, v);
+                    },
+                  ),
+                  _notificationSubRow(
+                    icon: Icons.flag_outlined,
+                    title: 'Full-time results',
+                    value: _notifFullTime,
+                    onChanged: (v) {
+                      setState(() => _notifFullTime = v);
+                      _setPref(_kFullTime, v);
+                    },
+                  ),
+                  _notificationSubRow(
+                    icon: Icons.groups_outlined,
+                    title: 'Lineup announcements',
+                    value: _notifLineups,
+                    onChanged: (v) {
+                      setState(() => _notifLineups = v);
+                      _setPref(_kLineups, v);
+                    },
+                    showDivider: false,
+                  ),
+                ]),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    'Notifications are prepared here now and will start working once push delivery ships.',
+                    style: GoogleFonts.hankenGrotesk(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
-              ),
+              ],
               if (kEnableAccountSettings) ...[
                 const SizedBox(height: 10),
                 Center(
@@ -307,12 +330,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: AppColors.coral,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 11),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
             child: Text(
               'Edit Profile',
-              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w700, fontSize: 14),
+              style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
         ],
@@ -433,8 +458,11 @@ class _SettingsRow extends StatelessWidget {
                 ],
               ),
             ),
-            trailing ??
-                const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+            if (trailing != null)
+              trailing!
+            else if (onTap != null)
+              const Icon(Icons.chevron_right,
+                  color: AppColors.textSecondary, size: 20),
           ],
         ),
       ),
@@ -467,7 +495,8 @@ class _ToggleSwitch extends StatelessWidget {
           child: Container(
             width: 22,
             height: 22,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+                color: Colors.white, shape: BoxShape.circle),
           ),
         ),
       ),

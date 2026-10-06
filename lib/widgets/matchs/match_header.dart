@@ -13,8 +13,6 @@ class MatchHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLive = match.status == MatchStatus.ongoing;
-    final bool isNotStarted = match.status == MatchStatus.planned ||
-        match.status == MatchStatus.scheduled;
 
     return Container(
       width: double.infinity,
@@ -47,7 +45,7 @@ class MatchHeader extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      isNotStarted
+                      !match.status.hasScore
                           ? 'VS'
                           : '${match.scoreFinalHome} - ${match.scoreFinalAway}',
                       style: GoogleFonts.archivo(

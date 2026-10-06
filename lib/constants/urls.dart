@@ -1,4 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+/// Release builds talk to production; debug and profile builds use the
+/// developer's local .env (typically staging).
+const String envFile = kReleaseMode ? '.env.production' : '.env';
 
 final String baseUrl = dotenv.get('API_BASE_URL', fallback: '');
 final String wsBaseUrl = dotenv.get('WEB_SOCKET_BASE_URL', fallback: '');

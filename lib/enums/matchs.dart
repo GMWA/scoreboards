@@ -13,6 +13,14 @@ enum MatchStatus {
 
   static MatchStatus fromString(String value) => MatchStatus.values
       .firstWhere((e) => e.value == value, orElse: () => MatchStatus.planned);
+
+  /// Whether the score means anything: the match is underway or over (an
+  /// abandoned match can have a partial score). Not-yet-played, postponed
+  /// and cancelled matches carry a meaningless 0-0.
+  bool get hasScore => switch (this) {
+        ongoing || completed || awarded || abandoned => true,
+        _ => false,
+      };
 }
 
 

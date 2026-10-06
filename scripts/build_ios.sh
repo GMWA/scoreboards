@@ -13,10 +13,14 @@ if [ "$(uname)" != "Darwin" ]; then
   exit 1
 fi
 
-if [ ! -f .env ]; then
-  echo "error: .env not found at repo root. Copy .env.example to .env and fill in real values before building a release." >&2
-  exit 1
-fi
+# Release builds read .env.production (production URLs); .env must also
+# exist because both files are bundled as assets.
+for f in .env .env.production; do
+  if [ ! -f "$f" ]; then
+    echo "error: $f not found at repo root (see .env.example)." >&2
+    exit 1
+  fi
+done
 
 flutter pub get
 flutter build ios --release \
