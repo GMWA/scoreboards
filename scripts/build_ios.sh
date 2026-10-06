@@ -19,7 +19,9 @@ if [ ! -f .env ]; then
 fi
 
 flutter pub get
-flutter build ios --release "$@"
+flutter build ios --release \
+  --obfuscate --split-debug-info=build/symbols/ios "$@"
 
 echo
 echo "Build output: build/ios/iphoneos/Runner.app"
+echo "Keep build/symbols/ios for this version: it's needed to read crash stack traces."
