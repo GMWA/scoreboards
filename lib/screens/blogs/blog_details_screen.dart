@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/constants/urls.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/article.dart';
 import 'package:scoreboards/services/articles.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,8 +33,20 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
   static const _openableSchemes = {'http', 'https', 'mailto'};
 
   Future<void> _openLink(String? url) async {
-    final uri = url == null ? null : Uri.tryParse(url);
-    if (uri == null || !_openableSchemes.contains(uri.scheme)) return;
+    var uri = url == null ? null : Uri.tryParse(url);
+    if (uri == null) return;
+
+    // Article bodies link to website pages (e.g. /teams/x); open the
+    // matching app screen when there is one.
+    final website = Uri.parse(websiteUrl);
+    final route = appRouteForLink(uri, website);
+    if (route != null) {
+      context.push(route);
+      return;
+    }
+    // Website-only pages such as /predictions open in the browser.
+    if (!uri.hasScheme) uri = website.resolveUri(uri);
+    if (!_openableSchemes.contains(uri.scheme)) return;
 
     bool opened = false;
     try {

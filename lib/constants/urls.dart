@@ -2,6 +2,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final String baseUrl = dotenv.get('API_BASE_URL', fallback: '');
 final String wsBaseUrl = dotenv.get('WEB_SOCKET_BASE_URL', fallback: '');
+final String websiteUrl =
+    dotenv.get('WEBSITE_URL', fallback: 'https://scoreboards.cm');
 
 final Map<String, dynamic> urls = {
   'CHAMPIONSHIPS': {

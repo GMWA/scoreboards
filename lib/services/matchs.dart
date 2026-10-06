@@ -80,21 +80,23 @@ class MatchService {
     );
   }
 
-  static Future<List<MatchBase>> getMatchsByEdition(int editionId,
-      {String status = ""}) async {
-    // /matchs/edition/#editionId/ is now paginated
-    // ({"count","next","previous","results"}) rather than a bare array,
-    // so this walks every page and flattens the results.
-    String url = urls['MATCHS']['BY_EDITION']
-        .replaceAll('#editionId', editionId.toString());
-
-    final uri = Uri.parse(url).replace(queryParameters: {
+  /// One page of an edition's matches. Pass the previous page's `next` to
+  /// continue. Pages are kept small because this endpoint returns full match
+  /// details (lineups, goals, ...) per match, so large pages are slow.
+  static Future<({List<MatchBase> items, Uri? next})> getMatchsByEditionPage(
+      int editionId,
+      {String status = "",
+      Uri? next,
+      int pageSize = 20}) async {
+    final firstPage = Uri.parse(urls['MATCHS']['BY_EDITION']
+            .replaceAll('#editionId', editionId.toString()))
+        .replace(queryParameters: {
       if (status.isNotEmpty) 'status': status,
     });
 
-    return fetchPaginated(
+    return fetchPage(
       client: client,
-      uri: uri,
+      uri: next ?? withPageSize(firstPage, pageSize),
       fromJson: (item) => MatchBase.fromJson(item),
     );
   }

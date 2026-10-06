@@ -290,61 +290,51 @@ void main() {
       );
     });
 
-    test("getMatchsByEdition returns list", () async {
+    test("getMatchsByEditionPage fetches a small first page", () async {
       urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
 
       MatchService.client = MockClient((request) async {
-        expect(request.url.toString(), "https://fake.dev/edition/7?page_size=100");
-
+        expect(request.url.toString(), "https://fake.dev/edition/7?page_size=20");
         return Response(
-            jsonEncode([
-              {
-                "id": 1,
-                "slug": "team-a-vs-team-b-3",
-                "date": "2022-01-01",
-                "location": "test location 1",
-                "round": "2",
-                "type": "club",
-                "status": "planned",
-                "edition": {
-                  "id": 1,
-                  "slug": "test-championship-2025",
-                  "championship": {
-                    "id": 1,
-                    "name": "Test Championship",
-                    "country": "test Country"
-                  },
-                  "label": "Test Label",
-                  "year": "2021",
-                  "start_date": "2021-08-01",
-                  "end_date": "2022-07-31",
-                  "is_current": true
-                },
-                "home_team": {"id": 1, "slug": "team-a", "name": "Team A"},
-                "away_team": {"id": 2, "slug": "team-b", "name": "Team B"},
-                "score_ht_home": 3,
-                "score_ht_away": 0,
-                "score_90_home": 0,
-                "score_90_away": 0,
-                "score_final_home": 0,
-                "score_final_away": 0,
-                "score_pso_home": 0,
-                "score_pso_away": 0,
-                "cards": [],
-                "goals": [],
-                "substitutions": [],
-                'lineups': []
-              },
-            ]),
+            jsonEncode({
+              "count": 2,
+              "next": "https://fake.dev/edition/7?page=2&page_size=20",
+              "previous": null,
+              "results": [_matchJson(1, DateTime(2025, 1, 20, 15))],
+            }),
             200);
       });
 
-      final matches = await MatchService.getMatchsByEdition(7);
+      final page = await MatchService.getMatchsByEditionPage(7);
 
-      expect(matches.length, 1);
+      expect(page.items.map((m) => m.id), [1]);
+      expect(page.next.toString(),
+          "https://fake.dev/edition/7?page=2&page_size=20");
     });
 
-    test("getMatchsByEdition throws on error", () async {
+    test("getMatchsByEditionPage follows the given next URL", () async {
+      urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
+      final next = Uri.parse("https://fake.dev/edition/7?page=2&page_size=20");
+
+      MatchService.client = MockClient((request) async {
+        expect(request.url, next);
+        return Response(
+            jsonEncode({
+              "count": 2,
+              "next": null,
+              "previous": "https://fake.dev/edition/7?page_size=20",
+              "results": [_matchJson(2, DateTime(2025, 1, 21, 15))],
+            }),
+            200);
+      });
+
+      final page = await MatchService.getMatchsByEditionPage(7, next: next);
+
+      expect(page.items.map((m) => m.id), [2]);
+      expect(page.next, isNull);
+    });
+
+    test("getMatchsByEditionPage throws on error", () async {
       urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
 
       MatchService.client = MockClient((request) async {
@@ -352,7 +342,7 @@ void main() {
       });
 
       expect(
-        () async => await MatchService.getMatchsByEdition(7),
+        () async => await MatchService.getMatchsByEditionPage(7),
         throwsA(isA<Exception>()),
       );
     });
