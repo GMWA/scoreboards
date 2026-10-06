@@ -85,5 +85,24 @@ void main() {
       // Testing the 'orElse' logic in your Enum
       expect(match.status, MatchStatus.planned);
     });
+
+    test('MatchStatus parses every status the backend sends', () {
+      // Mirrors matches.models.MatchStatus in championshiptracker/backend.
+      const backendStatuses = {
+        'planned': MatchStatus.planned,
+        'scheduled': MatchStatus.scheduled,
+        'ongoing': MatchStatus.ongoing,
+        'completed': MatchStatus.completed,
+        'awarded': MatchStatus.awarded,
+        'postponed': MatchStatus.postponed,
+        'cancelled': MatchStatus.cancelled,
+        'abandoned': MatchStatus.abandoned,
+      };
+
+      backendStatuses.forEach((value, expected) {
+        final match = MatchBase.fromJson({...matchJson, 'status': value});
+        expect(match.status, expected, reason: 'status "$value"');
+      });
+    });
   });
 }

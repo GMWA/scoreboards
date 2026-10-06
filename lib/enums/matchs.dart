@@ -1,9 +1,12 @@
 enum MatchStatus {
   planned('planned'),
-  inProgress('in_progress'),
+  scheduled('scheduled'),
+  ongoing('ongoing'),
   completed('completed'),
   awarded('awarded'),
-  postponed('postponed');
+  postponed('postponed'),
+  cancelled('cancelled'),
+  abandoned('abandoned');
 
   const MatchStatus(this.value);
   final String value;

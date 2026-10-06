@@ -16,9 +16,10 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLive = match.status == MatchStatus.inProgress;
+    final bool isLive = match.status == MatchStatus.ongoing;
     final bool isFinished = match.status == MatchStatus.completed;
-    final bool isPlanned = match.status == MatchStatus.planned;
+    final bool isPlanned = match.status == MatchStatus.planned ||
+        match.status == MatchStatus.scheduled;
     final String matchTime = DateFormat('HH:mm').format(match.date);
 
     final String statusLabel = isLive

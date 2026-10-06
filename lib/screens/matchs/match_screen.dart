@@ -102,10 +102,11 @@ class MatchListScreenState extends State<MatchListScreen> {
     Iterable<MatchBase> filtered = _matches;
     switch (_filter) {
       case _ScoreFilter.live:
-        filtered = _matches.where((m) => m.status == MatchStatus.inProgress);
+        filtered = _matches.where((m) => m.status == MatchStatus.ongoing);
         break;
       case _ScoreFilter.upcoming:
-        filtered = _matches.where((m) => m.status == MatchStatus.planned);
+        filtered = _matches.where((m) =>
+            m.status == MatchStatus.planned || m.status == MatchStatus.scheduled);
         break;
       case _ScoreFilter.finished:
         filtered = _matches.where((m) =>
@@ -123,7 +124,7 @@ class MatchListScreenState extends State<MatchListScreen> {
     final live = <MatchBase>[];
     final rest = <MatchBase>[];
     for (final m in filtered) {
-      (m.status == MatchStatus.inProgress ? live : rest).add(m);
+      (m.status == MatchStatus.ongoing ? live : rest).add(m);
     }
 
     _groupedMatches = groupMatchesByEditionData([...live, ...rest]);
