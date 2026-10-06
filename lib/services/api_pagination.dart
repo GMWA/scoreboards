@@ -19,32 +19,49 @@ Future<List<T>> fetchPaginated<T>({
   int pageSize = 100,
 }) async {
   final items = <T>[];
-  Uri? next = uri.replace(queryParameters: {
-    ...uri.queryParameters,
-    'page_size': '$pageSize',
-  });
+  Uri? next = withPageSize(uri, pageSize);
 
   while (next != null) {
-    final res = await client.get(next);
-    if (res.statusCode != 200) {
-      throw Exception('Request to $next failed with status ${res.statusCode}');
-    }
-
-    final decoded = jsonDecode(res.body);
-
-    if (decoded is Map<String, dynamic> && decoded.containsKey('results')) {
-      items.addAll((decoded['results'] as List).map(fromJson));
-      final nextUrl = decoded['next'] as String?;
-      next = nextUrl != null ? Uri.parse(nextUrl) : null;
-    } else if (decoded is List) {
-      items.addAll(decoded.map(fromJson));
-      next = null;
-    } else {
-      throw Exception('Unexpected response shape from $next');
-    }
+    final page = await fetchPage(client: client, uri: next, fromJson: fromJson);
+    items.addAll(page.items);
+    next = page.next;
   }
 
   return items;
+}
+
+/// Adds `page_size` to [uri], keeping its other query parameters.
+Uri withPageSize(Uri uri, int pageSize) => uri.replace(queryParameters: {
+      ...uri.queryParameters,
+      'page_size': '$pageSize',
+    });
+
+/// Fetches a single page, for lists that load more as the user scrolls.
+/// [next] is the URL of the following page, or null on the last page (or
+/// when the endpoint returns a plain, unpaginated array).
+Future<({List<T> items, Uri? next})> fetchPage<T>({
+  required Client client,
+  required Uri uri,
+  required T Function(dynamic json) fromJson,
+}) async {
+  final res = await client.get(uri);
+  if (res.statusCode != 200) {
+    throw Exception('Request to $uri failed with status ${res.statusCode}');
+  }
+
+  final decoded = jsonDecode(res.body);
+
+  if (decoded is Map<String, dynamic> && decoded.containsKey('results')) {
+    final nextUrl = decoded['next'] as String?;
+    return (
+      items: (decoded['results'] as List).map(fromJson).toList(),
+      next: nextUrl != null ? Uri.parse(nextUrl) : null,
+    );
+  }
+  if (decoded is List) {
+    return (items: decoded.map(fromJson).toList(), next: null);
+  }
+  throw Exception('Unexpected response shape from $uri');
 }
 
 /// Performs a single GET request expecting a bare JSON array and maps each

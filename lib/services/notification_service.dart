@@ -6,6 +6,11 @@ class LocalNotificationService {
 
   static bool _isInitialized = false;
 
+  // Seeded from the clock so IDs don't collide with notifications still
+  // shown from a previous run; incremented so two in the same second don't
+  // replace each other. Seconds since epoch fit Android's 32-bit IDs.
+  static int _nextId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
@@ -61,7 +66,7 @@ class LocalNotificationService {
     );
 
     await _plugin.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      _nextId++,
       title,
       body,
       platform,

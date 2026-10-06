@@ -85,6 +85,17 @@ class MatchBase {
       attendance: json['attendance'],
     );
   }
+
+  /// Whether the score or status may change soon, so it's worth refreshing:
+  /// the match is live, or it kicked off in the last few hours but hasn't
+  /// been marked as started yet. Older not-started matches are just stale.
+  bool get isLiveOrDue {
+    if (status == MatchStatus.ongoing) return true;
+    final now = DateTime.now();
+    return (status == MatchStatus.planned || status == MatchStatus.scheduled) &&
+        date.isBefore(now) &&
+        date.isAfter(now.subtract(const Duration(hours: 3)));
+  }
 }
 
 class Match extends MatchBase {

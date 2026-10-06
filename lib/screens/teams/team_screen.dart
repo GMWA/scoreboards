@@ -34,23 +34,30 @@ class TeamListScreenState extends State<TeamListScreen> {
     setState(() {
       _teamsFuture = TeamService.getTeams().then((teams) {
         _allTeams = teams;
-        _filteredTeams = teams;
+        _filteredTeams = _matchingTeams();
         return teams;
       });
     });
   }
 
-  void _onSearchChanged() {
+  List<Team> _matchingTeams() {
     final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredTeams = _allTeams
-          .where((team) => team.name.toLowerCase().contains(query))
-          .toList();
-    });
+    return _allTeams
+        .where((team) => team.name.toLowerCase().contains(query))
+        .toList();
+  }
+
+  void _onSearchChanged() {
+    setState(() => _filteredTeams = _matchingTeams());
   }
 
   Future<void> _refreshTeams() async {
     _loadTeams();
+    try {
+      await _teamsFuture;
+    } catch (_) {
+      // The FutureBuilder renders the error state.
+    }
   }
 
   @override

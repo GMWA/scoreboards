@@ -15,21 +15,12 @@ class ChampionshipTeamList extends StatefulWidget {
 }
 
 class _TeamsTableState extends State<ChampionshipTeamList> {
-  int _selectedEdition = 2026;
-  late Future<List<Team>> _teamsFuture;
-
-  final List<int> _editions = [2024, 2025, 2026];
+  late final Future<List<Team>> _teamsFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadTeams();
-  }
-
-  void _loadTeams() {
-    setState(() {
-      _teamsFuture = TeamService.getTeamsByEdition(widget.editionId);
-    });
+    _teamsFuture = TeamService.getTeamsByEdition(widget.editionId);
   }
 
   @override
@@ -38,20 +29,17 @@ class _TeamsTableState extends State<ChampionshipTeamList> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'PARTICIPATING TEAMS',
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textSecondary,
-                  letterSpacing: 1.2,
-                ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'PARTICIPATING TEAMS',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textSecondary,
+                letterSpacing: 1.2,
               ),
-              _buildModernDropdown(),
-            ],
+            ),
           ),
         ),
         Expanded(
@@ -88,41 +76,6 @@ class _TeamsTableState extends State<ChampionshipTeamList> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildModernDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _selectedEdition,
-          dropdownColor: AppColors.surface,
-          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.coral, size: 18),
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-          items: _editions
-              .map((edition) => DropdownMenuItem(
-                    value: edition,
-                    child: Text(edition.toString()),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            if (value != null) {
-              setState(() => _selectedEdition = value);
-              _loadTeams();
-            }
-          },
-        ),
-      ),
     );
   }
 }

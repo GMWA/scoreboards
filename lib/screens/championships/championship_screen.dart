@@ -30,6 +30,11 @@ class ChampionshipListScreenState extends State<ChampionshipListScreen> {
 
   Future<void> _refreshChampionships() async {
     _loadChampionships();
+    try {
+      await _editionsFuture;
+    } catch (_) {
+      // The FutureBuilder renders the error state.
+    }
   }
 
   @override

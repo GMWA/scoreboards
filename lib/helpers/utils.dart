@@ -57,7 +57,9 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
 
   // GOALS
   for (final goal in match.goals) {
-    if (goal.status == GoalStatus.cancelled) continue;
+    // Shootout kicks are summarised in the header's PEN score, and only
+    // valid goals count: missed penalties and VAR-pending goals don't.
+    if (!goal.isValid || goal.goalType == GoalType.penaltyShootout) continue;
 
     events.add(
       TimelineEvent(
@@ -84,13 +86,14 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
       TimelineEvent(
           minute: card.minute,
           stoppageMinute: card.stoppageMinute,
-          type: card.cardType == 'red'
+          type: card.cardType == 'red' || card.isSecondYellow
               ? TimelineEventType.redCard
               : TimelineEventType.yellowCard,
           isHome: card.team.id == match.homeTeam.id,
           title: card.player == null
               ? 'Unknown Player'
-              : "${card.player!.firstname} ${card.player!.lastname}"),
+              : "${card.player!.firstname} ${card.player!.lastname}",
+          description: card.isSecondYellow ? 'Second yellow' : null),
     );
   }
 
@@ -129,4 +132,28 @@ IconData timelineIcon(TimelineEventType type) {
     case TimelineEventType.substitution:
       return Icons.sync_alt;
   }
+}
+
+/// Website path prefixes (as used in article links) mapped to the app route
+/// showing the same page.
+const _websiteToAppRoute = {
+  'matchs': '/matchs/details',
+  'teams': '/teams',
+  'leagues': '/championships',
+  'players': '/players',
+  'blogs': '/blogs',
+};
+
+/// The app route for an article link pointing at a website page (relative,
+/// like `/teams/x`, or absolute on [website]'s host), or null when the app
+/// has no matching screen.
+String? appRouteForLink(Uri link, Uri website) {
+  final isWebsiteLink =
+      !link.hasScheme || (link.host == website.host && link.host.isNotEmpty);
+  if (!isWebsiteLink) return null;
+
+  final segments = link.pathSegments.where((s) => s.isNotEmpty).toList();
+  if (segments.length != 2) return null;
+  final prefix = _websiteToAppRoute[segments[0]];
+  return prefix == null ? null : '$prefix/${segments[1]}';
 }

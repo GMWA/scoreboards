@@ -12,7 +12,7 @@ class MatchHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLive = match.status == MatchStatus.inProgress;
+    final bool isLive = match.status == MatchStatus.ongoing;
 
     return Container(
       width: double.infinity,
@@ -45,7 +45,7 @@ class MatchHeader extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      match.status == MatchStatus.planned
+                      !match.status.hasScore
                           ? 'VS'
                           : '${match.scoreFinalHome} - ${match.scoreFinalAway}',
                       style: GoogleFonts.archivo(
@@ -130,7 +130,7 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLive = status == MatchStatus.inProgress;
+    final bool isLive = status == MatchStatus.ongoing;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -165,11 +165,12 @@ class _StatusBadge extends StatelessWidget {
 
   String _getStatusText() {
     switch (status) {
-      case MatchStatus.inProgress:
+      case MatchStatus.ongoing:
         return 'Live';
       case MatchStatus.completed:
         return 'Full Time';
       case MatchStatus.planned:
+      case MatchStatus.scheduled:
         return 'Scheduled';
       default:
         return status.value;

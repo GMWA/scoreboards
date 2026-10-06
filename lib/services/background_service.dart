@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:logger/logger.dart';
@@ -8,14 +7,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/constants/urls.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/ws/websocket_manager.dart';
-import 'package:scoreboards/services/notification_service.dart';
 
 
 final logger = Logger();
-WebSocketChannel? _channel;
 
 Future<void> initializeBackgroundService() async {
   final service = FlutterBackgroundService();
@@ -65,7 +61,7 @@ void onStart(ServiceInstance service) async {
   // (`Context.startForegroundService() did not then call
   // Service.startForeground()`), not just this background feature.
   try {
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: envFile);
   } catch (e) {
     logger.i("Background isolate: failed to load .env: $e");
     return;
@@ -80,45 +76,4 @@ void onStart(ServiceInstance service) async {
   } catch (e) {
     logger.i("Background isolate: failed to start: $e");
   }
-}
-
-void _connectWebSocket(String url, ServiceInstance service) {
-  try {
-    _channel = WebSocketChannel.connect(Uri.parse(url));
-
-    _channel!.stream.listen(
-      (event) async {
-        try {
-          final data = jsonDecode(event);
-          final title = data["title"] ?? "Scoreboards";
-          final body = data["body"] ?? data["message"] ?? "";
-
-          await LocalNotificationService.show(
-            title: title,
-            body: body,
-          );
-
-          service.invoke("notification", {"payload": event});
-        } catch (e) {
-          logger.i("Error processing WS message: $e");
-        }
-      },
-      onError: (err) {
-        logger.i("WS ERROR (BG): $err");
-        _reconnect(url, service);
-      },
-      onDone: () {
-        logger.i("WS CLOSED... reconnecting");
-        _reconnect(url, service);
-      },
-    );
-  } catch (e) {
-    logger.i("WS Connection Error: $e");
-    _reconnect(url, service);
-  }
-}
-
-void _reconnect(String url, ServiceInstance service) async {
-  await Future.delayed(const Duration(seconds: 3));
-  _connectWebSocket(url, service);
 }

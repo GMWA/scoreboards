@@ -1,4 +1,4 @@
-package com.example.mobile
+package cm.scoreboards.app
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

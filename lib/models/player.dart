@@ -21,8 +21,8 @@ class PlayerLookup {
     return PlayerLookup(
       id: json['id'],
       slug: json['slug'],
-      firstname: json['firstname'],
-      lastname: json['lastname'],
+      firstname: json['firstname'] ?? '',
+      lastname: json['lastname'] ?? '',
       avatar: json['avatar'],
       jerseyNumber: json['jersey_number'],
     );
@@ -35,10 +35,10 @@ class Player {
   final String firstname;
   final String lastname;
   final String position;
-  final String nationality;
-  final DateTime dateOfBirth;
-  final int jerseyNumber;
-  final String matricule;
+  final String? nationality;
+  final DateTime? dateOfBirth;
+  final int? jerseyNumber;
+  final String? matricule;
   final String? avatar;
 
   Player({
@@ -47,10 +47,10 @@ class Player {
     required this.firstname,
     required this.lastname,
     required this.position,
-    required this.nationality,
-    required this.dateOfBirth,
-    required this.jerseyNumber,
-    required this.matricule,
+    this.nationality,
+    this.dateOfBirth,
+    this.jerseyNumber,
+    this.matricule,
     this.avatar,
   });
 
@@ -58,11 +58,13 @@ class Player {
     return Player(
       id: json['id'],
       slug: json['slug'],
-      firstname: json['firstname'],
-      lastname: json['lastname'],
+      firstname: json['firstname'] ?? '',
+      lastname: json['lastname'] ?? '',
       position: json['position'],
       nationality: json['nationality'],
-      dateOfBirth: DateTime.parse(json['date_of_birth']),
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.parse(json['date_of_birth'])
+          : null,
       jerseyNumber: json['jersey_number'],
       matricule: json['matricule'],
       avatar: json['avatar'] ?? json['player_avatar'],

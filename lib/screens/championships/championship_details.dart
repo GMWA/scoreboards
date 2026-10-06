@@ -24,6 +24,7 @@ class ChampionshipDetails extends StatefulWidget {
 
 class ChampionshipDetailsState extends State<ChampionshipDetails> {
   Edition? edition;
+  bool _loadFailed = false;
 
   @override
   void initState() {
@@ -31,11 +32,55 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
     loadEdition();
   }
 
-  void loadEdition() async {
-    final edit = await ChampionshipService.getEditionBySlug(widget.slug);
-    setState(() {
-      edition = edit;
-    });
+  Future<void> loadEdition() async {
+    try {
+      final edit = await ChampionshipService.getEditionBySlug(widget.slug);
+      if (!mounted) return;
+      setState(() => edition = edit);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadFailed = true);
+    }
+  }
+
+  void _retry() {
+    setState(() => _loadFailed = false);
+    loadEdition();
+  }
+
+  Widget _buildErrorState() {
+    return SafeArea(
+      child: Column(
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: BackButton(color: AppColors.textPrimary),
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: AppColors.border, size: 48),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Could not load this competition.',
+                    style: GoogleFonts.hankenGrotesk(
+                        color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+                  ),
+                  TextButton(
+                    onPressed: _retry,
+                    child: Text('RETRY',
+                        style: GoogleFonts.hankenGrotesk(
+                            color: AppColors.coral, fontWeight: FontWeight.w800)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -43,7 +88,9 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: edition == null
-          ? const Center(child: CircularProgressIndicator(color: AppColors.coral))
+          ? (_loadFailed
+              ? _buildErrorState()
+              : const Center(child: CircularProgressIndicator(color: AppColors.coral)))
           : DefaultTabController(
               length: 4,
               child: Column(

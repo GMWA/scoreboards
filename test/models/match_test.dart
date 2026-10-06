@@ -85,5 +85,52 @@ void main() {
       // Testing the 'orElse' logic in your Enum
       expect(match.status, MatchStatus.planned);
     });
+
+    test('only played or in-progress statuses have a meaningful score', () {
+      expect(
+        MatchStatus.values.where((s) => s.hasScore),
+        [
+          MatchStatus.ongoing,
+          MatchStatus.completed,
+          MatchStatus.awarded,
+          MatchStatus.abandoned,
+        ],
+      );
+    });
+
+    test('isLiveOrDue: live, or kicked off recently but not yet started', () {
+      MatchBase at(String status, Duration sinceKickoff) => MatchBase.fromJson({
+            ...matchJson,
+            'status': status,
+            'date': DateTime.now().subtract(sinceKickoff).toUtc().toIso8601String(),
+          });
+
+      expect(at('ongoing', const Duration(minutes: 30)).isLiveOrDue, isTrue);
+      expect(at('scheduled', const Duration(minutes: 5)).isLiveOrDue, isTrue);
+      expect(at('scheduled', const Duration(minutes: -60)).isLiveOrDue, isFalse,
+          reason: 'not kicked off yet');
+      expect(at('planned', const Duration(days: 2)).isLiveOrDue, isFalse,
+          reason: 'stale data, not about to change');
+      expect(at('completed', const Duration(minutes: 30)).isLiveOrDue, isFalse);
+    });
+
+    test('MatchStatus parses every status the backend sends', () {
+      // Mirrors matches.models.MatchStatus in championshiptracker/backend.
+      const backendStatuses = {
+        'planned': MatchStatus.planned,
+        'scheduled': MatchStatus.scheduled,
+        'ongoing': MatchStatus.ongoing,
+        'completed': MatchStatus.completed,
+        'awarded': MatchStatus.awarded,
+        'postponed': MatchStatus.postponed,
+        'cancelled': MatchStatus.cancelled,
+        'abandoned': MatchStatus.abandoned,
+      };
+
+      backendStatuses.forEach((value, expected) {
+        final match = MatchBase.fromJson({...matchJson, 'status': value});
+        expect(match.status, expected, reason: 'status "$value"');
+      });
+    });
   });
 }

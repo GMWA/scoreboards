@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
@@ -21,11 +22,36 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
   Match? match;
   bool isLoading = true;
   String? errorMessage;
+  Timer? _liveRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadMatch();
+    _liveRefreshTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) => _refreshIfLive());
+  }
+
+  @override
+  void dispose() {
+    _liveRefreshTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Quietly reloads a live (or about-to-start) match so the score, events
+  /// and lineups stay current; failures keep what's on screen.
+  Future<void> _refreshIfLive() async {
+    final current = match;
+    final appVisible =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+    if (current == null || !appVisible || !current.isLiveOrDue) return;
+
+    try {
+      final data = await MatchService.getMatchBySlug(widget.slug);
+      if (mounted) setState(() => match = data);
+    } catch (_) {
+      // Keep showing the last good data; the next tick will retry.
+    }
   }
 
   Future<void> _loadMatch() async {
@@ -94,6 +120,11 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               border: Border(bottom: BorderSide(color: AppColors.divider)),
             ),
             child: TabBar(
+              // Five tabs don't fit side by side on a ~360dp phone (labels
+              // got clipped); scrollable tabs size to their labels, and
+              // center when they do fit.
+              isScrollable: true,
+              tabAlignment: TabAlignment.center,
               labelColor: AppColors.coral,
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.coral,
@@ -158,18 +189,18 @@ class _LineupsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final home = match.lineups
-        .where((l) => l.team.id == match.homeTeam.id && l.isStarting)
-        .toList();
-    final away = match.lineups
-        .where((l) => l.team.id == match.awayTeam.id && l.isStarting)
+    List<MatchLineup> players(int teamId, {required bool starting}) => match.lineups
+        .where((l) => l.team.id == teamId && l.isStarting == starting)
         .toList();
 
-    if (home.isEmpty && away.isEmpty) {
+    final home = players(match.homeTeam.id, starting: true);
+    final away = players(match.awayTeam.id, starting: true);
+    final homeSubs = players(match.homeTeam.id, starting: false);
+    final awaySubs = players(match.awayTeam.id, starting: false);
+
+    if (home.isEmpty && away.isEmpty && homeSubs.isEmpty && awaySubs.isEmpty) {
       return const _NotAvailableTab(message: 'Lineups have not been published yet.');
     }
-
-    final int rows = home.length > away.length ? home.length : away.length;
 
     return ListView(
       padding: const EdgeInsets.all(18),
@@ -195,9 +226,31 @@ class _LineupsTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        for (int i = 0; i < rows; i++) _lineupRow(i < home.length ? home[i] : null, i < away.length ? away[i] : null),
+        ..._pairedRows(home, away),
+        if (homeSubs.isNotEmpty || awaySubs.isNotEmpty) ...[
+          const SizedBox(height: 22),
+          Text(
+            'SUBSTITUTES',
+            style: GoogleFonts.hankenGrotesk(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          ..._pairedRows(homeSubs, awaySubs),
+        ],
       ],
     );
+  }
+
+  List<Widget> _pairedRows(List<MatchLineup> home, List<MatchLineup> away) {
+    final int rows = home.length > away.length ? home.length : away.length;
+    return [
+      for (int i = 0; i < rows; i++)
+        _lineupRow(i < home.length ? home[i] : null, i < away.length ? away[i] : null),
+    ];
   }
 
   Widget _lineupRow(MatchLineup? h, MatchLineup? a) {

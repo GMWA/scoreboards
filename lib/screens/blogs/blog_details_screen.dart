@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/constants/urls.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/article.dart';
 import 'package:scoreboards/services/articles.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BlogDetailsScreen extends StatefulWidget {
   final String slug;
@@ -25,6 +28,37 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
   void initState() {
     super.initState();
     _loadArticle();
+  }
+
+  static const _openableSchemes = {'http', 'https', 'mailto'};
+
+  Future<void> _openLink(String? url) async {
+    var uri = url == null ? null : Uri.tryParse(url);
+    if (uri == null) return;
+
+    // Article bodies link to website pages (e.g. /teams/x); open the
+    // matching app screen when there is one.
+    final website = Uri.parse(websiteUrl);
+    final route = appRouteForLink(uri, website);
+    if (route != null) {
+      context.push(route);
+      return;
+    }
+    // Website-only pages such as /predictions open in the browser.
+    if (!uri.hasScheme) uri = website.resolveUri(uri);
+    if (!_openableSchemes.contains(uri.scheme)) return;
+
+    bool opened = false;
+    try {
+      opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      opened = false;
+    }
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open this link.')),
+      );
+    }
   }
 
   Future<void> _loadArticle() async {
@@ -164,6 +198,7 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
                   const SizedBox(height: 18),
                   Html(
                     data: a.body.isNotEmpty ? a.body : '<p>${a.excerpt}</p>',
+                    onLinkTap: (url, _, __) => _openLink(url),
                     style: {
                       'body': Style(
                         margin: Margins.zero,

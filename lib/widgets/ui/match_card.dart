@@ -16,9 +16,10 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLive = match.status == MatchStatus.inProgress;
+    final bool isLive = match.status == MatchStatus.ongoing;
     final bool isFinished = match.status == MatchStatus.completed;
-    final bool isPlanned = match.status == MatchStatus.planned;
+    final bool isPlanned = match.status == MatchStatus.planned ||
+        match.status == MatchStatus.scheduled;
     final String matchTime = DateFormat('HH:mm').format(match.date);
 
     final String statusLabel = isLive
@@ -93,7 +94,7 @@ class MatchCard extends StatelessWidget {
                   Expanded(
                     child: _teamRow(match.homeTeam.name, match.homeTeam.logo),
                   ),
-                  if (!isPlanned)
+                  if (match.status.hasScore)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text.rich(

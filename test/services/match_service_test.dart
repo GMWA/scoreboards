@@ -2,11 +2,38 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/models/match.dart';
+
+Map<String, dynamic> _matchJson(int id, DateTime localKickoff) => {
+      "id": id,
+      "slug": "match-$id",
+      "date": localKickoff.toUtc().toIso8601String(),
+      "location": "test location",
+      "round": "1",
+      "type": "club",
+      "status": "planned",
+      "edition": {
+        "id": 1,
+        "slug": "test-championship-2025",
+        "championship": {
+          "id": 1,
+          "name": "Test Championship",
+          "country": "test Country"
+        },
+        "label": "Test Label",
+        "year": "2025",
+        "start_date": "2025-01-01",
+        "end_date": "2025-12-31",
+        "is_current": true
+      },
+      "home_team": {"id": 1, "slug": "team-a", "name": "Team A"},
+      "away_team": {"id": 2, "slug": "team-b", "name": "Team B"},
+      "score_final_home": 0,
+      "score_final_away": 0,
+    };
 
 void main() {
   setUpAll(() async {
@@ -20,98 +47,44 @@ void main() {
 
     test("getMatchsByDay returns matches on success", () async {
       final testDate = DateTime(2025, 1, 20);
-      final formatted = DateFormat('dd-MM-yyyy').format(testDate);
-
       urls['MATCHS']!['BY_DAY'] = "https://fake.dev/matches/day/#date";
 
       MatchService.client = MockClient((request) async {
-        expect(
-            request.url.toString(), "https://fake.dev/matches/day/$formatted");
-
+        expect(request.url.toString(),
+            matches(r'^https://fake\.dev/matches/day/\d{2}-\d{2}-\d{4}$'));
         return Response(
             jsonEncode([
-              {
-                "id": 1,
-                "slug": "team-a-vs-team-b-8",
-                "date": "2022-01-01",
-                "location": "test location 1",
-                "round": "2",
-                "type": "club",
-                "status": "planned",
-                "edition": {
-                  "id": 1,
-                  "slug": "test-championship-2024",
-                  "championship": {
-                    "id": 1,
-                    "name": "Test Championship",
-                    "country": "test Country"
-                  },
-                  "label": "Test Label",
-                  "year": "2021",
-                  "start_date": "2021-08-01",
-                  "end_date": "2022-07-31",
-                  "is_current": true
-                },
-                "home_team": {"id": 1, "slug": "team-a", "name": "Team A"},
-                "away_team": {"id": 2, "slug": "team-b", "name": "Team B"},
-                "score_ht_home": 3,
-                "score_ht_away": 0,
-                "score_90_home": 0,
-                "score_90_away": 0,
-                "score_final_home": 0,
-                "score_final_away": 0,
-                "score_pso_home": 0,
-                "score_pso_away": 0,
-                "cards": [],
-                "goals": [],
-                "substitutions": [],
-                'lineups': []
-              },
-              {
-                "id": 2,
-                "slug": "team-c-vs-team-d-4",
-                "date": "2022-01-01",
-                "location": "test location 1",
-                "round": "2",
-                "type": "club",
-                "status": "planned",
-                "edition": {
-                  "id": 1,
-                  "slug": "test-championship-2022",
-                  "championship": {
-                    "id": 1,
-                    "name": "Test Championship",
-                    "country": "test Country"
-                  },
-                  "label": "Test Label",
-                  "year": "2022",
-                  "start_date": "2021-08-01",
-                  "end_date": "2022-07-31",
-                  "is_current": true
-                },
-                "home_team": {"id": 3, "slug": "team-c", "name": "Team C"},
-                "away_team": {"id": 4, "slug": "team-d", "name": "Team D"},
-                "score_ht_home": 3,
-                "score_ht_away": 0,
-                "score_90_home": 0,
-                "score_90_away": 0,
-                "score_final_home": 0,
-                "score_final_away": 0,
-                "score_pso_home": 0,
-                "score_pso_away": 0,
-                "cards": [],
-                "goals": [],
-                "substitutions": [],
-                'lineups': []
-              }
+              _matchJson(1, DateTime(2025, 1, 20, 15)),
+              _matchJson(2, DateTime(2025, 1, 20, 18)),
             ]),
             200);
       });
 
-      final matches = await MatchService.getMatchsByDay(testDate);
+      final result = await MatchService.getMatchsByDay(testDate);
 
-      expect(matches, isA<List<MatchBase>>());
-      expect(matches.length, 2);
+      expect(result, isA<List<MatchBase>>());
+      expect(result.map((m) => m.id), [1, 2]);
+    });
+
+    test("getMatchsByDay keeps only matches on the local calendar day",
+        () async {
+      urls['MATCHS']!['BY_DAY'] = "https://fake.dev/matches/day/#date";
+
+      // The backend buckets by UTC day, so a request can return matches from
+      // either side of the local day; only the local day's should remain.
+      MatchService.client = MockClient((request) async {
+        return Response(
+            jsonEncode([
+              _matchJson(1, DateTime(2025, 1, 19, 23, 30)),
+              _matchJson(2, DateTime(2025, 1, 20, 0, 30)),
+              _matchJson(3, DateTime(2025, 1, 21, 0, 10)),
+            ]),
+            200);
+      });
+
+      final matches = await MatchService.getMatchsByDay(DateTime(2025, 1, 20));
+
+      expect(matches.map((m) => m.id), [2]);
     });
 
     test("getMatchByDay throws on error", () async {
@@ -317,61 +290,51 @@ void main() {
       );
     });
 
-    test("getMatchsByEdition returns list", () async {
+    test("getMatchsByEditionPage fetches a small first page", () async {
       urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
 
       MatchService.client = MockClient((request) async {
-        expect(request.url.toString(), "https://fake.dev/edition/7?page_size=100");
-
+        expect(request.url.toString(), "https://fake.dev/edition/7?page_size=20");
         return Response(
-            jsonEncode([
-              {
-                "id": 1,
-                "slug": "team-a-vs-team-b-3",
-                "date": "2022-01-01",
-                "location": "test location 1",
-                "round": "2",
-                "type": "club",
-                "status": "planned",
-                "edition": {
-                  "id": 1,
-                  "slug": "test-championship-2025",
-                  "championship": {
-                    "id": 1,
-                    "name": "Test Championship",
-                    "country": "test Country"
-                  },
-                  "label": "Test Label",
-                  "year": "2021",
-                  "start_date": "2021-08-01",
-                  "end_date": "2022-07-31",
-                  "is_current": true
-                },
-                "home_team": {"id": 1, "slug": "team-a", "name": "Team A"},
-                "away_team": {"id": 2, "slug": "team-b", "name": "Team B"},
-                "score_ht_home": 3,
-                "score_ht_away": 0,
-                "score_90_home": 0,
-                "score_90_away": 0,
-                "score_final_home": 0,
-                "score_final_away": 0,
-                "score_pso_home": 0,
-                "score_pso_away": 0,
-                "cards": [],
-                "goals": [],
-                "substitutions": [],
-                'lineups': []
-              },
-            ]),
+            jsonEncode({
+              "count": 2,
+              "next": "https://fake.dev/edition/7?page=2&page_size=20",
+              "previous": null,
+              "results": [_matchJson(1, DateTime(2025, 1, 20, 15))],
+            }),
             200);
       });
 
-      final matches = await MatchService.getMatchsByEdition(7);
+      final page = await MatchService.getMatchsByEditionPage(7);
 
-      expect(matches.length, 1);
+      expect(page.items.map((m) => m.id), [1]);
+      expect(page.next.toString(),
+          "https://fake.dev/edition/7?page=2&page_size=20");
     });
 
-    test("getMatchsByEdition throws on error", () async {
+    test("getMatchsByEditionPage follows the given next URL", () async {
+      urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
+      final next = Uri.parse("https://fake.dev/edition/7?page=2&page_size=20");
+
+      MatchService.client = MockClient((request) async {
+        expect(request.url, next);
+        return Response(
+            jsonEncode({
+              "count": 2,
+              "next": null,
+              "previous": "https://fake.dev/edition/7?page_size=20",
+              "results": [_matchJson(2, DateTime(2025, 1, 21, 15))],
+            }),
+            200);
+      });
+
+      final page = await MatchService.getMatchsByEditionPage(7, next: next);
+
+      expect(page.items.map((m) => m.id), [2]);
+      expect(page.next, isNull);
+    });
+
+    test("getMatchsByEditionPage throws on error", () async {
       urls['MATCHS']!['BY_EDITION'] = "https://fake.dev/edition/#editionId";
 
       MatchService.client = MockClient((request) async {
@@ -379,7 +342,7 @@ void main() {
       });
 
       expect(
-        () async => await MatchService.getMatchsByEdition(7),
+        () async => await MatchService.getMatchsByEditionPage(7),
         throwsA(isA<Exception>()),
       );
     });

@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+/// Release builds talk to production; debug and profile builds use the
+/// developer's local .env (typically staging).
+const String envFile = kReleaseMode ? '.env.production' : '.env';
 
 final String baseUrl = dotenv.get('API_BASE_URL', fallback: '');
 final String wsBaseUrl = dotenv.get('WEB_SOCKET_BASE_URL', fallback: '');
+final String websiteUrl =
+    dotenv.get('WEBSITE_URL', fallback: 'https://scoreboards.cm');
 
 final Map<String, dynamic> urls = {
   'CHAMPIONSHIPS': {
     'ALL': '$baseUrl/championships/',
-    'BY_ID': '$baseUrl/championships/#championshipId/',
   },
   'EDITIONS': {
     'ACTIVE': '$baseUrl/championships/editions/',
@@ -48,7 +54,6 @@ final Map<String, dynamic> urls = {
     'BY_EDITION': '$baseUrl/matchs/edition/#editionId/',
     'BY_CHAMPIONSHIP_EDITION':
         '$baseUrl/matchs/championship/#championshipId/edition/#editionId/',
-    'SUBTITUTIONS': '$baseUrl/matchs/#matchId/substitutions/',
     'PLAYER_OF_THE_MATCH': '$baseUrl/matchs/#matchId/player-of-the-match/',
   },
   'ARTICLES': {

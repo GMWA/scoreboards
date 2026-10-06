@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,18 +32,38 @@ class MatchListScreenState extends State<MatchListScreen> {
   bool isLoading = false;
   bool isLive = false;
   _ScoreFilter _filter = _ScoreFilter.all;
+  int _loadRequestId = 0;
+  Timer? _liveRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     _generateDateRange();
     _initToday();
+    _liveRefreshTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) => _refreshLiveScores());
+  }
+
+  /// Quietly reloads while a shown match can still change, so live scores
+  /// update without the user leaving the screen.
+  void _refreshLiveScores() {
+    final appVisible =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+    if (!appVisible || isLoading) return;
+    if (isLive || _matches.any((m) => m.isLiveOrDue)) {
+      _loadMatchesForDate(selectedDate, showSpinner: false, reportErrors: false);
+    }
   }
 
   void _generateDateRange() {
-    final now = DateTime.now();
-    _dateRange = List.generate(365, (index) {
-      return now.subtract(Duration(days: 182 - index));
+    _dateRange = _daysAround(DateTime.now());
+  }
+
+  /// 365 calendar days centred on [center]. Built with calendar arithmetic
+  /// rather than 24h Durations so DST changes can't skip or repeat a day.
+  List<DateTime> _daysAround(DateTime center) {
+    return List.generate(365, (index) {
+      return DateTime(center.year, center.month, center.day - 182 + index);
     });
   }
 
@@ -54,6 +75,7 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   @override
   void dispose() {
+    _liveRefreshTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -73,16 +95,21 @@ class MatchListScreenState extends State<MatchListScreen> {
     _loadMatchesForDate(date);
   }
 
-  void _loadMatchesForDate(DateTime date) async {
+  /// Refreshes (pull-to-refresh, background polling) pass [showSpinner] false
+  /// to keep the current list on screen while reloading.
+  Future<void> _loadMatchesForDate(DateTime date,
+      {bool showSpinner = true, bool reportErrors = true}) async {
     if (!mounted) return;
-    setState(() => isLoading = true);
+    final requestId = ++_loadRequestId;
+    if (showSpinner) setState(() => isLoading = true);
 
     try {
       final matches = isLive
           ? await MatchService.getLiveMatches()
           : await MatchService.getMatchsByDay(date);
 
-      if (!mounted) return;
+      // A newer selection was made while this request was in flight.
+      if (!mounted || requestId != _loadRequestId) return;
 
       setState(() {
         _matches = matches;
@@ -90,8 +117,9 @@ class MatchListScreenState extends State<MatchListScreen> {
         isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || requestId != _loadRequestId) return;
       setState(() => isLoading = false);
+      if (!reportErrors) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to load matches.")),
       );
@@ -102,10 +130,11 @@ class MatchListScreenState extends State<MatchListScreen> {
     Iterable<MatchBase> filtered = _matches;
     switch (_filter) {
       case _ScoreFilter.live:
-        filtered = _matches.where((m) => m.status == MatchStatus.inProgress);
+        filtered = _matches.where((m) => m.status == MatchStatus.ongoing);
         break;
       case _ScoreFilter.upcoming:
-        filtered = _matches.where((m) => m.status == MatchStatus.planned);
+        filtered = _matches.where((m) =>
+            m.status == MatchStatus.planned || m.status == MatchStatus.scheduled);
         break;
       case _ScoreFilter.finished:
         filtered = _matches.where((m) =>
@@ -123,7 +152,7 @@ class MatchListScreenState extends State<MatchListScreen> {
     final live = <MatchBase>[];
     final rest = <MatchBase>[];
     for (final m in filtered) {
-      (m.status == MatchStatus.inProgress ? live : rest).add(m);
+      (m.status == MatchStatus.ongoing ? live : rest).add(m);
     }
 
     _groupedMatches = groupMatchesByEditionData([...live, ...rest]);
@@ -196,9 +225,7 @@ class MatchListScreenState extends State<MatchListScreen> {
         selectedDate = picked;
         isLive = false;
 
-        _dateRange = List.generate(365, (index) {
-          return picked.subtract(Duration(days: 182 - index));
-        });
+        _dateRange = _daysAround(picked);
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -512,11 +539,26 @@ class MatchListScreenState extends State<MatchListScreen> {
       return const Center(child: CircularProgressIndicator(color: AppColors.coral));
     }
 
-    if (_groupedMatches.isEmpty) {
-      return _buildEmptyState();
-    }
+    return RefreshIndicator(
+      color: AppColors.coral,
+      onRefresh: () => _loadMatchesForDate(selectedDate, showSpinner: false),
+      child: _groupedMatches.isEmpty
+          // Scrollable so pull-to-refresh also works on an empty day.
+          ? LayoutBuilder(
+              builder: (context, constraints) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: constraints.maxHeight, child: _buildEmptyState()),
+                ],
+              ),
+            )
+          : _buildGroupedList(),
+    );
+  }
 
+  Widget _buildGroupedList() {
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: _groupedMatches.length,
       itemBuilder: (context, groupIndex) {

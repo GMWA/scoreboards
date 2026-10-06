@@ -29,13 +29,15 @@ class AppLayout extends StatelessWidget {
   final Widget body;
   const AppLayout({super.key, required this.body});
 
+  /// -1 for detail routes (match, player) that can be reached from any tab,
+  /// so no tab is wrongly highlighted.
   int _selectedIndex(String location) {
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/championships')) return 1;
     if (location.startsWith('/teams')) return 2;
     if (location.startsWith('/blogs')) return 3;
     if (location.startsWith('/settings')) return 4;
-    return 0;
+    return -1;
   }
 
   @override
