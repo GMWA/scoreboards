@@ -120,6 +120,11 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               border: Border(bottom: BorderSide(color: AppColors.divider)),
             ),
             child: TabBar(
+              // Five tabs don't fit side by side on a ~360dp phone (labels
+              // got clipped); scrollable tabs size to their labels, and
+              // center when they do fit.
+              isScrollable: true,
+              tabAlignment: TabAlignment.center,
               labelColor: AppColors.coral,
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.coral,

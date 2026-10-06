@@ -81,6 +81,21 @@ void main() {
     expect(find.text('Quarter-finals'), findsOneWidget);
   });
 
+  testWidgets('all columns fit a 360dp-wide phone without scrolling',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3; // 360 x 780 dp
+    addTearDown(tester.view.reset);
+    mockApi([
+      _standing(1, 'Afrique du Sud W', 'Group A', 9),
+      _standing(2, "Cote d'Ivoire W", 'Group A', 4),
+    ]);
+
+    await pump(tester);
+
+    expect(tester.getTopRight(find.text('GD').first).dx, lessThanOrEqualTo(360));
+  });
+
   testWidgets('league standings stay in a single table', (tester) async {
     mockApi([
       _standing(1, 'T1', null, 9),

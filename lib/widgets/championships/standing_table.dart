@@ -18,7 +18,7 @@ class StandingsTable extends StatefulWidget {
 }
 
 class _StandingsTableState extends State<StandingsTable> {
-  static const double _teamNameWidth = 120;
+  static const double _teamNameWidth = 112;
 
   late final Future<(List<Standing>, List<EditionStandingRule>)> _future;
 
@@ -136,8 +136,9 @@ class _StandingsTableState extends State<StandingsTable> {
           constraints: BoxConstraints(minWidth: constraints.maxWidth),
           child: DataTable(
             headingRowColor: WidgetStateProperty.all(AppColors.surface),
-            columnSpacing: 20.0,
-            horizontalMargin: 16,
+            // Tight enough that all eight columns fit a ~360dp phone.
+            columnSpacing: 8.0,
+            horizontalMargin: 12,
             headingRowHeight: 45,
             dataRowMinHeight: 48,
             dataRowMaxHeight: 54,
