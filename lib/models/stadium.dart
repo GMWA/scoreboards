@@ -4,7 +4,7 @@ class Stadium {
   final String slug;
   final String city;
   final String country;
-  final num capacity;
+  final num? capacity;
   final bool isOpened;
   final String? address;
   final num? openedYear;
@@ -17,7 +17,7 @@ class Stadium {
       required this.slug,
       required this.city,
       required this.country,
-      required this.capacity,
+      this.capacity,
       required this.isOpened,
       this.address,
       this.openedYear,
@@ -29,8 +29,8 @@ class Stadium {
         id: json['id'],
         name: json['name'],
         slug: json['slug'],
-        city: json['city'],
-        country: json['country'],
+        city: json['city'] ?? '',
+        country: json['country'] ?? '',
         capacity: json['capacity'],
         isOpened: json['is_opened'],
         address: json['address'],

@@ -6,7 +6,7 @@ class Team {
   final String name;
   final String slug;
   final String? logo;
-  final String coach;
+  final String? coach;
   final Stadium? stadium;
   final String? league;
   final int? founded;
@@ -19,7 +19,7 @@ class Team {
       required this.slug,
       required this.name,
       required this.teamType,
-      required this.coach,
+      this.coach,
       this.logo,
       this.founded,
       this.stadium,
@@ -52,22 +52,22 @@ class PlayerTeam {
   final String firstname;
   final String lastname;
   final String? logo;
-  final int jerseyNumber;
+  final int? jerseyNumber;
 
   PlayerTeam(
       {required this.id,
       required this.slug,
       required this.firstname,
       required this.lastname,
-      required this.jerseyNumber,
+      this.jerseyNumber,
       this.logo});
 
   factory PlayerTeam.fromJson(Map<String, dynamic> json) {
     return PlayerTeam(
         id: json['id'],
         slug: json['slug'],
-        firstname: json['firstname'],
-        lastname: json['lastname'],
+        firstname: json['firstname'] ?? '',
+        lastname: json['lastname'] ?? '',
         jerseyNumber: json['jersey_number'],
         logo: json['logo'] ?? json['team_logo']);
   }

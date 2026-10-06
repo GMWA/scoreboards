@@ -31,6 +31,7 @@ class MatchListScreenState extends State<MatchListScreen> {
   bool isLoading = false;
   bool isLive = false;
   _ScoreFilter _filter = _ScoreFilter.all;
+  int _loadRequestId = 0;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class MatchListScreenState extends State<MatchListScreen> {
 
   void _loadMatchesForDate(DateTime date) async {
     if (!mounted) return;
+    final requestId = ++_loadRequestId;
     setState(() => isLoading = true);
 
     try {
@@ -82,7 +84,8 @@ class MatchListScreenState extends State<MatchListScreen> {
           ? await MatchService.getLiveMatches()
           : await MatchService.getMatchsByDay(date);
 
-      if (!mounted) return;
+      // A newer selection was made while this request was in flight.
+      if (!mounted || requestId != _loadRequestId) return;
 
       setState(() {
         _matches = matches;
@@ -90,7 +93,7 @@ class MatchListScreenState extends State<MatchListScreen> {
         isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || requestId != _loadRequestId) return;
       setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to load matches.")),

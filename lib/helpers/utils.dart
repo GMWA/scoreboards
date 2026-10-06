@@ -57,7 +57,9 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
 
   // GOALS
   for (final goal in match.goals) {
-    if (goal.status == GoalStatus.cancelled) continue;
+    // Shootout kicks are summarised in the header's PEN score, and only
+    // valid goals count: missed penalties and VAR-pending goals don't.
+    if (!goal.isValid || goal.goalType == GoalType.penaltyShootout) continue;
 
     events.add(
       TimelineEvent(

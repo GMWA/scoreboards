@@ -22,8 +22,8 @@ class GoalPlayer {
     return GoalPlayer(
       id: json['id'],
       slug: json['slug'],
-      firstname: json['firstname'],
-      lastname: json['lastname'],
+      firstname: json['firstname'] ?? '',
+      lastname: json['lastname'] ?? '',
       logo: json['logo'],
       jerseyNumber: json['jersey_number'],
     );
@@ -64,7 +64,8 @@ class Goal {
       id: json['id'],
       matchId: json['match'],
       team: MatchTeam.fromJson(json['team']),
-      minute: json['minute'],
+      // Null for penalty-shootout kicks, which have no match minute.
+      minute: json['minute'] ?? 0,
       stoppageMinute: json['stoppage_minute'] ?? 0,
       isOwnGoal: json['is_csc'] ?? false,
       isPenalty: json['is_penalty'] ?? false,

@@ -28,7 +28,7 @@ class DisciplinaryCard {
     return DisciplinaryCard(
       id: json['id'],
       cardType: json['card_type'],
-      minute: json['minute'],
+      minute: json['minute'] ?? 0,
       stoppageMinute: json['stoppage_minute'] ?? 0,
       // matchId: json['match'],
       player:

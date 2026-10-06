@@ -6,14 +6,32 @@ import 'package:scoreboards/services/api_pagination.dart';
 
 class MatchService {
   static Client client = Client();
+  /// Matches kicking off on [date]'s local calendar day. The backend groups
+  /// matches by UTC day, and a local day can overlap two UTC days, so this
+  /// fetches each overlapping UTC day and keeps only the local day's matches.
   static Future<List<MatchBase>> getMatchsByDay(DateTime date) async {
-    return fetchList(
-      client: client,
-      uri: Uri.parse(urls['MATCHS']['BY_DAY']
-          .replaceAll('#date', DateFormat('dd-MM-yyyy').format(date))),
-      fromJson: (item) => MatchBase.fromJson(item),
-      errorMessage: "Can't get matchs.",
-    );
+    final start = DateTime(date.year, date.month, date.day);
+    final end = DateTime(date.year, date.month, date.day + 1);
+    final utcDays = {
+      DateFormat('dd-MM-yyyy').format(start.toUtc()),
+      DateFormat('dd-MM-yyyy')
+          .format(end.subtract(const Duration(microseconds: 1)).toUtc()),
+    };
+
+    final responses = await Future.wait(utcDays.map((day) => fetchList(
+          client: client,
+          uri: Uri.parse(urls['MATCHS']['BY_DAY'].replaceAll('#date', day)),
+          fromJson: (item) => MatchBase.fromJson(item),
+          errorMessage: "Can't get matchs.",
+        )));
+
+    final byId = <int, MatchBase>{};
+    for (final match in responses.expand((list) => list)) {
+      if (!match.date.isBefore(start) && match.date.isBefore(end)) {
+        byId[match.id] = match;
+      }
+    }
+    return byId.values.toList()..sort((a, b) => a.date.compareTo(b.date));
   }
 
   static Future<Match> getMatchById(matchId) async {

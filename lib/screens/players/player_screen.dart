@@ -65,6 +65,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
         player: player, currentClub: currentClub, currentSeasonStats: currentSeasonStats);
   }
 
+  int _ageOn(DateTime today, DateTime birth) {
+    final hadBirthdayThisYear = today.month > birth.month ||
+        (today.month == birth.month && today.day >= birth.day);
+    return today.year - birth.year - (hadBirthdayThisYear ? 0 : 1);
+  }
+
   String _initials(Player p) {
     final f = p.firstname.isNotEmpty ? p.firstname[0] : '';
     final l = p.lastname.isNotEmpty ? p.lastname[0] : '';
@@ -146,7 +152,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Widget _buildProfile(BuildContext context, _ProfileData data) {
     final p = data.player;
-    final age = DateTime.now().year - p.dateOfBirth.year;
+    final int? age = p.dateOfBirth == null ? null : _ageOn(DateTime.now(), p.dateOfBirth!);
+    final subtitle = [
+      p.position,
+      if (p.jerseyNumber != null) 'No. ${p.jerseyNumber}',
+      if (age != null) 'Age $age',
+    ].join(' • ');
 
     return SingleChildScrollView(
       child: Column(
@@ -206,7 +217,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              '${p.position} • No. ${p.jerseyNumber} • Age $age',
+                              subtitle,
                               style: GoogleFonts.hankenGrotesk(
                                 color: AppColors.textSecondary,
                                 fontSize: 12.5,
@@ -217,7 +228,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               spacing: 7,
                               runSpacing: 6,
                               children: [
-                                _pill(p.nationality),
+                                if (p.nationality != null && p.nationality!.isNotEmpty)
+                                  _pill(p.nationality!),
                                 if (data.currentClub != null)
                                   _pill(data.currentClub!.team.name),
                               ],
