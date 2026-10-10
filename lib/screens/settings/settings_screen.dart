@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/favorites_service.dart';
+import 'package:scoreboards/services/notification_service.dart';
 
 /// Temporarily off until there's an actual account system to back it —
 /// the profile card, account settings, and sign out are kept in place
@@ -76,6 +77,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SnackBar(content: Text('Could not open the About page.')),
       );
     }
+  }
+
+  /// Turning notifications on asks for the OS permission first; if it's
+  /// denied the toggle stays off rather than promising alerts that can't
+  /// be shown.
+  Future<void> _setNotificationsEnabled(bool enabled) async {
+    if (enabled && !await LocalNotificationService.requestPermission()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Allow notifications for Scoreboards in your phone settings.'),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _notifMaster = enabled);
+    _setPref(_kMaster, enabled);
   }
 
   Future<void> _setPref(String key, bool value) async {
@@ -194,10 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: 'Alerts for teams and competitions you follow',
                     trailing: _ToggleSwitch(
                       value: _notifMaster,
-                      onChanged: (v) {
-                        setState(() => _notifMaster = v);
-                        _setPref(_kMaster, v);
-                      },
+                      onChanged: _setNotificationsEnabled,
                     ),
                   ),
                   _notificationSubRow(

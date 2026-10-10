@@ -55,7 +55,7 @@ Future<({List<T> items, Uri? next})> fetchPage<T>({
     final nextUrl = decoded['next'] as String?;
     return (
       items: (decoded['results'] as List).map(fromJson).toList(),
-      next: nextUrl != null ? Uri.parse(nextUrl) : null,
+      next: nextUrl != null ? _sameScheme(Uri.parse(nextUrl), uri) : null,
     );
   }
   if (decoded is List) {
@@ -103,3 +103,11 @@ Future<T> fetchJson<T>({
 
   return fromJson(jsonDecode(res.body));
 }
+
+/// A backend behind a TLS-terminating proxy can build `next` links with
+/// `http://`; follow them over the scheme the request actually used, since
+/// release builds may block cleartext traffic.
+Uri _sameScheme(Uri next, Uri request) =>
+    next.host == request.host && next.scheme != request.scheme
+        ? next.replace(scheme: request.scheme)
+        : next;

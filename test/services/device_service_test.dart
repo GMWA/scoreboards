@@ -78,5 +78,42 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+
+    test("concurrent first-launch calls register only one device", () async {
+      SharedPreferences.setMockInitialValues({});
+      var registrations = 0;
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        registrations++;
+        await Future.delayed(const Duration(milliseconds: 20));
+        return Response(jsonEncode({"device_id": "device-$registrations"}), 201);
+      });
+      urls['DEVICES']!['REGISTER'] = "https://fake.dev/register";
+
+      final ids = await Future.wait([
+        service.getOrRegisterDevice(),
+        service.getOrRegisterDevice(),
+        service.getOrRegisterDevice(),
+      ]);
+
+      expect(registrations, 1);
+      expect(ids.toSet(), {"device-1"});
+    });
+
+    test("a failed registration can be retried", () async {
+      SharedPreferences.setMockInitialValues({});
+      var attempts = 0;
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        attempts++;
+        return attempts == 1
+            ? Response("Server error", 500)
+            : Response(jsonEncode({"device_id": "device-ok"}), 201);
+      });
+      urls['DEVICES']!['REGISTER'] = "https://fake.dev/register";
+
+      await expectLater(service.getOrRegisterDevice(), throwsA(isA<Exception>()));
+      expect(await service.getOrRegisterDevice(), "device-ok");
+    });
   });
 }
