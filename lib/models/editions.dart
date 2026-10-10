@@ -1,3 +1,5 @@
+import 'package:scoreboards/enums/matchs.dart';
+
 class EditionStandingRule {
   final int id;
   final int edition;
@@ -98,6 +100,10 @@ class Edition {
   final DateTime? startDate;
   final DateTime? endDate;
   final bool isCurrent;
+  final CompetitionType competitionType;
+
+  /// Friendlies don't count: no table to win and no official stats.
+  bool get isFriendly => competitionType == CompetitionType.friendly;
 
   Edition({
     required this.id,
@@ -108,6 +114,7 @@ class Edition {
     this.startDate,
     this.endDate,
     required this.isCurrent,
+    this.competitionType = CompetitionType.league,
   });
 
   factory Edition.fromJson(Map<String, dynamic> json) {
@@ -120,6 +127,7 @@ class Edition {
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
       isCurrent: json['is_current'],
+      competitionType: CompetitionType.fromString(json['competition_type']),
     );
   }
 }
