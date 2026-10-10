@@ -51,6 +51,20 @@ enum CompetitionPhase {
 }
 
 
+/// An edition's kind, from the backend's `Edition.competition_type`.
+enum CompetitionType {
+  league('league'),
+  cup('cup'),
+  friendly('friendly');
+
+  const CompetitionType(this.value);
+  final String value;
+
+  static CompetitionType fromString(String? value) => CompetitionType.values
+      .firstWhere((e) => e.value == value, orElse: () => CompetitionType.league);
+}
+
+
 enum MatchType {
   league('league'),
   cup('cup');

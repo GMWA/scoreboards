@@ -83,6 +83,17 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
     );
   }
 
+  /// Friendlies don't count, so their standings and player stats would be
+  /// meaningless: they open on Matches and show only Matches and Teams.
+  List<_EditionTab> get _tabs => edition!.isFriendly
+      ? const [_EditionTab.matches, _EditionTab.teams]
+      : const [
+          _EditionTab.standings,
+          _EditionTab.teams,
+          _EditionTab.matches,
+          _EditionTab.playerStats,
+        ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +103,7 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
               ? _buildErrorState()
               : const Center(child: CircularProgressIndicator(color: AppColors.coral)))
           : DefaultTabController(
-              length: 4,
+              length: _tabs.length,
               child: Column(
                 children: [
                   Stack(
@@ -163,22 +174,12 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
                           GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13),
                       unselectedLabelStyle:
                           GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13),
-                      tabs: const [
-                        Tab(text: 'Standings'),
-                        Tab(text: 'Teams'),
-                        Tab(text: 'Matches'),
-                        Tab(text: 'P. Stats'),
-                      ],
+                      tabs: [for (final tab in _tabs) Tab(text: tab.label)],
                     ),
                   ),
                   Expanded(
                     child: TabBarView(
-                      children: [
-                        StandingsTable(editionId: edition!.id),
-                        ChampionshipTeamList(editionId: edition!.id),
-                        MatchList(editionId: edition!.id),
-                        PlayerStatsTable(editionId: edition!.id),
-                      ],
+                      children: [for (final tab in _tabs) tab.build(edition!.id)],
                     ),
                   ),
                 ],
@@ -186,6 +187,23 @@ class ChampionshipDetailsState extends State<ChampionshipDetails> {
             ),
     );
   }
+}
+
+enum _EditionTab {
+  standings('Standings'),
+  teams('Teams'),
+  matches('Matches'),
+  playerStats('P. Stats');
+
+  const _EditionTab(this.label);
+  final String label;
+
+  Widget build(int editionId) => switch (this) {
+        standings => StandingsTable(editionId: editionId),
+        teams => ChampionshipTeamList(editionId: editionId),
+        matches => MatchList(editionId: editionId),
+        playerStats => PlayerStatsTable(editionId: editionId),
+      };
 }
 
 /// Small circular tap target for icons placed over the header photo (back
