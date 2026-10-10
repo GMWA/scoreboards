@@ -12,6 +12,7 @@ class DeviceService {
   DeviceService._internal();
 
   String? _deviceId;
+  Future<String>? _pending;
 
   static set internalHttpClient(http.Client client) {
     _internalHttpClient = client;
@@ -20,11 +21,18 @@ class DeviceService {
   @visibleForTesting
   void resetCache() {
     _deviceId = null;
+    _pending = null;
   }
 
-  Future<String> getOrRegisterDevice() async {
-    if (_deviceId != null) return _deviceId!;
+  /// Concurrent callers share one lookup/registration, so a first launch
+  /// can't register two devices and orphan whatever was tied to the first.
+  Future<String> getOrRegisterDevice() {
+    final id = _deviceId;
+    if (id != null) return Future.value(id);
+    return _pending ??= _loadOrRegister().whenComplete(() => _pending = null);
+  }
 
+  Future<String> _loadOrRegister() async {
     final prefs = await SharedPreferences.getInstance();
     final savedId = prefs.getString(_storageKey);
 

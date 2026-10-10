@@ -134,5 +134,34 @@ void main() {
         throwsException,
       );
     });
+
+    test('follows http next links over https when the API is https', () async {
+      final requested = <String>[];
+      final client = MockClient((request) async {
+        requested.add(request.url.toString());
+        final secondPage = request.url.queryParameters['page'] == '2';
+        return Response(
+            jsonEncode({
+              'count': 2,
+              'next': secondPage
+                  ? null
+                  : 'http://api.example.com/items/?page=2&page_size=100',
+              'previous': null,
+              'results': [
+                {'id': secondPage ? 2 : 1}
+              ],
+            }),
+            200);
+      });
+
+      final items = await fetchPaginated(
+        client: client,
+        uri: Uri.parse('https://api.example.com/items/'),
+        fromJson: (json) => json['id'] as int,
+      );
+
+      expect(items, [1, 2]);
+      expect(requested.last, 'https://api.example.com/items/?page=2&page_size=100');
+    });
   });
 }
