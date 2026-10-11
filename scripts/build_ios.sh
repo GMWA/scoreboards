@@ -22,9 +22,14 @@ for f in .env .env.production; do
   fi
 done
 
+# shellcheck source=scripts/sentry_env.sh
+. scripts/sentry_env.sh
+
 flutter pub get
 flutter build ios --release \
-  --obfuscate --split-debug-info=build/symbols/ios "$@"
+  --obfuscate --split-debug-info=build/symbols/ios \
+  ${SENTRY_DEFINES[@]+"${SENTRY_DEFINES[@]}"} "$@"
+upload_sentry_symbols
 
 echo
 echo "Build output: build/ios/iphoneos/Runner.app"

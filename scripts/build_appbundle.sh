@@ -22,9 +22,14 @@ if [ ! -f android/key.properties ]; then
   exit 1
 fi
 
+# shellcheck source=scripts/sentry_env.sh
+. scripts/sentry_env.sh
+
 flutter pub get
 flutter build appbundle --release \
-  --obfuscate --split-debug-info=build/symbols/android "$@"
+  --obfuscate --split-debug-info=build/symbols/android \
+  ${SENTRY_DEFINES[@]+"${SENTRY_DEFINES[@]}"} "$@"
+upload_sentry_symbols
 
 echo
 echo "App Bundle: build/app/outputs/bundle/release/app-release.aab"
