@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:scoreboards/layouts/app_layout.dart';
 import 'package:scoreboards/screens/settings/settings_screen.dart';
 import 'package:scoreboards/screens/settings/favorites_management_screen.dart';
@@ -20,6 +21,9 @@ import 'package:scoreboards/screens/blogs/blog_details_screen.dart';
 /// nav destinations.
 final GoRouter router = GoRouter(
   initialLocation: '/home',
+  // Records screen changes as breadcrumbs on crash reports (no-op when
+  // Sentry isn't configured).
+  observers: [SentryNavigatorObserver()],
   routes: [
     ShellRoute(
       builder: (context, state, child) => AppLayout(body: child),

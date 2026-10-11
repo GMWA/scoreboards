@@ -7,6 +7,7 @@ import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/notification_service.dart';
 import 'package:scoreboards/services/background_service.dart';
+import 'package:scoreboards/services/crash_reporting.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 import 'package:scoreboards/router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,14 +19,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// app is confirmed working and the staging websocket host is reachable.
 const bool kEnableBackgroundNotificationService = false;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: envFile);
 
-  await LocalNotificationService.initialize();
-  await FavoritesService.instance.init();
+  // Startup runs inside crash reporting so failures here are captured too.
+  await runWithCrashReporting(() async {
+    await dotenv.load(fileName: envFile);
+    await LocalNotificationService.initialize();
+    await FavoritesService.instance.init();
 
-  runApp(const MyApp());
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatefulWidget {

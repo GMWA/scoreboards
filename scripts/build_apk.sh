@@ -21,9 +21,14 @@ if [ ! -f android/key.properties ]; then
   echo "warning: android/key.properties not found; these APKs are signed with the debug key (fine for testing, not for distribution)." >&2
 fi
 
+# shellcheck source=scripts/sentry_env.sh
+. scripts/sentry_env.sh
+
 flutter pub get
 flutter build apk --release --split-per-abi \
-  --obfuscate --split-debug-info=build/symbols/android "$@"
+  --obfuscate --split-debug-info=build/symbols/android \
+  ${SENTRY_DEFINES[@]+"${SENTRY_DEFINES[@]}"} "$@"
+upload_sentry_symbols
 
 echo
 echo "APKs (install the one matching the device; most phones are arm64-v8a):"

@@ -46,6 +46,7 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   url_launcher: ^6.3.3
   cupertino_icons: ^2.0.0
+  sentry_flutter: ^9.30.1
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +61,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  sentry_dart_plugin: ^3.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -103,3 +105,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Debug-symbol upload for readable crash reports from obfuscated builds
+# (`dart run sentry_dart_plugin`, run by the release scripts). Credentials
+# are not configured here: the plugin reads SENTRY_AUTH_TOKEN, SENTRY_ORG,
+# SENTRY_PROJECT and SENTRY_RELEASE from the environment (.sentry.env).
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: false
+  upload_sources: false
+  symbols_path: build/symbols
+  ignore_missing: true
