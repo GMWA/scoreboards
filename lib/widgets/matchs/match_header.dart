@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/match.dart';
+import 'package:scoreboards/models/match_team.dart';
 import 'package:scoreboards/enums/matchs.dart';
 import 'package:scoreboards/widgets/teams/team_logo_name.dart';
 
@@ -16,7 +17,7 @@ class MatchHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -175,5 +176,90 @@ class _StatusBadge extends StatelessWidget {
       default:
         return status.value;
     }
+  }
+}
+
+
+/// One-line score shown in the match screen's top bar once the full header
+/// has scrolled away: home logo and name, score, away name and logo.
+class MatchScoreBar extends StatelessWidget {
+  final MatchBase match;
+
+  const MatchScoreBar({super.key, required this.match});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isLive = match.status == MatchStatus.ongoing;
+    final bool hasPens = match.wentToPenalties && match.scorePsoHome != null;
+
+    return Row(
+      children: [
+        Expanded(child: _team(match.homeTeam, alignEnd: true)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                match.status.hasScore
+                    ? '${match.scoreFinalHome} - ${match.scoreFinalAway}'
+                    : 'VS',
+                style: GoogleFonts.archivo(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: isLive ? AppColors.coral : AppColors.textPrimary,
+                ),
+              ),
+              if (hasPens)
+                Text(
+                  '(${match.scorePsoHome} - ${match.scorePsoAway} PEN)',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Expanded(child: _team(match.awayTeam, alignEnd: false)),
+      ],
+    );
+  }
+
+  Widget _team(MatchTeam team, {required bool alignEnd}) {
+    final logo = Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      child: team.logo != null && team.logo!.isNotEmpty
+          ? Image.network(
+              team.logo!,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(Icons.shield_outlined,
+                  size: 18, color: AppColors.textSecondary),
+            )
+          : const Icon(Icons.shield_outlined, size: 18, color: AppColors.textSecondary),
+    );
+    final name = Flexible(
+      child: Text(
+        team.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: alignEnd ? TextAlign.right : TextAlign.left,
+        style: GoogleFonts.hankenGrotesk(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+        ),
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment: alignEnd ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: alignEnd
+          ? [name, const SizedBox(width: 8), logo]
+          : [logo, const SizedBox(width: 8), name],
+    );
   }
 }
