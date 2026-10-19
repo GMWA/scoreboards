@@ -10,6 +10,7 @@ import 'package:scoreboards/screens/matchs/match_details_screen.dart';
 import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/services/motm_service.dart';
+import 'package:scoreboards/widgets/matchs/match_header.dart';
 
 const _home = {'id': 1, 'slug': 'home', 'name': 'Home FC'};
 const _away = {'id': 2, 'slug': 'away', 'name': 'Away FC'};
@@ -175,4 +176,33 @@ void main() {
     expect(requests, 2);
     expect(find.text('1 - 0'), findsOneWidget);
   });
+
+  testWidgets('scrolling a tab collapses the header to a compact score bar',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final lineups = [
+      for (var i = 0; i < 15; i++) _lineup(100 + i, _home, 'Home$i', true),
+      for (var i = 0; i < 15; i++) _lineup(200 + i, _away, 'Away$i', true),
+    ];
+    MatchService.client = MockClient((_) async =>
+        Response(jsonEncode({..._matchJson, 'lineups': lineups}), 200));
+
+    await pumpScreen(tester);
+    expect(find.byType(MatchScoreBar), findsNothing);
+
+    await tester.tap(find.text('Lineups'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.text('T. Home3'), const Offset(0, -600));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MatchScoreBar), findsOneWidget);
+    expect(find.text('Lineups'), findsOneWidget, reason: 'tab bar stays pinned');
+
+    await tester.drag(find.byType(TabBarView), const Offset(0, 2000));
+    await tester.pumpAndSettle();
+    expect(find.byType(MatchScoreBar), findsNothing);
+  });
 }
+

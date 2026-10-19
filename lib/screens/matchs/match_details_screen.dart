@@ -23,10 +23,18 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
   bool isLoading = true;
   String? errorMessage;
   Timer? _liveRefreshTimer;
+  final ScrollController _outerScroll = ScrollController();
+  final GlobalKey _headerKey = GlobalKey();
+  bool _headerCollapsed = false;
+
+  /// Top colour of MatchHeader's gradient, so the pinned bar blends into it.
+  static final Color _headerTopColor =
+      Color.alphaBlend(AppColors.coral.withValues(alpha: 0.15), AppColors.bg);
 
   @override
   void initState() {
     super.initState();
+    _outerScroll.addListener(_updateHeaderCollapsed);
     _loadMatch();
     _liveRefreshTimer =
         Timer.periodic(const Duration(seconds: 30), (_) => _refreshIfLive());
@@ -35,7 +43,18 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
   @override
   void dispose() {
     _liveRefreshTimer?.cancel();
+    _outerScroll.dispose();
     super.dispose();
+  }
+
+  /// Shows the compact score once most of the full header has scrolled away.
+  void _updateHeaderCollapsed() {
+    final headerHeight = _headerKey.currentContext?.size?.height;
+    if (headerHeight == null) return;
+    final collapsed = _outerScroll.offset > headerHeight - 40;
+    if (collapsed != _headerCollapsed) {
+      setState(() => _headerCollapsed = collapsed);
+    }
   }
 
   /// Quietly reloads a live (or about-to-start) match so the score, events
@@ -75,91 +94,107 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const BackButton(color: AppColors.textPrimary),
-        title: Text(
-          match?.edition.label?.toUpperCase() ?? 'MATCH CENTER',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: AppColors.textSecondary,
-          ),
+    final current = match;
+    if (current == null) {
+      return Scaffold(
+        backgroundColor: AppColors.bg,
+        appBar: AppBar(
+          backgroundColor: AppColors.bg,
+          elevation: 0,
+          leading: const BackButton(color: AppColors.textPrimary),
         ),
-      ),
-      extendBodyBehindAppBar: true,
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.coral));
-    }
-
-    if (match == null) {
-      return Center(
-        child: Text(
-          errorMessage ?? 'Match not found',
-          style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
-        ),
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.coral))
+            : Center(
+                child: Text(
+                  errorMessage ?? 'Match not found',
+                  style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
+                ),
+              ),
       );
     }
 
+    // Full header on open; scrolling any tab scrolls it away while the top
+    // bar (with a compact score) and the tab bar stay pinned, so the tab
+    // content gets most of the screen.
     return DefaultTabController(
       length: 5,
-      child: Column(
-        children: [
-          MatchHeader(match: match!),
-          Container(
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.divider)),
+      child: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: NestedScrollView(
+          controller: _outerScroll,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: _headerTopColor,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              leading: const BackButton(color: AppColors.textPrimary),
+              titleSpacing: 0,
+              title: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: _headerCollapsed
+                    ? MatchScoreBar(key: const ValueKey('score'), match: current)
+                    : Text(
+                        current.edition.label?.toUpperCase() ?? 'MATCH CENTER',
+                        key: const ValueKey('title'),
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+              ),
+              // Balances the back button so the compact score is centred.
+              actions: const [SizedBox(width: 48)],
             ),
-            child: TabBar(
-              // Five tabs don't fit side by side on a ~360dp phone (labels
-              // got clipped); scrollable tabs size to their labels, and
-              // center when they do fit.
-              isScrollable: true,
-              tabAlignment: TabAlignment.center,
-              labelColor: AppColors.coral,
-              unselectedLabelColor: AppColors.textSecondary,
-              indicatorColor: AppColors.coral,
-              indicatorWeight: 2,
-              labelStyle: GoogleFonts.hankenGrotesk(
-                  fontSize: 13.5, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: GoogleFonts.hankenGrotesk(
-                  fontSize: 13.5, fontWeight: FontWeight.w600),
-              tabs: const [
-                Tab(text: 'Timeline'),
-                Tab(text: 'Lineups'),
-                Tab(text: 'MOTM'),
-                Tab(text: 'Stats'),
-                Tab(text: 'H2H'),
-              ],
+            SliverToBoxAdapter(
+              child: KeyedSubtree(key: _headerKey, child: MatchHeader(match: current)),
             ),
+            SliverPersistentHeader(pinned: true, delegate: _TabBarHeader(_buildTabBar())),
+          ],
+          body: TabBarView(
+            children: [
+              _buildTimelineTab(),
+              _LineupsTab(match: current),
+              MotmVotingTab(matchId: current.id),
+              const _NotAvailableTab(
+                message:
+                    'Match statistics (possession, shots, fouls) aren\'t wired up to live data yet.',
+              ),
+              const _NotAvailableTab(
+                message: 'Head-to-head history isn\'t wired up to live data yet.',
+              ),
+            ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildTimelineTab(),
-                _LineupsTab(match: match!),
-                MotmVotingTab(matchId: match!.id),
-                const _NotAvailableTab(
-                  message:
-                      'Match statistics (possession, shots, fouls) aren\'t wired up to live data yet.',
-                ),
-                const _NotAvailableTab(
-                  message: 'Head-to-head history isn\'t wired up to live data yet.',
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  TabBar _buildTabBar() {
+    return TabBar(
+      // Five tabs don't fit side by side on a ~360dp phone (labels got
+      // clipped); scrollable tabs size to their labels, and center when
+      // they do fit.
+      isScrollable: true,
+      tabAlignment: TabAlignment.center,
+      labelColor: AppColors.coral,
+      unselectedLabelColor: AppColors.textSecondary,
+      indicatorColor: AppColors.coral,
+      indicatorWeight: 2,
+      dividerColor: AppColors.divider,
+      labelStyle: GoogleFonts.hankenGrotesk(fontSize: 13.5, fontWeight: FontWeight.w600),
+      unselectedLabelStyle:
+          GoogleFonts.hankenGrotesk(fontSize: 13.5, fontWeight: FontWeight.w600),
+      tabs: const [
+        Tab(text: 'Timeline'),
+        Tab(text: 'Lineups'),
+        Tab(text: 'MOTM'),
+        Tab(text: 'Stats'),
+        Tab(text: 'H2H'),
+      ],
     );
   }
 
@@ -173,6 +208,26 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
       child: MatchTimeline(events: buildTimelineEvents(match!)),
     );
   }
+}
+
+class _TabBarHeader extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
+
+  _TabBarHeader(this.tabBar);
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return ColoredBox(color: AppColors.bg, child: tabBar);
+  }
+
+  @override
+  bool shouldRebuild(_TabBarHeader oldDelegate) => tabBar != oldDelegate.tabBar;
 }
 
 /// Safe "F. " initial prefix — some player records have an empty firstname,
