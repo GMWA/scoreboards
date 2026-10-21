@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/models/match_team.dart';
 import 'package:scoreboards/models/favorite_item.dart';
@@ -16,6 +17,14 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Dense score rows overflow beyond ~1.5x text; larger sizes are capped.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.5,
+      child: _buildCard(context),
+    );
+  }
+
+  Widget _buildCard(BuildContext context) {
     final bool isLive = match.status == MatchStatus.ongoing;
     final bool isFinished = match.status == MatchStatus.completed;
     final bool isPlanned = match.status == MatchStatus.planned ||
@@ -74,7 +83,7 @@ class MatchCard extends StatelessWidget {
                     children: [
                       Text(
                         match.round.isNotEmpty
-                            ? match.round.toUpperCase()
+                            ? roundLabel(match.round).toUpperCase()
                             : DateFormat('MMM d').format(match.date),
                         style: GoogleFonts.hankenGrotesk(
                           color: AppColors.textSecondary,

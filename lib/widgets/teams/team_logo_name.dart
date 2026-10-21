@@ -61,7 +61,6 @@ class TeamLogoName extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Lexend',
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w800,

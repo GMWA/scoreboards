@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/player.dart';
 import 'package:scoreboards/services/player.dart';
 
@@ -154,7 +155,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final p = data.player;
     final int? age = p.dateOfBirth == null ? null : _ageOn(DateTime.now(), p.dateOfBirth!);
     final subtitle = [
-      p.position,
+      capitalize(p.position),
       if (p.jerseyNumber != null) 'No. ${p.jerseyNumber}',
       if (age != null) 'Age $age',
     ].join(' • ');
