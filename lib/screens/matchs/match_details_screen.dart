@@ -118,7 +118,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
     // bar (with a compact score) and the tab bar stay pinned, so the tab
     // content gets most of the screen.
     return DefaultTabController(
-      length: 5,
+      length: 3,
       child: Scaffold(
         backgroundColor: AppColors.bg,
         body: NestedScrollView(
@@ -159,13 +159,6 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               _buildTimelineTab(),
               _LineupsTab(match: current),
               MotmVotingTab(matchId: current.id),
-              const _NotAvailableTab(
-                message:
-                    'Match statistics (possession, shots, fouls) aren\'t wired up to live data yet.',
-              ),
-              const _NotAvailableTab(
-                message: 'Head-to-head history isn\'t wired up to live data yet.',
-              ),
             ],
           ),
         ),
@@ -192,8 +185,6 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
         Tab(text: 'Timeline'),
         Tab(text: 'Lineups'),
         Tab(text: 'MOTM'),
-        Tab(text: 'Stats'),
-        Tab(text: 'H2H'),
       ],
     );
   }

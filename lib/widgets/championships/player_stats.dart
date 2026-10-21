@@ -65,7 +65,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                   Text(
                     "TOP GOAL SCORERS",
                     style: TextStyle(
-                      fontFamily: 'Lexend',
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -103,7 +102,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                     child: Text(
                       _showAll ? "SHOW LESS" : "VIEW FULL LIST",
                       style: const TextStyle(
-                        fontFamily: 'Lexend',
                         color: brandRed,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -137,7 +135,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
             child: Text(
               rank.toString(),
               style: TextStyle(
-                fontFamily: 'Lexend',
                 color: rank == 1 ? brandRed : Colors.white24,
                 fontWeight: FontWeight.w900,
                 fontSize: 12,
@@ -154,7 +151,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                   "${item.player.firstname} ${item.player.lastname}"
                       .toUpperCase(),
                   style: const TextStyle(
-                    fontFamily: 'Lexend',
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -163,7 +159,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
                 Text(
                   item.playerTeam.name,
                   style: const TextStyle(
-                    fontFamily: 'Lexend',
                     color: Colors.white38,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -183,7 +178,6 @@ class _PlayerStatsTableState extends State<PlayerStatsTable> {
             child: Text(
               item.goals.toString(),
               style: const TextStyle(
-                fontFamily: 'Lexend',
                 color: Colors.white,
                 fontWeight: FontWeight.w900,
                 fontSize: 14,

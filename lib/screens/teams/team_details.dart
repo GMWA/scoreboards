@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/team.dart';
 import 'package:scoreboards/models/favorite_item.dart';
 import 'package:scoreboards/services/teams.dart';
@@ -96,7 +97,6 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
               title: Text(
                 team!.name.toUpperCase(),
                 style: const TextStyle(
-                  fontFamily: 'Lexend',
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
                   letterSpacing: 1.0,
@@ -143,20 +143,11 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
                   const SizedBox(height: 16),
 
                   _buildInfoRow(
-                      Icons.category_outlined, "Team Type", team!.teamType),
+                      Icons.category_outlined, "Team Type", capitalize(team!.teamType)),
                   if (team!.stadium != null)
                     _buildInfoRow(Icons.stadium_outlined, "Home Stadium",
                         team!.stadium!.name),
 
-                  const SizedBox(height: 32),
-
-                  _buildSectionHeader("RECENT FORM"),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Form data coming soon...",
-                    style:
-                        TextStyle(color: Colors.white24, fontFamily: 'Lexend'),
-                  ),
                 ],
               ),
             ),
@@ -172,7 +163,6 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
         Text(
           title,
           style: const TextStyle(
-            fontFamily: 'Lexend',
             color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 13,
@@ -205,14 +195,12 @@ class TeamDetailsScreenState extends State<TeamDetailsScreen> {
               Text(label,
                   style: const TextStyle(
                       color: Colors.white38,
-                      fontSize: 11,
-                      fontFamily: 'Lexend')),
+                      fontSize: 11)),
               Text(value,
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Lexend')),
+                      fontWeight: FontWeight.bold)),
             ],
           ),
         ],

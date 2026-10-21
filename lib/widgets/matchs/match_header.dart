@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/models/match_team.dart';
 import 'package:scoreboards/enums/matchs.dart';
@@ -90,7 +91,7 @@ class MatchHeader extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  match.round.toUpperCase(),
+                  roundLabel(match.round).toUpperCase(),
                   style: GoogleFonts.hankenGrotesk(
                     color: AppColors.textPrimary,
                     fontSize: 10,
@@ -105,14 +106,18 @@ class MatchHeader extends StatelessWidget {
                     const Icon(Icons.location_on_outlined,
                         color: AppColors.coral, size: 12),
                     const SizedBox(width: 4),
-                    Text(
+                    Flexible(
+                      child: Text(
                       match.location.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.hankenGrotesk(
                         color: AppColors.textSecondary,
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
+                    ),
                     ),
                   ],
                 ),
@@ -189,6 +194,14 @@ class MatchScoreBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // One fixed-height line: cap text growth so it can't overflow.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.3,
+      child: _buildRow(),
+    );
+  }
+
+  Widget _buildRow() {
     final bool isLive = match.status == MatchStatus.ongoing;
     final bool hasPens = match.wentToPenalties && match.scorePsoHome != null;
 
