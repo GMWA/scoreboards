@@ -6,7 +6,10 @@ enum MatchStatus {
   awarded('awarded'),
   postponed('postponed'),
   cancelled('cancelled'),
-  abandoned('abandoned');
+  abandoned('abandoned'),
+  // Played, but the backend doesn't have the result: the stored 0-0 is
+  // meaningless and the match is left out of the standings.
+  resultUnknown('result_unknown');
 
   const MatchStatus(this.value);
   final String value;
@@ -15,8 +18,8 @@ enum MatchStatus {
       .firstWhere((e) => e.value == value, orElse: () => MatchStatus.planned);
 
   /// Whether the score means anything: the match is underway or over (an
-  /// abandoned match can have a partial score). Not-yet-played, postponed
-  /// and cancelled matches carry a meaningless 0-0.
+  /// abandoned match can have a partial score). Not-yet-played, postponed,
+  /// cancelled and result-unknown matches carry a meaningless 0-0.
   bool get hasScore => switch (this) {
         ongoing || completed || awarded || abandoned => true,
         _ => false,
