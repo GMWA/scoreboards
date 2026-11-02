@@ -7,6 +7,14 @@ import 'package:scoreboards/models/match_team.dart';
 import 'package:scoreboards/enums/matchs.dart';
 import 'package:scoreboards/widgets/teams/team_logo_name.dart';
 
+/// The score as shown in the header and the score bar: "VS" before kick-off,
+/// "? - ?" when the match was played but its result isn't known.
+String _scoreText(MatchBase match) {
+  if (match.status == MatchStatus.resultUnknown) return '? - ?';
+  if (!match.status.hasScore) return 'VS';
+  return '${match.scoreFinalHome} - ${match.scoreFinalAway}';
+}
+
 class MatchHeader extends StatelessWidget {
   final MatchBase match;
 
@@ -15,6 +23,7 @@ class MatchHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLive = match.status == MatchStatus.ongoing;
+    final bool isResultUnknown = match.status == MatchStatus.resultUnknown;
 
     return Container(
       width: double.infinity,
@@ -47,16 +56,29 @@ class MatchHeader extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      !match.status.hasScore
-                          ? 'VS'
-                          : '${match.scoreFinalHome} - ${match.scoreFinalAway}',
+                      _scoreText(match),
                       style: GoogleFonts.archivo(
                         fontSize: 40,
-                        color: isLive ? AppColors.coral : AppColors.textPrimary,
+                        color: isLive
+                            ? AppColors.coral
+                            : isResultUnknown
+                                ? AppColors.textSecondary
+                                : AppColors.textPrimary,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
                       ),
                     ),
+                    if (isResultUnknown)
+                      Text(
+                        'RESULT UNKNOWN',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.hankenGrotesk(
+                          color: AppColors.textSecondary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
                     if (match.wentToPenalties && match.scorePsoHome != null)
                       Container(
                         margin: const EdgeInsets.only(top: 4),
@@ -174,6 +196,7 @@ class _StatusBadge extends StatelessWidget {
       case MatchStatus.ongoing:
         return 'Live';
       case MatchStatus.completed:
+      case MatchStatus.resultUnknown:
         return 'Full Time';
       case MatchStatus.planned:
       case MatchStatus.scheduled:
@@ -214,13 +237,15 @@ class MatchScoreBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                match.status.hasScore
-                    ? '${match.scoreFinalHome} - ${match.scoreFinalAway}'
-                    : 'VS',
+                _scoreText(match),
                 style: GoogleFonts.archivo(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: isLive ? AppColors.coral : AppColors.textPrimary,
+                  color: isLive
+                      ? AppColors.coral
+                      : match.status == MatchStatus.resultUnknown
+                          ? AppColors.textSecondary
+                          : AppColors.textPrimary,
                 ),
               ),
               if (hasPens)

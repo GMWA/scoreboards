@@ -27,6 +27,8 @@ class MatchCard extends StatelessWidget {
   Widget _buildCard(BuildContext context) {
     final bool isLive = match.status == MatchStatus.ongoing;
     final bool isFinished = match.status == MatchStatus.completed;
+    // Played, but the score isn't known: don't show the stored 0-0.
+    final bool isResultUnknown = match.status == MatchStatus.resultUnknown;
     final bool isPlanned = match.status == MatchStatus.planned ||
         match.status == MatchStatus.scheduled;
     final String matchTime = DateFormat('HH:mm').format(match.date);
@@ -35,9 +37,11 @@ class MatchCard extends StatelessWidget {
         ? 'LIVE'
         : isFinished
             ? 'FT'
-            : isPlanned
-                ? matchTime
-                : match.status.value.toUpperCase();
+            : isResultUnknown
+                ? 'RESULT UNKNOWN'
+                : isPlanned
+                    ? matchTime
+                    : match.status.value.toUpperCase();
     final Color statusColor = isLive ? AppColors.coral : AppColors.textSecondary;
 
     return Container(
@@ -63,21 +67,29 @@ class MatchCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      if (isLive) ...[
-                        const _PulsingDot(),
-                        const SizedBox(width: 5),
-                      ],
-                      Text(
-                        statusLabel,
-                        style: GoogleFonts.hankenGrotesk(
-                          color: statusColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
+                  // Flexible so a long status ("RESULT UNKNOWN") gives way to
+                  // the round label and follow star on narrow screens.
+                  Flexible(
+                    child: Row(
+                      children: [
+                        if (isLive) ...[
+                          const _PulsingDot(),
+                          const SizedBox(width: 5),
+                        ],
+                        Flexible(
+                          child: Text(
+                            statusLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.hankenGrotesk(
+                              color: statusColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -135,6 +147,19 @@ class MatchCard extends StatelessWidget {
                             ),
                           ),
                         ]),
+                      ),
+                    )
+                  else if (isResultUnknown)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        '? - ?',
+                        style: GoogleFonts.archivo(
+                          color: AppColors.textSecondary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                        ),
                       ),
                     )
                   else

@@ -138,7 +138,9 @@ class MatchListScreenState extends State<MatchListScreen> {
         break;
       case _ScoreFilter.finished:
         filtered = _matches.where((m) =>
-            m.status == MatchStatus.completed || m.status == MatchStatus.awarded);
+            m.status == MatchStatus.completed ||
+            m.status == MatchStatus.awarded ||
+            m.status == MatchStatus.resultUnknown);
         break;
       case _ScoreFilter.all:
         break;

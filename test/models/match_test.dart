@@ -125,6 +125,7 @@ void main() {
         'postponed': MatchStatus.postponed,
         'cancelled': MatchStatus.cancelled,
         'abandoned': MatchStatus.abandoned,
+        'result_unknown': MatchStatus.resultUnknown,
       };
 
       backendStatuses.forEach((value, expected) {
