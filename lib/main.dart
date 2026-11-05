@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
@@ -21,6 +22,16 @@ const bool kEnableBackgroundNotificationService = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Fonts ship in google_fonts/: fetching them from fonts.gstatic.com
+  // fails on a poor connection and is reported as a fatal error.
+  GoogleFonts.config.allowRuntimeFetching = false;
+  LicenseRegistry.addLicense(() async* {
+    for (final family in ['Archivo', 'HankenGrotesk', 'SpaceGrotesk']) {
+      final license = await rootBundle.loadString('google_fonts/$family-OFL.txt');
+      yield LicenseEntryWithLineBreaks([family], license);
+    }
+  });
 
   // Startup runs inside crash reporting so failures here are captured too.
   await runWithCrashReporting(() async {
