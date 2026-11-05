@@ -158,6 +158,11 @@ String? appRouteForLink(Uri link, Uri website) {
   return prefix == null ? null : '$prefix/${segments[1]}';
 }
 
+/// The website page of an article, for sharing: link previews in WhatsApp
+/// and other apps come from that page's title and description.
+Uri articleWebLink(Uri website, String slug) =>
+    website.replace(pathSegments: ['blogs', slug]);
+
 /// Human label for a match's backend `round`: a bare number is a league
 /// matchday; knockout rounds arrive as short codes.
 String roundLabel(String round) {
