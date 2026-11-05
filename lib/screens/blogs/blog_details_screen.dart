@@ -9,6 +9,7 @@ import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/article.dart';
 import 'package:scoreboards/services/articles.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlogDetailsScreen extends StatefulWidget {
@@ -59,6 +60,19 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
         const SnackBar(content: Text('Could not open this link.')),
       );
     }
+  }
+
+  // Shares the website link rather than text: the receiving app builds the
+  // preview card from the page's search title, description and cover.
+  Future<void> _share(BuildContext buttonContext, Article a) async {
+    // iPad anchors the share sheet to the button.
+    final box = buttonContext.findRenderObject() as RenderBox?;
+    await SharePlus.instance.share(ShareParams(
+      uri: articleWebLink(Uri.parse(websiteUrl), widget.slug),
+      subject: a.title,
+      sharePositionOrigin:
+          box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+    ));
   }
 
   Future<void> _loadArticle() async {
@@ -112,6 +126,20 @@ class BlogDetailsScreenState extends State<BlogDetailsScreen> {
             pinned: true,
             backgroundColor: AppColors.bg,
             elevation: 0,
+            actions: [
+              Builder(
+                builder: (buttonContext) => IconButton(
+                  tooltip: 'Share article',
+                  icon: const Icon(Icons.share_outlined,
+                      color: AppColors.textPrimary),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.bg.withValues(alpha: 0.6),
+                  ),
+                  onPressed: () => _share(buttonContext, a),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: a.coverImage != null
                 ? FlexibleSpaceBar(
                     background: Stack(

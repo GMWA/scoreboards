@@ -63,6 +63,18 @@ void main() {
     });
   });
 
+  test('articleWebLink points at the article page on the website', () {
+    expect(
+      articleWebLink(Uri.parse('https://scoreboards.cm'), 'cameroun-w-champion')
+          .toString(),
+      'https://scoreboards.cm/blogs/cameroun-w-champion',
+    );
+    // The link round-trips to the app's article screen.
+    final website = Uri.parse('https://scoreboards.cm');
+    expect(appRouteForLink(articleWebLink(website, 'a-b'), website),
+        '/blogs/a-b');
+  });
+
   test('buildTimelineEvents shows only valid in-play goals', () {
     // Shaped like staging's 2026-maroc-w-vs-cameroun-w-sf: 0-0, decided on
     // penalties, with a missed in-play penalty.
