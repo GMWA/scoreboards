@@ -6,6 +6,7 @@ import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/models/lineup.dart';
 import 'package:scoreboards/widgets/matchs/match_timeline.dart';
 import 'package:scoreboards/widgets/matchs/match_header.dart';
+import 'package:scoreboards/widgets/matchs/match_statistics_tab.dart';
 import 'package:scoreboards/widgets/matchs/motm_voting_tab.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/helpers/utils.dart';
@@ -114,11 +115,29 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
       );
     }
 
+    // The Stats tab only appears when the match has statistics, like on the
+    // website; a live refresh can add it.
+    final statistics = current.statistics;
+    final tabs = <(String, Widget)>[
+      ('Timeline', _buildTimelineTab()),
+      if (statistics != null)
+        (
+          'Stats',
+          MatchStatisticsTab(
+            statistics: statistics,
+            homeName: current.homeTeam.name,
+            awayName: current.awayTeam.name,
+          ),
+        ),
+      ('Lineups', _LineupsTab(match: current)),
+      ('MOTM', MotmVotingTab(matchId: current.id)),
+    ];
+
     // Full header on open; scrolling any tab scrolls it away while the top
     // bar (with a compact score) and the tab bar stay pinned, so the tab
     // content gets most of the screen.
     return DefaultTabController(
-      length: 3,
+      length: tabs.length,
       child: Scaffold(
         backgroundColor: AppColors.bg,
         body: NestedScrollView(
@@ -152,21 +171,18 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
             SliverToBoxAdapter(
               child: KeyedSubtree(key: _headerKey, child: MatchHeader(match: current)),
             ),
-            SliverPersistentHeader(pinned: true, delegate: _TabBarHeader(_buildTabBar())),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarHeader(_buildTabBar([for (final t in tabs) t.$1])),
+            ),
           ],
-          body: TabBarView(
-            children: [
-              _buildTimelineTab(),
-              _LineupsTab(match: current),
-              MotmVotingTab(matchId: current.id),
-            ],
-          ),
+          body: TabBarView(children: [for (final t in tabs) t.$2]),
         ),
       ),
     );
   }
 
-  TabBar _buildTabBar() {
+  TabBar _buildTabBar(List<String> labels) {
     return TabBar(
       // Five tabs don't fit side by side on a ~360dp phone (labels got
       // clipped); scrollable tabs size to their labels, and center when
@@ -181,11 +197,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
       labelStyle: GoogleFonts.hankenGrotesk(fontSize: 13.5, fontWeight: FontWeight.w600),
       unselectedLabelStyle:
           GoogleFonts.hankenGrotesk(fontSize: 13.5, fontWeight: FontWeight.w600),
-      tabs: const [
-        Tab(text: 'Timeline'),
-        Tab(text: 'Lineups'),
-        Tab(text: 'MOTM'),
-      ],
+      tabs: [for (final label in labels) Tab(text: label)],
     );
   }
 

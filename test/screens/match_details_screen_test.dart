@@ -150,6 +150,36 @@ void main() {
     expect(find.text('Test HomeStarter'), findsOneWidget);
   });
 
+  testWidgets('the Stats tab only appears when the match has statistics',
+      (tester) async {
+    await pumpScreen(tester);
+    expect(find.text('Stats'), findsNothing);
+
+    MatchService.client = MockClient((_) async => Response(
+        jsonEncode({
+          ..._matchJson,
+          'statistics': {
+            'home': {'possession': 60, 'shots': 9, 'yellow_cards': 1, 'red_cards': 0},
+            'away': {'possession': 40, 'shots': 4, 'yellow_cards': 0, 'red_cards': 0},
+            'source': 'admin',
+            'source_note': '',
+          },
+        }),
+        200));
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Stats'));
+    await tester.pumpAndSettle();
+    expect(find.text('60%'), findsOneWidget);
+    expect(find.text('Shots'), findsOneWidget);
+
+    // The other tabs still work with four of them.
+    await tester.tap(find.text('Lineups'));
+    await tester.pumpAndSettle();
+    expect(find.text('T. HomeStarter'), findsOneWidget);
+  });
+
   testWidgets('a live match refreshes its score every 30 seconds',
       (tester) async {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
