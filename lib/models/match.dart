@@ -5,6 +5,7 @@ import 'package:scoreboards/models/goal.dart';
 import 'package:scoreboards/models/stadium.dart';
 import 'package:scoreboards/models/subtitution.dart';
 import 'package:scoreboards/models/lineup.dart';
+import 'package:scoreboards/models/match_statistics.dart';
 import 'package:scoreboards/enums/matchs.dart';
 
 class MatchBase {
@@ -103,6 +104,8 @@ class Match extends MatchBase {
   final List<DisciplinaryCard> cards;
   final List<Substitution> substitutions;
   final List<MatchLineup> lineups;
+  // Null when the match has no statistics (or the API predates them).
+  final MatchStatistics? statistics;
 
   Match(
       {
@@ -132,7 +135,8 @@ class Match extends MatchBase {
       required this.goals,
       required this.cards,
       required this.substitutions,
-      required this.lineups});
+      required this.lineups,
+      this.statistics});
 
   factory Match.fromJson(Map<String, dynamic> json) {
     // 1. Parse the base properties first
@@ -174,6 +178,9 @@ class Match extends MatchBase {
       lineups: (json['lineups'] as List? ?? [])
           .map((lineup) => MatchLineup.fromJson(lineup))
           .toList(),
+      statistics: json['statistics'] != null
+          ? MatchStatistics.fromJson(json['statistics'])
+          : null,
     );
   }
 }
