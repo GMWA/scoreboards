@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The logo tile's colour (#111113 in the site's icon.svg). -->
+    <color name="ic_launcher_background">#111113</color>
+    <!-- AppColors.bg, so the splash blends into the first screen. -->
+    <color name="splash_background">#0D0E10</color>
+</resources>

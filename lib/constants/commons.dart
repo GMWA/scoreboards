@@ -29,6 +29,9 @@ const iMGCLOCK = "assets/images/clock.svg";
 const iMGREFEREE = "assets/images/referee.svg";
 const iMGVENUE = "assets/images/field.svg";
 const iMGLEAGUE = "assets/images/trophy.svg";
+// The scoreboard "S" tile and the SCORE/BOARDS wordmark, from the website
+// (nextjs-frontend/public/logo.svg); 2402.68 x 512.
+const iMGLOGO = "assets/images/logo.svg";
 
 const sEASONS = [2025];
 
