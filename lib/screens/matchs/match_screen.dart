@@ -11,6 +11,8 @@ import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/models/favorite_item.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:scoreboards/constants/commons.dart';
 
 enum _ScoreFilter { all, live, upcoming, finished }
 
@@ -254,13 +256,10 @@ class MatchListScreenState extends State<MatchListScreen> {
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: Text(
-          'Scoreboards',
-          style: GoogleFonts.spaceGrotesk(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 19,
-          ),
+        title: SvgPicture.asset(
+          iMGLOGO,
+          height: 26,
+          semanticsLabel: 'Scoreboards',
         ),
         actions: [
           IconButton(

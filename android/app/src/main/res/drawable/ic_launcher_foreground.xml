@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground: the scoreboard "S" and the red live dot, sized to stay inside the safe zone. Paths from the site's icon.svg (512 units). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.13671875"
+        android:scaleY="0.13671875"
+        android:translateX="19"
+        android:translateY="19">
+        <path android:fillColor="#FFFFFF" android:pathData="M176,115 L207,84 L287,84 L318,115 L287,146 L207,146 Z M169,122 L200,153 L200,218 L169,249 L138,218 L138,153 Z M176,256 L207,225 L287,225 L318,256 L287,287 L207,287 Z M325,263 L356,294 L356,359 L325,390 L294,359 L294,294 Z M176,397 L207,366 L287,366 L318,397 L287,428 L207,428 Z" />
+        <path android:fillColor="#FF5A5A" android:pathData="M372,116 a34,34 0 1,0 68,0 a34,34 0 1,0 -68,0 Z" />
+    </group>
+</vector>

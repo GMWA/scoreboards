@@ -14,7 +14,7 @@ class LocalNotificationService {
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('@drawable/ic_notification');
 
     // Don't prompt at launch: permission is asked for only when the user
     // turns notifications on (see requestPermission).
