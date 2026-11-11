@@ -13,8 +13,8 @@ class MatchService {
     final start = DateTime(date.year, date.month, date.day);
     final end = DateTime(date.year, date.month, date.day + 1);
     final utcDays = {
-      DateFormat('dd-MM-yyyy').format(start.toUtc()),
-      DateFormat('dd-MM-yyyy')
+      DateFormat('yyyy-MM-dd').format(start.toUtc()),
+      DateFormat('yyyy-MM-dd')
           .format(end.subtract(const Duration(microseconds: 1)).toUtc()),
     };
 
