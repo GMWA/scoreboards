@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:scoreboards/services/notification_service.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 
 
 final logger = Logger();
@@ -26,9 +25,9 @@ class WebSocketManager {
   Duration _retryDelay = initialRetryDelay;
   bool _closed = false;
 
-  void connect(String url, {ServiceInstance? service}) {
+  void connect(String url) {
     _closed = false;
-    _open(url, service);
+    _open(url);
   }
 
   /// Closes the socket and stops reconnecting.
@@ -39,7 +38,7 @@ class WebSocketManager {
     _channel?.sink.close();
   }
 
-  void _open(String url, ServiceInstance? service) {
+  void _open(String url) {
     // Drop the previous socket's listeners so its late events can't
     // schedule a second reconnect.
     _subscription?.cancel();
@@ -58,34 +57,34 @@ class WebSocketManager {
       );
 
       _subscription = channel.stream.listen(
-        (event) => _handleMessage(event, service),
+        (event) => _handleMessage(event),
         // A failure usually produces an error and then a close; both funnel
         // into the same guarded reconnect, so only one is scheduled.
         onError: (err) {
           logger.i("WS Error: $err");
-          _scheduleReconnect(url, service);
+          _scheduleReconnect(url);
         },
         onDone: () {
           logger.i("WS Closed");
-          _scheduleReconnect(url, service);
+          _scheduleReconnect(url);
         },
       );
     } catch (e) {
       logger.i("WS Connection Exception: $e");
-      _scheduleReconnect(url, service);
+      _scheduleReconnect(url);
     }
   }
 
-  void _scheduleReconnect(String url, ServiceInstance? service) {
+  void _scheduleReconnect(String url) {
     if (_closed || (_reconnectTimer?.isActive ?? false)) return;
 
     final delay = _retryDelay;
     final doubled = _retryDelay * 2;
     _retryDelay = doubled > maxRetryDelay ? maxRetryDelay : doubled;
-    _reconnectTimer = Timer(delay, () => _open(url, service));
+    _reconnectTimer = Timer(delay, () => _open(url));
   }
 
-  void _handleMessage(dynamic event, ServiceInstance? service) async {
+  void _handleMessage(dynamic event) async {
     try {
       final data = jsonDecode(event);
       final title = data["title"] ?? "Scoreboards";
@@ -95,12 +94,6 @@ class WebSocketManager {
         title: title,
         body: body,
       );
-
-      if (service != null) {
-        service.invoke("notification", {"payload": event});
-      } else {
-        logger.i("Linux UI Update: $event");
-      }
     } catch (e) {
       logger.i("Error parsing message: $e");
     }

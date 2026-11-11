@@ -2,13 +2,6 @@
     <!-- Permissions MUST be inside <manifest> -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <!-- Android 14+ (API 34) requires a permission matching each
-         foregroundServiceType declared on the <service> below. The service
-         only keeps a websocket open for live-score updates — it never does
-         location tracking or FCM remote messaging — so it declares just
-         dataSync, matching what it actually needs. -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <application
         android:label="Scoreboards"
         android:name="${applicationName}"
@@ -37,12 +30,6 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <!-- Background service MUST be inside <application> -->
-        <service
-            android:name="com.ekasetiawans.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false" />
-
         <!-- Flutter required -->
         <meta-data
             android:name="flutterEmbedding"
