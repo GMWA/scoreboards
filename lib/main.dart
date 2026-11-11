@@ -1,24 +1,14 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/notification_service.dart';
-import 'package:scoreboards/services/background_service.dart';
 import 'package:scoreboards/services/crash_reporting.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 import 'package:scoreboards/router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-/// Temporarily off while we get the base app (nav, screens, favorites)
-/// solid — the real-time notification background service has been the
-/// source of a hard-to-diagnose startup crash, and it isn't wired to
-/// anything user-facing yet anyway. Flip this back to true once the base
-/// app is confirmed working and the staging websocket host is reachable.
-const bool kEnableBackgroundNotificationService = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,32 +41,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String lastMessage = "No messages yet";
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (kEnableBackgroundNotificationService) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        bool isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-        if (isMobile) {
-          await initializeBackgroundService();
-        }
-      });
-
-      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        FlutterBackgroundService().on("notification").listen((event) {
-          if (event != null) {
-            setState(() {
-              lastMessage = event["payload"].toString();
-            });
-          }
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
