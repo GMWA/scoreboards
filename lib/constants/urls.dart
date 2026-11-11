@@ -64,8 +64,10 @@ final Map<String, dynamic> urls = {
   },
   'DEVICES': {
     'REGISTER': '$baseUrl/devices/',
+    'DETAIL': '$baseUrl/devices/#deviceId/',
   },
   'NOTIFICATIONS': {
     'WEBSOCKET': '$wsBaseUrl/ws/notifications/#deviceId/',
+    'FAVORITES': '$baseUrl/notifications/favorites/#deviceId/',
   },
 };

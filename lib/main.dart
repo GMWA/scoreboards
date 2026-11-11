@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +8,7 @@ import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/notification_service.dart';
 import 'package:scoreboards/services/crash_reporting.dart';
+import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/services/favorites_service.dart';
 import 'package:scoreboards/router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,6 +33,10 @@ Future<void> main() async {
     await FavoritesService.instance.init();
 
     runApp(const MyApp());
+
+    // Fills in the platform for devices registered before the app sent
+    // it; does nothing once the backend has it.
+    unawaited(DeviceService().reportPlatformOnce());
   });
 }
 
