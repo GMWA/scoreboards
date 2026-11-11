@@ -4,4 +4,6 @@
     <color name="ic_launcher_background">#111113</color>
     <!-- AppColors.bg, so the splash blends into the first screen. -->
     <color name="splash_background">#0D0E10</color>
+    <!-- AppColors.coral: tints the notification icon. -->
+    <color name="notification_color">#FF6B66</color>
 </resources>

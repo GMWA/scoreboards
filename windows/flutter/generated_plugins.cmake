@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  firebase_core
   sentry_flutter
   share_plus
   url_launcher_windows

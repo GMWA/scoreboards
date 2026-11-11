@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/models/favorite_item.dart';
 import 'package:scoreboards/services/favorites_service.dart';
+import 'package:scoreboards/services/push_service.dart';
 
 /// A tap-to-follow star, meant to appear anywhere a team or competition
 /// name/badge is shown (team card, edition card, detail headers, match
-/// card). Reflects and toggles the shared FavoritesService state.
+/// card). Reflects and toggles the shared FavoritesService state. The first
+/// follow also offers notifications, if the user was never asked.
 class FavoriteStar extends StatelessWidget {
   final FavoriteItem item;
   final double size;
@@ -20,6 +22,18 @@ class FavoriteStar extends StatelessWidget {
     this.inactiveColor,
   });
 
+  Future<void> _toggle(BuildContext context) async {
+    await FavoritesService.instance.toggle(item);
+    if (!FavoritesService.instance.isFollowed(item)) return;
+
+    if (await PushService.instance.offerAfterFollow() && context.mounted) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+        content: Text(
+            "You'll get notifications for ${item.name}. Turn them off in Settings."),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -28,7 +42,7 @@ class FavoriteStar extends StatelessWidget {
         final bool active = FavoritesService.instance.isFollowed(item);
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => FavoritesService.instance.toggle(item),
+          onTap: () => _toggle(context),
           child: Padding(
             padding: const EdgeInsets.all(6),
             child: Icon(

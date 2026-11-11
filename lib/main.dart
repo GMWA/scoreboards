@@ -10,6 +10,7 @@ import 'package:scoreboards/services/notification_service.dart';
 import 'package:scoreboards/services/crash_reporting.dart';
 import 'package:scoreboards/services/device_service.dart';
 import 'package:scoreboards/services/favorites_service.dart';
+import 'package:scoreboards/services/push_service.dart';
 import 'package:scoreboards/router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -29,10 +30,21 @@ Future<void> main() async {
   // Startup runs inside crash reporting so failures here are captured too.
   await runWithCrashReporting(() async {
     await dotenv.load(fileName: envFile);
-    await LocalNotificationService.initialize();
+    await LocalNotificationService.initialize(onTap: router.push);
     await FavoritesService.instance.init();
+    await PushService.instance.init(openRoute: router.push);
+
+    // A tapped notification that launched the app: a push, or one the app
+    // showed itself while it was open.
+    final launchRoute = PushService.instance.takePendingRoute() ??
+        await LocalNotificationService.launchPayload();
 
     runApp(const MyApp());
+
+    if (launchRoute != null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => router.push(launchRoute));
+    }
 
     // Fills in the platform for devices registered before the app sent
     // it; does nothing once the backend has it.
