@@ -51,7 +51,7 @@ void main() {
 
       MatchService.client = MockClient((request) async {
         expect(request.url.toString(),
-            matches(r'^https://fake\.dev/matches/day/\d{2}-\d{2}-\d{4}$'));
+            matches(r'^https://fake\.dev/matches/day/\d{4}-\d{2}-\d{2}$'));
         return Response(
             jsonEncode([
               _matchJson(1, DateTime(2025, 1, 20, 15)),

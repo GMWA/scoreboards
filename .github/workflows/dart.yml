@@ -27,8 +27,9 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable' # Use 'stable' for production-ready code
-          # flutter-version: '3.19.0' # Optional: pin to a specific version
+          channel: 'stable'
+          # The version releases are built with locally; update both together.
+          flutter-version: '3.44.4'
 
       - name: Install dependencies
         run: flutter pub get
