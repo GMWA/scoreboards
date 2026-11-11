@@ -26,6 +26,75 @@ void main() {
 
       // ensure DEVICES map exists
       urls['DEVICES'] ??= {};
+      urls['DEVICES']!['DETAIL'] = "https://fake.dev/devices/#deviceId/";
+    });
+
+    test("registration sends the platform", () async {
+      SharedPreferences.setMockInitialValues({});
+      Map<String, dynamic>? sent;
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        sent = jsonDecode(request.body);
+        return Response(jsonEncode({"device_id": "new-device"}), 201);
+      });
+      urls['DEVICES']!['REGISTER'] = "https://fake.dev/register";
+
+      await service.getOrRegisterDevice();
+
+      // flutter_test runs as Android unless told otherwise.
+      expect(sent, {"platform": "android"});
+      // A new device never needs the platform backfilled.
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool("device_platform_reported"), isTrue);
+    });
+
+    test("reportPlatformOnce backfills the platform once", () async {
+      SharedPreferences.setMockInitialValues({"device_id": "old-device"});
+      final requests = <Request>[];
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        requests.add(request);
+        return Response(jsonEncode({"device_id": "old-device"}), 200);
+      });
+
+      await service.reportPlatformOnce();
+      await service.reportPlatformOnce();
+
+      expect(requests, hasLength(1));
+      expect(requests.single.method, "PATCH");
+      expect(requests.single.url.toString(),
+          "https://fake.dev/devices/old-device/");
+      expect(jsonDecode(requests.single.body), {"platform": "android"});
+    });
+
+    test("reportPlatformOnce retries after a failure", () async {
+      SharedPreferences.setMockInitialValues({"device_id": "old-device"});
+      var attempts = 0;
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        attempts++;
+        return attempts == 1 ? Response("down", 503) : Response("{}", 200);
+      });
+
+      await service.reportPlatformOnce(); // fails, must not throw
+      await service.reportPlatformOnce();
+      await service.reportPlatformOnce();
+
+      expect(attempts, 2);
+    });
+
+    test("reportPlatformOnce does nothing without a registered device",
+        () async {
+      SharedPreferences.setMockInitialValues({});
+
+      DeviceService.internalHttpClient = MockClient((request) async {
+        throw Exception("no request expected");
+      });
+
+      await service.reportPlatformOnce();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString("device_id"), isNull);
     });
 
     test("returns saved device ID if stored in SharedPreferences", () async {
