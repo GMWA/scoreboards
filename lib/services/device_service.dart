@@ -47,6 +47,27 @@ class DeviceService {
     return _pending ??= _loadOrRegister().whenComplete(() => _pending = null);
   }
 
+  /// Changes this device on the backend (registering it first if needed),
+  /// e.g. its push token. Returns whether the backend accepted it; never
+  /// throws.
+  Future<bool> update(Map<String, dynamic> fields) async {
+    try {
+      final deviceId = await getOrRegisterDevice();
+      final response = await _internalHttpClient
+          .patch(
+            Uri.parse((urls['DEVICES']['DETAIL'] as String)
+                .replaceAll('#deviceId', deviceId)),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(fields),
+          )
+          .timeout(const Duration(seconds: 20));
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('Could not update the device: $e');
+      return false;
+    }
+  }
+
   /// Devices registered before the app sent its platform have none on the
   /// backend; this fills it in once. Failures are ignored and retried on
   /// the next launch. It never registers a device by itself.

@@ -6,17 +6,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/services/favorites_service.dart';
-import 'package:scoreboards/services/notification_service.dart';
+import 'package:scoreboards/services/push_service.dart';
 
 /// Temporarily off until there's an actual account system to back it —
 /// the profile card, account settings, and sign out are kept in place
 /// (not deleted) so they're ready to flip back on once sign-in ships.
 const bool kEnableAccountSettings = false;
-
-/// Off until push delivery ships: the toggles are built and persisted, but
-/// nothing reads them yet, so showing them would promise alerts that never
-/// arrive.
-const bool kEnableNotificationSettings = false;
 
 /// Off while the app is dark-only: the toggle would change nothing.
 const bool kEnableThemeSetting = false;
@@ -25,9 +20,9 @@ const bool kEnableThemeSetting = false;
 /// card, account settings list, preference toggles, sign out.
 ///
 /// "Favorite Teams" / "Favorite Competitions" open the real management
-/// screens backed by FavoritesService. The notification and dark mode
-/// toggles are built but hidden behind the flags above until those features
-/// exist.
+/// screens backed by FavoritesService. "Match Notifications" turns push
+/// notifications on or off (PushService); it's hidden when push isn't set
+/// up. The dark mode toggle is built but hidden behind the flag above.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -36,18 +31,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const _kMaster = 'notif_master';
-  static const _kKickoff = 'notif_kickoff';
-  static const _kGoals = 'notif_goals';
-  static const _kFullTime = 'notif_fulltime';
-  static const _kLineups = 'notif_lineups';
   static const _kDarkMode = 'dark_mode';
 
   bool _notifMaster = false;
-  bool _notifKickoff = true;
-  bool _notifGoals = true;
-  bool _notifFullTime = true;
-  bool _notifLineups = false;
   bool _darkMode = true;
 
   @override
@@ -58,13 +44,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadNotificationPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    final notificationsOn = await PushService.instance.isEnabled();
     if (!mounted) return;
     setState(() {
-      _notifMaster = prefs.getBool(_kMaster) ?? false;
-      _notifKickoff = prefs.getBool(_kKickoff) ?? true;
-      _notifGoals = prefs.getBool(_kGoals) ?? true;
-      _notifFullTime = prefs.getBool(_kFullTime) ?? true;
-      _notifLineups = prefs.getBool(_kLineups) ?? false;
+      _notifMaster = notificationsOn;
       _darkMode = prefs.getBool(_kDarkMode) ?? true;
     });
   }
@@ -83,7 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// denied the toggle stays off rather than promising alerts that can't
   /// be shown.
   Future<void> _setNotificationsEnabled(bool enabled) async {
-    if (enabled && !await LocalNotificationService.requestPermission()) {
+    if (await PushService.instance.setEnabled(enabled) != enabled) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -94,7 +77,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     if (!mounted) return;
     setState(() => _notifMaster = enabled);
-    _setPref(_kMaster, enabled);
   }
 
   Future<void> _setPref(String key, bool value) async {
@@ -201,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ]);
                 },
               ),
-              if (kEnableNotificationSettings) ...[
+              if (PushService.instance.isAvailable) ...[
                 const SizedBox(height: 22),
                 _sectionLabel('NOTIFICATIONS'),
                 const SizedBox(height: 10),
@@ -210,59 +192,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.notifications_none,
                     iconColor: AppColors.mint,
                     title: 'Match Notifications',
-                    subtitle: 'Alerts for teams and competitions you follow',
+                    subtitle: 'For the teams and competitions you follow',
+                    showDivider: false,
                     trailing: _ToggleSwitch(
                       value: _notifMaster,
                       onChanged: _setNotificationsEnabled,
                     ),
-                  ),
-                  _notificationSubRow(
-                    icon: Icons.sports_outlined,
-                    title: 'Kickoff reminders',
-                    value: _notifKickoff,
-                    onChanged: (v) {
-                      setState(() => _notifKickoff = v);
-                      _setPref(_kKickoff, v);
-                    },
-                  ),
-                  _notificationSubRow(
-                    icon: Icons.sports_soccer,
-                    title: 'Goals',
-                    value: _notifGoals,
-                    onChanged: (v) {
-                      setState(() => _notifGoals = v);
-                      _setPref(_kGoals, v);
-                    },
-                  ),
-                  _notificationSubRow(
-                    icon: Icons.flag_outlined,
-                    title: 'Full-time results',
-                    value: _notifFullTime,
-                    onChanged: (v) {
-                      setState(() => _notifFullTime = v);
-                      _setPref(_kFullTime, v);
-                    },
-                  ),
-                  _notificationSubRow(
-                    icon: Icons.groups_outlined,
-                    title: 'Lineup announcements',
-                    value: _notifLineups,
-                    onChanged: (v) {
-                      setState(() => _notifLineups = v);
-                      _setPref(_kLineups, v);
-                    },
-                    showDivider: false,
                   ),
                 ]),
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    'Notifications are prepared here now and will start working once push delivery ships.',
+                    'Kick-off reminders, goals and results. Tap the star on a team or competition to follow it.',
                     style: GoogleFonts.hankenGrotesk(
                       color: AppColors.textSecondary,
                       fontSize: 11,
-                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ),
@@ -357,26 +302,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  _SettingsRow _notificationSubRow({
-    required IconData icon,
-    required String title,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    bool showDivider = true,
-  }) {
-    return _SettingsRow(
-      icon: icon,
-      iconColor: _notifMaster ? AppColors.textPrimary : AppColors.textSecondary,
-      title: title,
-      subtitle: _notifMaster ? 'On' : 'Enable Match Notifications above',
-      showDivider: showDivider,
-      trailing: _ToggleSwitch(
-        value: value,
-        onChanged: _notifMaster ? onChanged : (_) {},
       ),
     );
   }
