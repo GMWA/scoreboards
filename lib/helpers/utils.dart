@@ -163,6 +163,11 @@ String? appRouteForLink(Uri link, Uri website) {
 Uri articleWebLink(Uri website, String slug) =>
     website.replace(pathSegments: ['blogs', slug]);
 
+/// The website page of a match, for sharing: its preview shows the teams
+/// and the score.
+Uri matchWebLink(Uri website, String slug) =>
+    website.replace(pathSegments: ['matchs', slug]);
+
 /// Human label for a match's backend `round`: a bare number is a league
 /// matchday; knockout rounds arrive as short codes.
 String roundLabel(String round) {

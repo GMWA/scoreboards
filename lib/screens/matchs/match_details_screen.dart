@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
+import 'package:scoreboards/constants/urls.dart';
 import 'package:scoreboards/models/match.dart';
 import 'package:scoreboards/models/lineup.dart';
 import 'package:scoreboards/widgets/matchs/match_timeline.dart';
@@ -10,6 +11,7 @@ import 'package:scoreboards/widgets/matchs/match_statistics_tab.dart';
 import 'package:scoreboards/widgets/matchs/motm_voting_tab.dart';
 import 'package:scoreboards/services/matchs.dart';
 import 'package:scoreboards/helpers/utils.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MatchDetailsScreen extends StatefulWidget {
   final String slug;
@@ -165,8 +167,18 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
                         ),
                       ),
               ),
-              // Balances the back button so the compact score is centred.
-              actions: const [SizedBox(width: 48)],
+              // As wide as the back button, so the compact score stays
+              // centred.
+              actions: [
+                Builder(
+                  builder: (buttonContext) => IconButton(
+                    tooltip: 'Share match',
+                    icon: const Icon(Icons.share_outlined,
+                        color: AppColors.textPrimary),
+                    onPressed: () => _share(buttonContext, current),
+                  ),
+                ),
+              ],
             ),
             SliverToBoxAdapter(
               child: KeyedSubtree(key: _headerKey, child: MatchHeader(match: current)),
@@ -180,6 +192,19 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
         ),
       ),
     );
+  }
+
+  // Shares the website link, like an article: the receiving app builds the
+  // preview card from the match page's title and image.
+  Future<void> _share(BuildContext buttonContext, Match m) async {
+    // iPad anchors the share sheet to the button.
+    final box = buttonContext.findRenderObject() as RenderBox?;
+    await SharePlus.instance.share(ShareParams(
+      uri: matchWebLink(Uri.parse(websiteUrl), widget.slug),
+      subject: '${m.homeTeam.name} vs ${m.awayTeam.name}',
+      sharePositionOrigin:
+          box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+    ));
   }
 
   TabBar _buildTabBar(List<String> labels) {
