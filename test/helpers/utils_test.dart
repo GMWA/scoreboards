@@ -75,6 +75,15 @@ void main() {
         '/blogs/a-b');
   });
 
+  test('matchWebLink points at the match page on the website', () {
+    final website = Uri.parse('https://scoreboards.cm');
+    expect(matchWebLink(website, 'a-vs-b').toString(),
+        'https://scoreboards.cm/matchs/a-vs-b');
+    // The link round-trips to the app's match screen.
+    expect(appRouteForLink(matchWebLink(website, 'a-vs-b'), website),
+        '/matchs/details/a-vs-b');
+  });
+
   test('buildTimelineEvents shows only valid in-play goals', () {
     // Shaped like staging's 2026-maroc-w-vs-cameroun-w-sf: 0-0, decided on
     // penalties, with a missed in-play penalty.
