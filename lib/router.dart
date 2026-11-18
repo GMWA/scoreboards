@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:scoreboards/constants/urls.dart';
+import 'package:scoreboards/helpers/utils.dart';
 import 'package:scoreboards/layouts/app_layout.dart';
 import 'package:scoreboards/screens/settings/settings_screen.dart';
 import 'package:scoreboards/screens/settings/favorites_management_screen.dart';
@@ -24,6 +26,9 @@ final GoRouter router = GoRouter(
   // Records screen changes as breadcrumbs on crash reports (no-op when
   // Sentry isn't configured).
   observers: [SentryNavigatorObserver()],
+  // A website link that opened the app arrives with the website's path.
+  redirect: (context, state) =>
+      appRouteForIncomingLink(state.uri, Uri.parse(websiteUrl)),
   routes: [
     ShellRoute(
       builder: (context, state, child) => AppLayout(body: child),

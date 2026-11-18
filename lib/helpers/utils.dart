@@ -158,6 +158,14 @@ String? appRouteForLink(Uri link, Uri website) {
   return prefix == null ? null : '$prefix/${segments[1]}';
 }
 
+/// Where to go for a website link that opened the app (Android App Links):
+/// it arrives as the full address, such as https://scoreboards.cm/matchs/x.
+/// The app's route for it, or null when [location] is already an app route.
+String? appRouteForIncomingLink(Uri location, Uri website) {
+  final route = appRouteForLink(location, website);
+  return route == location.toString() ? null : route;
+}
+
 /// The website page of an article, for sharing: link previews in WhatsApp
 /// and other apps come from that page's title and description.
 Uri articleWebLink(Uri website, String slug) =>
