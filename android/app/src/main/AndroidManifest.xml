@@ -27,6 +27,21 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Android App Links: website links to pages the app also has
+                 open the app. Verified by the website's
+                 /.well-known/assetlinks.json; the router maps the website
+                 paths to the app's (appRouteForIncomingLink). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="scoreboards.cm"/>
+                <data android:pathPattern="/matchs/..*"/>
+                <data android:pathPattern="/teams/..*"/>
+                <data android:pathPattern="/leagues/..*"/>
+                <data android:pathPattern="/players/..*"/>
+                <data android:pathPattern="/blogs/..*"/>
+            </intent-filter>
         </activity>
         <!-- How Firebase shows a push while the app is closed: the
              app's notification icon and colour, in the channel the app

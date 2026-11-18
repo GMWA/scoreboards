@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/constants/app_colors.dart';
 import 'package:scoreboards/constants/urls.dart';
@@ -104,7 +105,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
         appBar: AppBar(
           backgroundColor: AppColors.bg,
           elevation: 0,
-          leading: const BackButton(color: AppColors.textPrimary),
+          leading: _backButton(context),
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator(color: AppColors.coral))
@@ -150,7 +151,7 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
               backgroundColor: _headerTopColor,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
-              leading: const BackButton(color: AppColors.textPrimary),
+              leading: _backButton(context),
               titleSpacing: 0,
               title: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
@@ -193,6 +194,14 @@ class MatchDetailsScreenState extends State<MatchDetailsScreen> {
       ),
     );
   }
+
+  // A match opened from a website link has no screen under it: back then
+  // goes to the scores.
+  Widget _backButton(BuildContext context) => BackButton(
+        color: AppColors.textPrimary,
+        onPressed: () =>
+            context.canPop() ? context.pop() : context.go('/home'),
+      );
 
   // Shares the website link, like an article: the receiving app builds the
   // preview card from the match page's title and image.

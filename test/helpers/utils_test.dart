@@ -75,6 +75,29 @@ void main() {
         '/blogs/a-b');
   });
 
+  group('appRouteForIncomingLink', () {
+    final website = Uri.parse('https://scoreboards.cm');
+    String? route(String location) =>
+        appRouteForIncomingLink(Uri.parse(location), website);
+
+    test('maps website paths to the app screens', () {
+      expect(route('/matchs/a-vs-b'), '/matchs/details/a-vs-b');
+      expect(route('/leagues/elite-one'), '/championships/elite-one');
+      expect(route('https://scoreboards.cm/matchs/a-vs-b'),
+          '/matchs/details/a-vs-b');
+      // Same path on both: the address still has to become a route.
+      expect(route('https://scoreboards.cm/teams/cameroun-w'),
+          '/teams/cameroun-w');
+    });
+
+    test('leaves app routes alone', () {
+      expect(route('/home'), isNull);
+      expect(route('/teams/cameroun-w'), isNull);
+      expect(route('/matchs/details/a-vs-b'), isNull);
+      expect(route('/settings/favorites/teams'), isNull);
+    });
+  });
+
   test('matchWebLink points at the match page on the website', () {
     final website = Uri.parse('https://scoreboards.cm');
     expect(matchWebLink(website, 'a-vs-b').toString(),
