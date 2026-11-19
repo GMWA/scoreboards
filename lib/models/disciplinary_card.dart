@@ -8,6 +8,11 @@ class DisciplinaryCard {
   final int? stoppageMinute;
   // final int matchId;
   final PlayerLookup? player;
+  /// A card shown to a member of the team's staff (a coach sent off from
+  /// the bench) names them here instead of a player; '' for a player.
+  final String staffName;
+  /// head_coach, assistant_coach or other; '' for a player.
+  final String staffRole;
   final MatchTeam  team;
   final String? reason;
   final bool isSecondYellow;
@@ -19,6 +24,8 @@ class DisciplinaryCard {
     this.stoppageMinute,
     // required this.matchId,
     this.player,
+    this.staffName = '',
+    this.staffRole = '',
     required this.team,
     required this.isSecondYellow,
     this.reason,
@@ -33,9 +40,20 @@ class DisciplinaryCard {
       // matchId: json['match'],
       player:
           json['player'] != null ? PlayerLookup.fromJson(json['player']) : null,
+      staffName: (json['staff_name'] as String? ?? '').trim(),
+      staffRole: json['staff_role'] as String? ?? '',
       team: MatchTeam.fromJson(json['team']),
       reason: json['reason'],
       isSecondYellow: json['is_second_yellow'],
     );
   }
+
+  bool get isStaff => staffName.isNotEmpty;
+
+  /// The staff member's role, as shown under their name.
+  String get staffRoleLabel => switch (staffRole) {
+        'head_coach' => 'Head coach',
+        'assistant_coach' => 'Assistant coach',
+        _ => 'Staff',
+      };
 }

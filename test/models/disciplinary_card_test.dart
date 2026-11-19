@@ -68,5 +68,52 @@ void main() {
       expect(card.reason, null);
       expect(card.player, null);
     });
+
+    test('fromJson reads a card shown to a staff member', () {
+      final card = DisciplinaryCard.fromJson({
+        'id': 3,
+        'card_type': 'red',
+        'minute': 80,
+        'player': null,
+        'staff_name': 'Marc Brys',
+        'staff_role': 'head_coach',
+        'team': {'id': 3, 'slug': 'team-a', 'name': 'Team A'},
+        'is_second_yellow': false,
+      });
+
+      expect(card.isStaff, isTrue);
+      expect(card.staffName, 'Marc Brys');
+      expect(card.staffRoleLabel, 'Head coach');
+    });
+
+    test('a player card, or one from an older backend, is not a staff card',
+        () {
+      final card = DisciplinaryCard.fromJson({
+        'id': 4,
+        'card_type': 'yellow',
+        'minute': 10,
+        'player': null,
+        'team': {'id': 3, 'slug': 'team-a', 'name': 'Team A'},
+        'is_second_yellow': false,
+      });
+
+      expect(card.isStaff, isFalse);
+      expect(card.staffName, '');
+    });
+
+    test('an unknown staff role shows as staff', () {
+      expect(
+        DisciplinaryCard.fromJson({
+          'id': 5,
+          'card_type': 'yellow',
+          'minute': 10,
+          'staff_name': 'Someone',
+          'staff_role': 'other',
+          'team': {'id': 3, 'slug': 'team-a', 'name': 'Team A'},
+          'is_second_yellow': false,
+        }).staffRoleLabel,
+        'Staff',
+      );
+    });
   });
 }

@@ -107,6 +107,47 @@ void main() {
         '/matchs/details/a-vs-b');
   });
 
+  test('buildTimelineEvents names a staff member shown a card', () {
+    final match = Match.fromJson({
+      'id': 1,
+      'slug': 'm',
+      'date': '2026-08-12T20:00:00Z',
+      'status': 'completed',
+      'edition': {
+        'id': 1,
+        'slug': 'e',
+        'championship': {'id': 1, 'name': 'C', 'country': ''},
+        'year': '2026',
+        'start_date': '2026-07-26',
+        'end_date': '2026-08-16',
+        'is_current': true,
+      },
+      'home_team': {'id': 1, 'slug': 'home', 'name': 'Home'},
+      'away_team': {'id': 2, 'slug': 'away', 'name': 'Away'},
+      'score_final_home': 0,
+      'score_final_away': 0,
+      'cards': [
+        {
+          'id': 1,
+          'card_type': 'red',
+          'minute': 80,
+          'player': null,
+          'staff_name': 'Marc Brys',
+          'staff_role': 'head_coach',
+          'team': {'id': 2, 'slug': 'away', 'name': 'Away'},
+          'is_second_yellow': false,
+        },
+      ],
+    });
+
+    final card = buildTimelineEvents(match).single;
+
+    expect(card.type, TimelineEventType.redCard);
+    expect(card.isHome, isFalse);
+    expect(card.title, 'Marc Brys');
+    expect(card.description, 'Head coach');
+  });
+
   test('buildTimelineEvents shows only valid in-play goals', () {
     // Shaped like staging's 2026-maroc-w-vs-cameroun-w-sf: 0-0, decided on
     // penalties, with a missed in-play penalty.
