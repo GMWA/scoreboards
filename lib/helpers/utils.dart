@@ -82,6 +82,11 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
 
   // CARDS
   for (final card in match.cards) {
+    // A staff card shows the role under the name, like the website.
+    final details = [
+      if (card.isStaff) card.staffRoleLabel,
+      if (card.isSecondYellow) 'Second yellow',
+    ].join(' · ');
     events.add(
       TimelineEvent(
           minute: card.minute,
@@ -90,10 +95,12 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
               ? TimelineEventType.redCard
               : TimelineEventType.yellowCard,
           isHome: card.team.id == match.homeTeam.id,
-          title: card.player == null
-              ? 'Unknown Player'
-              : "${card.player!.firstname} ${card.player!.lastname}",
-          description: card.isSecondYellow ? 'Second yellow' : null),
+          title: card.isStaff
+              ? card.staffName
+              : card.player == null
+                  ? 'Unknown Player'
+                  : "${card.player!.firstname} ${card.player!.lastname}",
+          description: details.isEmpty ? null : details),
     );
   }
 
