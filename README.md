@@ -23,8 +23,54 @@ This project aims to solve the "Data Gap" in local football. While international
 ## 🛠️ Tech Stack
 
 * **Framework**: Flutter (Dart)
+* **State**: Riverpod
+* **HTTP**: dio
+* **Navigation**: go_router
 
 * **Design System**: "Command Center" (High-contrast Navy & Brand Green)
+
+## 🧭 Architecture
+
+The code is organised by feature, like the Sentinel reporter app:
+
+```text
+lib/
+  main.dart        startup: config, notifications, providers, first route
+  app.dart         the MaterialApp
+  core/            what every feature uses
+    api/           errors (ApiException) and paging helpers
+    providers.dart dio and shared_preferences
+    router.dart    every route (Routes) and the router
+    config.dart    .env values (API, website)
+    device/        this install's anonymous device on the backend
+    notifications/ push (Firebase) and local notifications
+    theme.dart, links.dart, app_shell.dart, crash_reporting.dart
+  features/        one folder per part of the app
+    scores/ match/ motm/ competitions/ teams/ players/ blogs/
+    favorites/ settings/
+  shared/          models and widgets used by several features
+```
+
+Inside a feature, each layer has one job:
+
+* **Repository** (`*_repository.dart`): talks to the API with `dio` and
+  returns models. No widgets, no state.
+* **Providers or controller** (`*_providers.dart`, `*_controller.dart`):
+  the screen's data, with Riverpod. A `FutureProvider` loads something; a
+  `Notifier` holds state that changes (favorites, paging, votes).
+* **Screen and widgets**: show the providers' values (`ref.watch`) and
+  call controllers on taps (`ref.read(...).method()`).
+
+Screens never call the API directly, and navigate with `Routes` (for
+example `context.push(Routes.match(slug))`), never with hand-written paths.
+
+### Adding a feature
+
+1. Create `lib/features/<name>/` with a repository and its provider.
+2. Add providers for what the screen shows, then the screen.
+3. Add its path to `Routes` and a `GoRoute` in `core/router.dart`.
+4. Test the repository with the fake backend in `test/helpers/fake_http.dart`,
+   and the screen with `pumpScreen` from `test/helpers/harness.dart`.
 
 ## 🚀 Deployment Protocol
 

@@ -1,0 +1,37 @@
+import 'package:scoreboards/shared/models/match_team.dart';
+import 'package:scoreboards/shared/models/player.dart';
+
+class MatchLineup {
+  final int id;
+  final int match;
+  final MatchTeam team;
+  final PlayerLookup player;
+  final int minutesPlayed;
+  final bool isStarting;
+  final bool isCaptain;
+  final String? position;
+
+  MatchLineup({
+    required this.id,
+    required this.match,
+    required this.team,
+    required this.player,
+    required this.minutesPlayed,
+    required this.isStarting,
+    required this.isCaptain,
+    this.position,
+  });
+
+  factory MatchLineup.fromJson(Map<String, dynamic> json) {
+    return MatchLineup(
+      id: json['id'],
+      match: json['match'],
+      team: MatchTeam.fromJson(json['team']),
+      player: PlayerLookup.fromJson(json['player']),
+      minutesPlayed: json['minutes_played'],
+      isStarting: json['is_starting'],
+      isCaptain: json['is_captain'],
+      position: json['position'],
+    );
+  }
+}
