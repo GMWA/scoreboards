@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/team.dart';
@@ -21,7 +22,7 @@ class CompetitionTeams extends ConsumerWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'PARTICIPATING TEAMS',
+              context.l10n.participatingTeams,
               style: GoogleFonts.hankenGrotesk(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -35,13 +36,13 @@ class CompetitionTeams extends ConsumerWidget {
           child: AsyncView<List<Team>>(
             value: ref.watch(editionTeamsProvider(editionId)),
             error: () => Center(
-                child: Text('Error loading teams',
+                child: Text(context.l10n.teamsLoadFailed,
                     style: GoogleFonts.hankenGrotesk(
                         color: AppColors.textSecondary))),
             data: (teams) {
               if (teams.isEmpty) {
                 return Center(
-                    child: Text('No teams found for this season.',
+                    child: Text(context.l10n.noTeamsThisSeason,
                         style: GoogleFonts.hankenGrotesk(
                             color: AppColors.textSecondary)));
               }

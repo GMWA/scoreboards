@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/utils.dart';
 import 'package:scoreboards/shared/models/team.dart';
@@ -24,9 +25,9 @@ class TeamScreen extends ConsumerWidget {
         return Scaffold(
           backgroundColor: darkBg,
           appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-          body: const Center(
-              child: Text("Team not found.",
-                  style: TextStyle(color: Colors.white))),
+          body: Center(
+              child: Text(context.l10n.teamNotFound,
+                  style: const TextStyle(color: Colors.white))),
         );
       default:
         return const Scaffold(
@@ -107,12 +108,12 @@ class TeamScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader("OVERVIEW"),
+                  _buildSectionHeader(context.l10n.overview),
                   const SizedBox(height: 16),
-                  _buildInfoRow(Icons.category_outlined, "Team Type",
-                      capitalize(team.teamType)),
+                  _buildInfoRow(Icons.category_outlined, context.l10n.teamType,
+                      teamTypeLabel(context.l10n, team.teamType)),
                   if (team.stadium != null)
-                    _buildInfoRow(Icons.stadium_outlined, "Home Stadium",
+                    _buildInfoRow(Icons.stadium_outlined, context.l10n.homeStadium,
                         team.stadium!.name),
                 ],
               ),

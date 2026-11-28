@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/models/editions.dart';
 import 'package:scoreboards/features/competitions/widgets/edition_card.dart';
@@ -28,6 +29,7 @@ void main() {
       // Pump the widget
       await pumpWithProviders(tester, 
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: EditionCard(edition: edition),
           ),
@@ -62,6 +64,7 @@ void main() {
 
       await pumpWithProviders(tester, 
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: EditionCard(
               edition: edition,

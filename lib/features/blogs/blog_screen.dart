@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -49,7 +50,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
     }
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open this link.')),
+        SnackBar(content: Text(context.l10n.linkOpenFailed)),
       );
     }
   }
@@ -78,7 +79,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
           backgroundColor: AppColors.bg,
           appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
           body: Center(
-            child: Text("Article not found.",
+            child: Text(context.l10n.articleNotFound,
                 style: GoogleFonts.hankenGrotesk(color: AppColors.textPrimary)),
           ),
         );
@@ -102,7 +103,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
             actions: [
               Builder(
                 builder: (buttonContext) => IconButton(
-                  tooltip: 'Share article',
+                  tooltip: context.l10n.shareArticle,
                   icon: const Icon(Icons.share_outlined,
                       color: AppColors.textPrimary),
                   style: IconButton.styleFrom(
@@ -163,7 +164,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
                             size: 13, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
-                          DateFormat('MMM d, yyyy').format(a.publishedAt!),
+                          DateFormat.yMMMd().format(a.publishedAt!),
                           style: GoogleFonts.hankenGrotesk(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -176,7 +177,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
                           size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
-                        '${a.viewsCount} views',
+                        context.l10n.articleViews(a.viewsCount),
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -217,7 +218,7 @@ class BlogScreenState extends ConsumerState<BlogScreen> {
                   ),
                   if (a.matches.isNotEmpty) ...[
                     const SizedBox(height: 20),
-                    _buildSectionHeader('Related matches'),
+                    _buildSectionHeader(context.l10n.relatedMatches),
                     const SizedBox(height: 10),
                     ...a.matches.map((m) => _buildMatchTile(context, m)),
                   ],

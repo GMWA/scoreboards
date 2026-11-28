@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/models/match_statistics.dart';
 import 'package:scoreboards/features/match/widgets/match_statistics_tab.dart';
@@ -6,6 +7,7 @@ import 'package:scoreboards/features/match/widgets/match_statistics_tab.dart';
 Future<void> _pump(WidgetTester tester, MatchStatistics stats,
     {String home = 'Home FC', String away = 'Away FC'}) {
   return tester.pumpWidget(MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
     home: Scaffold(
       body:
           MatchStatisticsTab(statistics: stats, homeName: home, awayName: away),

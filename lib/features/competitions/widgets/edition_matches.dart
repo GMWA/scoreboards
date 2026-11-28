@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,10 +24,10 @@ class EditionMatches extends ConsumerWidget {
             child: CircularProgressIndicator(color: AppColors.coral));
       }
       if (state.failed) {
-        return Center(child: _retryButton('Error loading matches', controller));
+        return Center(child: _retryButton(context, context.l10n.matchesLoadFailed, controller));
       }
       return Center(
-          child: Text('No matches available',
+          child: Text(context.l10n.noMatchesAvailable,
               style:
                   GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)));
     }
@@ -48,7 +49,7 @@ class EditionMatches extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Center(
               child: state.failed
-                  ? _retryButton('Could not load more matches', controller)
+                  ? _retryButton(context, context.l10n.moreMatchesLoadFailed, controller)
                   : const CircularProgressIndicator(color: AppColors.coral),
             ),
           );
@@ -57,7 +58,8 @@ class EditionMatches extends ConsumerWidget {
     );
   }
 
-  Widget _retryButton(String message, EditionMatchesController controller) {
+  Widget _retryButton(BuildContext context, String message,
+      EditionMatchesController controller) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -65,7 +67,7 @@ class EditionMatches extends ConsumerWidget {
             style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
         TextButton(
           onPressed: controller.loadNextPage,
-          child: Text('RETRY',
+          child: Text(context.l10n.retry.toUpperCase(),
               style: GoogleFonts.hankenGrotesk(
                   color: AppColors.coral, fontWeight: FontWeight.w800)),
         ),

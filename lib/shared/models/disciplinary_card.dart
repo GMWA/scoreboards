@@ -49,11 +49,4 @@ class DisciplinaryCard {
   }
 
   bool get isStaff => staffName.isNotEmpty;
-
-  /// The staff member's role, as shown under their name.
-  String get staffRoleLabel => switch (staffRole) {
-        'head_coach' => 'Head coach',
-        'assistant_coach' => 'Assistant coach',
-        _ => 'Staff',
-      };
 }

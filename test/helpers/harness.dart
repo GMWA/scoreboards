@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,7 +51,8 @@ Future<void> pumpScreen(
   await tester.pumpWidget(ProviderScope(
     overrides: [...await testOverrides(api: api, prefs: prefs), ...overrides],
     retry: (_, __) => null,
-    child: MaterialApp(home: screen),
+    child: MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,home: screen),
   ));
   await tester.pumpAndSettle();
 }

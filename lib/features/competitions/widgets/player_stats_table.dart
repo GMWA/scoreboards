@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -28,7 +29,7 @@ class _PlayerStatsTableState extends ConsumerState<PlayerStatsTable> {
     return AsyncView<List<PlayerStats>>(
       value: ref.watch(editionPlayerStatsProvider(widget.editionId)),
       error: () => Center(
-        child: Text('Failed to load stats',
+        child: Text(context.l10n.statsLoadFailed,
             style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
       ),
       data: (all) {
@@ -46,12 +47,12 @@ class _PlayerStatsTableState extends ConsumerState<PlayerStatsTable> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Section Header
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "TOP GOAL SCORERS",
-                    style: TextStyle(
+                    context.l10n.topScorers,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -89,7 +90,7 @@ class _PlayerStatsTableState extends ConsumerState<PlayerStatsTable> {
                   child: TextButton(
                     onPressed: () => setState(() => _showAll = !_showAll),
                     child: Text(
-                      _showAll ? "SHOW LESS" : "VIEW FULL LIST",
+                      _showAll ? context.l10n.showLess : context.l10n.viewFullList,
                       style: const TextStyle(
                         color: brandRed,
                         fontSize: 11,

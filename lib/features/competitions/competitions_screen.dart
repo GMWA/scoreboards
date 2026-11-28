@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/editions.dart';
@@ -22,7 +23,7 @@ class CompetitionsScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
           child: Text(
-            'Competitions',
+            context.l10n.competitionsTitle,
             style: GoogleFonts.spaceGrotesk(
               color: AppColors.textPrimary,
               fontSize: 26,
@@ -34,7 +35,7 @@ class CompetitionsScreen extends ConsumerWidget {
           child: switch (ref.watch(activeEditionsProvider)) {
             AsyncData(value: final editions) =>
               _buildEditions(context, editions, refresh),
-            AsyncError() => _buildErrorState(refresh),
+            AsyncError() => _buildErrorState(context, refresh),
             _ => const Center(
                 child: CircularProgressIndicator(color: AppColors.coral)),
           },
@@ -48,7 +49,7 @@ class CompetitionsScreen extends ConsumerWidget {
     if (editions.isEmpty) {
       return Center(
         child: Text(
-          'No championships found.',
+          context.l10n.noCompetitions,
           style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
         ),
       );
@@ -71,13 +72,13 @@ class CompetitionsScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
         children: [
           if (active.isNotEmpty) ...[
-            _buildSectionHeader('Live Competitions'),
+            _buildSectionHeader(context.l10n.liveCompetitions),
             const SizedBox(height: 10),
             ...active.map((e) => _buildEditionCard(context, e)),
             const SizedBox(height: 8),
           ],
           if (archived.isNotEmpty) ...[
-            _buildSectionHeader('Archive'),
+            _buildSectionHeader(context.l10n.archive),
             const SizedBox(height: 10),
             ...archived.map((e) => _buildEditionCard(context, e)),
           ],
@@ -113,7 +114,8 @@ class CompetitionsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(Future<void> Function() retry) {
+  Widget _buildErrorState(
+      BuildContext context, Future<void> Function() retry) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -121,13 +123,13 @@ class CompetitionsScreen extends ConsumerWidget {
           const Icon(Icons.error_outline, color: AppColors.border, size: 48),
           const SizedBox(height: 16),
           Text(
-            'Connection Error',
+            context.l10n.connectionError,
             style: GoogleFonts.hankenGrotesk(
                 color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           ),
           TextButton(
             onPressed: retry,
-            child: Text('RETRY',
+            child: Text(context.l10n.retry.toUpperCase(),
                 style: GoogleFonts.hankenGrotesk(
                     color: AppColors.coral, fontWeight: FontWeight.w800)),
           ),

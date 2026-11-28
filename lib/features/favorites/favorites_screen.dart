@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scoreboards/core/router.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +27,7 @@ class FavoritesScreen extends ConsumerWidget {
         elevation: 0,
         leading: const BackButton(color: AppColors.textPrimary),
         title: Text(
-          isTeams ? 'Favorite Teams' : 'Favorite Competitions',
+          isTeams ? context.l10n.favoriteTeams : context.l10n.favoriteCompetitions,
           style: GoogleFonts.hankenGrotesk(
             fontWeight: FontWeight.w700,
             fontSize: 15,
@@ -44,8 +45,8 @@ class FavoritesScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   isTeams
-                      ? "You haven't followed any teams yet. Tap the star on a team's card or profile to follow it."
-                      : "You haven't followed any competitions yet. Tap the star on a competition's card or page to follow it.",
+                      ? context.l10n.noFavoriteTeams
+                      : context.l10n.noFavoriteCompetitions,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.hankenGrotesk(
                       color: AppColors.textSecondary, fontSize: 13),
@@ -113,7 +114,7 @@ class FavoritesScreen extends ConsumerWidget {
                   trailing: IconButton(
                     icon: const Icon(Icons.star_rounded,
                         color: AppColors.coral, size: 22),
-                    tooltip: 'Unfollow',
+                    tooltip: context.l10n.unfollow,
                     onPressed: () =>
                         ref.read(favoritesProvider.notifier).remove(item),
                   ),

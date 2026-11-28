@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:scoreboards/l10n/app_localizations.dart';
+import 'package:scoreboards/shared/models/disciplinary_card.dart';
 import 'package:scoreboards/shared/models/goal_enums.dart';
 import 'package:scoreboards/shared/models/match.dart';
 import 'package:scoreboards/shared/models/timeline_event.dart';
 
 /// The match's events (goals, cards, substitutions) in timeline order.
-List<TimelineEvent> buildTimelineEvents(Match match) {
+List<TimelineEvent> buildTimelineEvents(Match match, AppLocalizations l10n) {
   final List<TimelineEvent> events = [];
 
   // GOALS
@@ -25,10 +27,10 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
                 : TimelineEventType.goal,
         isHome: goal.team.id == match.homeTeam.id,
         title:
-            "${goal.scorer?.firstname ?? ''} ${goal.scorer?.lastname ?? 'Unknown Player'}",
+            "${goal.scorer?.firstname ?? ''} ${goal.scorer?.lastname ?? l10n.unknownPlayer}",
         description: goal.isOwnGoal
-            ? "Own Goal"
-            : (goal.assist != null ? "Asst: ${goal.assist!.lastname}" : null),
+            ? l10n.ownGoal
+            : (goal.assist != null ? l10n.assistBy(goal.assist!.lastname) : null),
       ),
     );
   }
@@ -37,8 +39,8 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
   for (final card in match.cards) {
     // A staff card shows the role under the name, like the website.
     final details = [
-      if (card.isStaff) card.staffRoleLabel,
-      if (card.isSecondYellow) 'Second yellow',
+      if (card.isStaff) staffRoleLabel(l10n, card),
+      if (card.isSecondYellow) l10n.secondYellow,
     ].join(' · ');
     events.add(
       TimelineEvent(
@@ -51,7 +53,7 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
           title: card.isStaff
               ? card.staffName
               : card.player == null
-                  ? 'Unknown Player'
+                  ? l10n.unknownPlayer
                   : "${card.player!.firstname} ${card.player!.lastname}",
           description: details.isEmpty ? null : details),
     );
@@ -78,6 +80,14 @@ List<TimelineEvent> buildTimelineEvents(Match match) {
   });
   return events;
 }
+
+/// A staff member's role, as shown under their name.
+String staffRoleLabel(AppLocalizations l10n, DisciplinaryCard card) =>
+    switch (card.staffRole) {
+      'head_coach' => l10n.staffHeadCoach,
+      'assistant_coach' => l10n.staffAssistantCoach,
+      _ => l10n.staffOther,
+    };
 
 IconData timelineIcon(TimelineEventType type) {
   switch (type) {

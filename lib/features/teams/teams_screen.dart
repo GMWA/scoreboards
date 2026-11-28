@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/team.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +40,7 @@ class TeamsScreenState extends ConsumerState<TeamsScreen> {
         backgroundColor: AppColors.bg,
         elevation: 0,
         title:
-            const Text('Teams', style: TextStyle(color: AppColors.textPrimary)),
+            Text(context.l10n.navTeams, style: const TextStyle(color: AppColors.textPrimary)),
       ),
       body: Column(
         children: [
@@ -49,7 +50,7 @@ class TeamsScreenState extends ConsumerState<TeamsScreen> {
               controller: _searchController,
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
-                labelText: 'Search teams',
+                labelText: context.l10n.searchTeams,
                 labelStyle: const TextStyle(color: AppColors.textSecondary),
                 prefixIcon:
                     const Icon(Icons.search, color: AppColors.textSecondary),
@@ -69,12 +70,12 @@ class TeamsScreenState extends ConsumerState<TeamsScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('An error occurred while loading!',
-                        style: TextStyle(color: AppColors.textSecondary)),
+                    Text(context.l10n.loadError,
+                        style: const TextStyle(color: AppColors.textSecondary)),
                     const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: _refreshTeams,
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                   ],
                 ),
@@ -83,9 +84,9 @@ class TeamsScreenState extends ConsumerState<TeamsScreen> {
                 final filteredTeams =
                     teamsMatching(teams, _searchController.text);
                 if (filteredTeams.isEmpty) {
-                  return const Center(
-                      child: Text('No teams found.',
-                          style: TextStyle(color: AppColors.textSecondary)));
+                  return Center(
+                      child: Text(context.l10n.noTeamsFound,
+                          style: const TextStyle(color: AppColors.textSecondary)));
                 }
 
                 return RefreshIndicator(

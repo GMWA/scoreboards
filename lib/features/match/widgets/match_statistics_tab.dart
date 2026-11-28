@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/match_statistics.dart';
@@ -6,16 +7,16 @@ import 'package:scoreboards/shared/models/match_statistics.dart';
 typedef _Stat = int? Function(TeamMatchStats stats);
 
 // In display order, like the website's statistics tab.
-final List<(String, _Stat, bool)> _rows = [
-  ('Possession', (s) => s.possession, true),
-  ('Shots', (s) => s.shots, false),
-  ('Shots on target', (s) => s.shotsOnTarget, false),
-  ('Corners', (s) => s.corners, false),
-  ('Fouls', (s) => s.fouls, false),
-  ('Offsides', (s) => s.offsides, false),
-  ('Saves', (s) => s.saves, false),
-  ('Yellow cards', (s) => s.yellowCards, false),
-  ('Red cards', (s) => s.redCards, false),
+final List<(String Function(AppLocalizations), _Stat, bool)> _rows = [
+  ((l) => l.statPossession, (s) => s.possession, true),
+  ((l) => l.statShots, (s) => s.shots, false),
+  ((l) => l.statShotsOnTarget, (s) => s.shotsOnTarget, false),
+  ((l) => l.statCorners, (s) => s.corners, false),
+  ((l) => l.statFouls, (s) => s.fouls, false),
+  ((l) => l.statOffsides, (s) => s.offsides, false),
+  ((l) => l.statSaves, (s) => s.saves, false),
+  ((l) => l.statYellowCards, (s) => s.yellowCards, false),
+  ((l) => l.statRedCards, (s) => s.redCards, false),
 ];
 
 /// Both teams' statistics side by side, each with a bar comparing them.
@@ -64,7 +65,7 @@ class MatchStatisticsTab extends StatelessWidget {
         for (final (label, stat, percent) in _rows)
           if (stat(statistics.home) != null || stat(statistics.away) != null)
             _StatRow(
-              label: label,
+              label: label(context.l10n),
               home: stat(statistics.home),
               away: stat(statistics.away),
               percent: percent,
@@ -72,7 +73,7 @@ class MatchStatisticsTab extends StatelessWidget {
         if (statistics.sourceNote.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
-            'Source: ${statistics.sourceNote}',
+            context.l10n.statsSource(statistics.sourceNote),
             textAlign: TextAlign.center,
             style: GoogleFonts.hankenGrotesk(
                 color: AppColors.textSecondary, fontSize: 11),
@@ -116,7 +117,7 @@ class _StatRow extends StatelessWidget {
         );
 
     return Semantics(
-      label: '$label: ${_format(home)} to ${_format(away)}',
+      label: context.l10n.statComparison(label, _format(home), _format(away)),
       excludeSemantics: true,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 18),

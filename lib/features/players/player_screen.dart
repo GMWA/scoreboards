@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -49,10 +50,10 @@ class PlayerScreen extends ConsumerWidget {
   Widget _buildError(BuildContext context) {
     return Column(
       children: [
-        _header(context, title: 'Player Profile'),
+        _header(context, title: context.l10n.playerProfile),
         Expanded(
           child: Center(
-            child: Text('Could not load this player.',
+            child: Text(context.l10n.playerLoadFailed,
                 style:
                     GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
           ),
@@ -100,16 +101,16 @@ class PlayerScreen extends ConsumerWidget {
     final int? age =
         p.dateOfBirth == null ? null : _ageOn(DateTime.now(), p.dateOfBirth!);
     final subtitle = [
-      capitalize(p.position),
-      if (p.jerseyNumber != null) 'No. ${p.jerseyNumber}',
-      if (age != null) 'Age $age',
+      positionLabel(context.l10n, p.position),
+      if (p.jerseyNumber != null) context.l10n.jerseyNumber('${p.jerseyNumber}'),
+      if (age != null) context.l10n.playerAge(age),
     ].join(' • ');
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _header(context, title: 'Player Profile'),
+          _header(context, title: context.l10n.playerProfile),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
             child: Column(
@@ -200,12 +201,12 @@ class PlayerScreen extends ConsumerWidget {
                     childAspectRatio: 1.85,
                     children: [
                       _statTile(
-                          'Goals', data.currentSeasonStats!.goals.toString()),
-                      _statTile('Assists',
+                          context.l10n.playerGoals, data.currentSeasonStats!.goals.toString()),
+                      _statTile(context.l10n.playerAssists,
                           data.currentSeasonStats!.assists.toString()),
-                      _statTile('Yellow Cards',
+                      _statTile(context.l10n.playerYellowCards,
                           data.currentSeasonStats!.yellowCards.toString()),
-                      _statTile('Red Cards',
+                      _statTile(context.l10n.playerRedCards,
                           data.currentSeasonStats!.redCards.toString(),
                           highlight: data.currentSeasonStats!.redCards > 0),
                     ],
@@ -219,7 +220,7 @@ class PlayerScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      'No season stats available for this player yet.',
+                      context.l10n.noSeasonStats,
                       style: GoogleFonts.hankenGrotesk(
                           color: AppColors.textSecondary, fontSize: 12.5),
                     ),
@@ -240,7 +241,7 @@ class PlayerScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Current Club',
+                                context.l10n.currentClub,
                                 style: GoogleFonts.hankenGrotesk(
                                   color: AppColors.textSecondary,
                                   fontSize: 11,
@@ -261,7 +262,7 @@ class PlayerScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          'Since ${DateFormat('MMM yyyy').format(data.currentClub!.startDate)}',
+                          context.l10n.clubSince(DateFormat.yMMM().format(data.currentClub!.startDate)),
                           style: GoogleFonts.hankenGrotesk(
                             color: AppColors.textSecondary,
                             fontSize: 11.5,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -17,7 +18,7 @@ class CompetitionScreen extends ConsumerWidget {
 
   const CompetitionScreen({super.key, required this.slug});
 
-  Widget _buildErrorState(WidgetRef ref) {
+  Widget _buildErrorState(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Column(
         children: [
@@ -34,14 +35,14 @@ class CompetitionScreen extends ConsumerWidget {
                       color: AppColors.border, size: 48),
                   const SizedBox(height: 16),
                   Text(
-                    'Could not load this competition.',
+                    context.l10n.competitionLoadFailed,
                     style: GoogleFonts.hankenGrotesk(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700),
                   ),
                   TextButton(
                     onPressed: () => ref.invalidate(editionProvider(slug)),
-                    child: Text('RETRY',
+                    child: Text(context.l10n.retry.toUpperCase(),
                         style: GoogleFonts.hankenGrotesk(
                             color: AppColors.coral,
                             fontWeight: FontWeight.w800)),
@@ -72,7 +73,7 @@ class CompetitionScreen extends ConsumerWidget {
       backgroundColor: AppColors.bg,
       body: switch (ref.watch(editionProvider(slug))) {
         AsyncData(value: final edition) => _buildEdition(context, edition),
-        AsyncError() => _buildErrorState(ref),
+        AsyncError() => _buildErrorState(context, ref),
         _ => const Center(
             child: CircularProgressIndicator(color: AppColors.coral)),
       },
@@ -149,11 +150,14 @@ class CompetitionScreen extends ConsumerWidget {
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.coral,
               indicatorWeight: 2,
+              // Less side padding than the default, so "Classement" fits
+              // a quarter of a ~360dp phone.
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               labelStyle: GoogleFonts.hankenGrotesk(
                   fontWeight: FontWeight.w600, fontSize: 13),
               unselectedLabelStyle: GoogleFonts.hankenGrotesk(
                   fontWeight: FontWeight.w600, fontSize: 13),
-              tabs: [for (final tab in tabs) Tab(text: tab.label)],
+              tabs: [for (final tab in tabs) Tab(text: tab.label(context.l10n))],
             ),
           ),
           Expanded(
@@ -168,13 +172,17 @@ class CompetitionScreen extends ConsumerWidget {
 }
 
 enum _EditionTab {
-  standings('Standings'),
-  teams('Teams'),
-  matches('Matches'),
-  playerStats('P. Stats');
+  standings,
+  teams,
+  matches,
+  playerStats;
 
-  const _EditionTab(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        standings => l10n.tabStandings,
+        teams => l10n.tabTeams,
+        matches => l10n.tabMatches,
+        playerStats => l10n.tabPlayerStats,
+      };
 
   Widget build(int editionId) => switch (this) {
         standings => StandingsTable(editionId: editionId),

@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/l10n.dart';
 import 'package:scoreboards/features/match/timeline.dart';
 import 'package:scoreboards/shared/models/match.dart';
 import 'package:scoreboards/shared/models/timeline_event.dart';
@@ -50,7 +52,7 @@ void main() {
       ],
     });
 
-    final card = buildTimelineEvents(match).single;
+    final card = buildTimelineEvents(match, en).single;
 
     expect(card.type, TimelineEventType.redCard);
     expect(card.isHome, isFalse);
@@ -89,7 +91,7 @@ void main() {
       ],
     });
 
-    final goals = buildTimelineEvents(match)
+    final goals = buildTimelineEvents(match, en)
         .where((e) => e.type != TimelineEventType.substitution);
 
     expect(goals.map((e) => e.title.trim()), ['Scorer']);
