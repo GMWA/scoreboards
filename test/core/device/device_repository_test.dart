@@ -107,6 +107,77 @@ void main() {
     });
   });
 
+  group('reportLanguage', () {
+    // The backend sends the device back, with its language.
+    ResponseBody saved(RequestOptions o) =>
+        jsonBody(200, {'language': sentJson(o)['language']});
+
+    test('sends each new language once', () async {
+      final device = await repo((o) async => saved(o), {'device_id': 'd1'});
+
+      await device.reportLanguage('fr');
+      await device.reportLanguage('fr');
+      await device.reportLanguage('en');
+
+      expect(api.requests.map((r) => [r.method, r.path, sentJson(r)]), [
+        ['PATCH', '/devices/d1/', {'language': 'fr'}],
+        ['PATCH', '/devices/d1/', {'language': 'en'}],
+      ]);
+    });
+
+    test('concurrent calls send it once', () async {
+      final device = await repo((o) async => saved(o), {'device_id': 'd1'});
+
+      await Future.wait([
+        device.reportLanguage('en'),
+        device.reportLanguage('en'),
+      ]);
+
+      expect(api.requests, hasLength(1));
+    });
+
+    test('tries again after a failure', () async {
+      var attempts = 0;
+      final device = await repo(
+        (o) async => ++attempts == 1 ? jsonBody(500, {}) : saved(o),
+        {'device_id': 'd1'},
+      );
+
+      await device.reportLanguage('en');
+      await device.reportLanguage('en');
+
+      expect(api.requests, hasLength(2));
+      expect(prefs.getString('device_language_reported'), 'en');
+    });
+
+    test('a backend from before languages gets it again later', () async {
+      final device =
+          await repo((_) async => jsonBody(200, {}), {'device_id': 'd1'});
+
+      await device.reportLanguage('en');
+      await device.reportLanguage('en');
+
+      expect(api.requests, hasLength(2));
+      expect(prefs.getString('device_language_reported'), isNull);
+    });
+
+    test('a device registered later sends it with its registration',
+        () async {
+      final device = await repo((o) async =>
+          jsonBody(201, {'device_id': 'new-device', ...sentJson(o)}));
+
+      await device.reportLanguage('en');
+      expect(api.requests, isEmpty);
+
+      await device.id();
+      expect(sentJson(api.requests.single),
+          {'platform': 'android', 'language': 'en'});
+
+      await device.reportLanguage('en');
+      expect(api.requests, hasLength(1));
+    });
+  });
+
   test('update sends the fields and never throws', () async {
     final device = await repo(offline, {'device_id': 'd1'});
 
