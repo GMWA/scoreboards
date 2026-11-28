@@ -29,8 +29,13 @@ class DeviceRepository {
   static const _idKey = 'device_id';
   // Set once the backend has this device's platform.
   static const _platformReportedKey = 'device_platform_reported';
+  // The language the app shows, and the one the backend has: notifications
+  // are written in it.
+  static const _languageKey = 'device_language';
+  static const _languageReportedKey = 'device_language_reported';
 
   Future<String>? _pending;
+  String? _reportingLanguage;
 
   /// The device's id, registering the device the first time. Concurrent
   /// callers share one registration, so a first launch can't register two
@@ -43,14 +48,22 @@ class DeviceRepository {
 
   Future<String> _register() async {
     final platform = devicePlatform;
+    final language = _prefs.getString(_languageKey);
     final body = await apiCall(() => _dio.post<Json>(
           '/devices/',
-          data: {if (platform != null) 'platform': platform},
+          data: {
+            if (platform != null) 'platform': platform,
+            if (language != null) 'language': language,
+          },
         ));
     final id = body.data!['device_id'] as String;
     await _prefs.setString(_idKey, id);
-    // Registration already sent the platform.
+    // Registration already sent the platform, and the language when the
+    // backend knows about languages (it says so by sending it back).
     if (platform != null) await _prefs.setBool(_platformReportedKey, true);
+    if (language != null && body.data!['language'] == language) {
+      await _prefs.setString(_languageReportedKey, language);
+    }
     return id;
   }
 
@@ -85,6 +98,36 @@ class DeviceRepository {
       await _prefs.setBool(_platformReportedKey, true);
     } catch (e) {
       debugPrint('Could not report the device platform: $e');
+    }
+  }
+
+  /// Tells the backend the app now shows [languageCode] ("fr" or "en"), so
+  /// notifications come in it. Sent once per change; a device registered
+  /// later sends it with its registration. Like [reportPlatformOnce], it
+  /// never registers a device by itself, and a failure is retried on the
+  /// next call.
+  Future<void> reportLanguage(String languageCode) async {
+    await _prefs.setString(_languageKey, languageCode);
+    final deviceId = _prefs.getString(_idKey);
+    if (deviceId == null ||
+        _prefs.getString(_languageReportedKey) == languageCode ||
+        _reportingLanguage == languageCode) {
+      return;
+    }
+    _reportingLanguage = languageCode;
+    try {
+      final response = await apiCall(() => _dio.patch<Json>(
+          '/devices/$deviceId/',
+          data: {'language': languageCode}));
+      // A backend from before languages ignores the field: only an answer
+      // that has it counts, so the app sends it again once it's updated.
+      if (response.data?['language'] == languageCode) {
+        await _prefs.setString(_languageReportedKey, languageCode);
+      }
+    } catch (e) {
+      debugPrint('Could not report the device language: $e');
+    } finally {
+      if (_reportingLanguage == languageCode) _reportingLanguage = null;
     }
   }
 }
