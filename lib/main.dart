@@ -3,16 +3,20 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:scoreboards/constants/app_colors.dart';
-import 'package:scoreboards/constants/urls.dart';
-import 'package:scoreboards/services/notification_service.dart';
-import 'package:scoreboards/services/crash_reporting.dart';
-import 'package:scoreboards/services/device_service.dart';
-import 'package:scoreboards/services/favorites_service.dart';
-import 'package:scoreboards/services/push_service.dart';
-import 'package:scoreboards/router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:scoreboards/app.dart';
+import 'package:scoreboards/core/config.dart';
+import 'package:scoreboards/core/crash_reporting.dart';
+import 'package:scoreboards/core/device/device_repository.dart';
+import 'package:scoreboards/core/notifications/local_notifications.dart';
+import 'package:scoreboards/core/notifications/push_service.dart';
+import 'package:scoreboards/core/providers.dart';
+import 'package:scoreboards/core/router.dart';
+import 'package:scoreboards/features/favorites/favorites_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,16 +34,31 @@ Future<void> main() async {
   // Startup runs inside crash reporting so failures here are captured too.
   await runWithCrashReporting(() async {
     await dotenv.load(fileName: envFile);
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider
+            .overrideWithValue(await SharedPreferences.getInstance()),
+      ],
+      // Failures show a Retry button instead of being retried silently.
+      retry: (_, __) => null,
+    );
+    final router = container.read(routerProvider);
+    final push = container.read(pushServiceProvider);
+
     await LocalNotificationService.initialize(onTap: router.push);
-    await FavoritesService.instance.init();
-    await PushService.instance.init(openRoute: router.push);
+    // Loads the favorites, and sends them if the backend may not have them.
+    container.read(favoritesProvider);
+    await push.init(openRoute: router.push);
 
     // A tapped notification that launched the app: a push, or one the app
     // showed itself while it was open.
-    final launchRoute = PushService.instance.takePendingRoute() ??
+    final launchRoute = push.takePendingRoute() ??
         await LocalNotificationService.launchPayload();
 
-    runApp(const MyApp());
+    runApp(UncontrolledProviderScope(
+      container: container,
+      child: const ScoreboardsApp(),
+    ));
 
     if (launchRoute != null) {
       WidgetsBinding.instance
@@ -48,52 +67,6 @@ Future<void> main() async {
 
     // Fills in the platform for devices registered before the app sent
     // it; does nothing once the backend has it.
-    unawaited(DeviceService().reportPlatformOnce());
+    unawaited(container.read(deviceRepositoryProvider).reportPlatformOnce());
   });
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Scoreboards',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.bg,
-        canvasColor: AppColors.bg,
-        primaryColor: AppColors.coral,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.coral,
-          brightness: Brightness.dark,
-          primary: AppColors.coral,
-          secondary: AppColors.mint,
-          surface: AppColors.surface,
-        ),
-        // Hanken Grotesk is the default body/UI font across the app.
-        // Space Grotesk (headings) and Archivo (score numerals) are applied
-        // per-widget via GoogleFonts.spaceGrotesk()/archivo() where needed.
-        //
-        // Deliberately NOT using GoogleFonts.hankenGroteskTextTheme() here:
-        // that generates and fetches ~13 distinct text-style/weight variants
-        // for the whole app theme synchronously on the very first frame,
-        // which is the main contributor to the "skipped frames" cold-start
-        // jank. Setting just `fontFamily` lets each weight resolve lazily,
-        // spread across the frames as individual screens actually render.
-        textTheme: ThemeData(brightness: Brightness.dark).textTheme.apply(
-              bodyColor: AppColors.textPrimary,
-              displayColor: AppColors.textPrimary,
-              fontFamily: GoogleFonts.hankenGrotesk().fontFamily,
-            ),
-        fontFamily: GoogleFonts.hankenGrotesk().fontFamily,
-      ),
-      routerConfig: router,
-    );
-  }
 }
