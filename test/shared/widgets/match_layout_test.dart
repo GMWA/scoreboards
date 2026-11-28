@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/models/match.dart';
 import 'package:scoreboards/features/match/widgets/match_header.dart';
@@ -58,6 +59,7 @@ void main() {
     testWidgets('${entry.key} hides the stored 0-0 when the result is unknown',
         (tester) async {
       await pumpWithProviders(tester, MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: Scaffold(body: SingleChildScrollView(child: entry.value(unknown))),
       ));
 
@@ -79,6 +81,7 @@ void main() {
           addTearDown(tester.view.reset);
 
           await pumpWithProviders(tester, MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
             home: MediaQuery(
               data: MediaQueryData(
                   size: Size(width, 780), textScaler: TextScaler.linear(scale)),

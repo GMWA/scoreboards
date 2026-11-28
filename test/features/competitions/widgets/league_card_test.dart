@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/models/championship.dart';
 import 'package:scoreboards/features/competitions/widgets/league_card.dart';
@@ -18,6 +19,7 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: LeagueCard(championship: championship),
           ),
@@ -44,6 +46,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: LeagueCard(
               championship: championship,

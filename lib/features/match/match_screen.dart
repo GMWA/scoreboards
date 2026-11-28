@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -86,7 +87,7 @@ class MatchScreenState extends ConsumerState<MatchScreen> {
                 child: CircularProgressIndicator(color: AppColors.coral))
             : Center(
                 child: Text(
-                  'Could not find match details.',
+                  context.l10n.matchNotFound,
                   style:
                       GoogleFonts.hankenGrotesk(color: AppColors.textSecondary),
                 ),
@@ -98,18 +99,18 @@ class MatchScreenState extends ConsumerState<MatchScreen> {
     // website; a live refresh can add it.
     final statistics = current.statistics;
     final tabs = <(String, Widget)>[
-      ('Timeline', _buildTimelineTab(current)),
+      (context.l10n.tabTimeline, _buildTimelineTab(current)),
       if (statistics != null)
         (
-          'Stats',
+          context.l10n.tabStats,
           MatchStatisticsTab(
             statistics: statistics,
             homeName: current.homeTeam.name,
             awayName: current.awayTeam.name,
           ),
         ),
-      ('Lineups', _LineupsTab(match: current)),
-      ('MOTM', MotmVotingTab(matchId: current.id)),
+      (context.l10n.tabLineups, _LineupsTab(match: current)),
+      (context.l10n.tabMotm, MotmVotingTab(matchId: current.id)),
     ];
 
     // Full header on open; scrolling any tab scrolls it away while the top
@@ -135,7 +136,7 @@ class MatchScreenState extends ConsumerState<MatchScreen> {
                     ? MatchScoreBar(
                         key: const ValueKey('score'), match: current)
                     : Text(
-                        current.edition.label?.toUpperCase() ?? 'MATCH CENTER',
+                        current.edition.label?.toUpperCase() ?? context.l10n.matchCenter,
                         key: const ValueKey('title'),
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 12,
@@ -150,7 +151,7 @@ class MatchScreenState extends ConsumerState<MatchScreen> {
               actions: [
                 Builder(
                   builder: (buttonContext) => IconButton(
-                    tooltip: 'Share match',
+                    tooltip: context.l10n.shareMatch,
                     icon: const Icon(Icons.share_outlined,
                         color: AppColors.textPrimary),
                     onPressed: () => _share(buttonContext, current),
@@ -221,7 +222,7 @@ class MatchScreenState extends ConsumerState<MatchScreen> {
         color: AppColors.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: MatchTimeline(events: buildTimelineEvents(match)),
+      child: MatchTimeline(events: buildTimelineEvents(match, context.l10n)),
     );
   }
 }
@@ -272,8 +273,8 @@ class _LineupsTab extends StatelessWidget {
     final awaySubs = players(match.awayTeam.id, starting: false);
 
     if (home.isEmpty && away.isEmpty && homeSubs.isEmpty && awaySubs.isEmpty) {
-      return const _NotAvailableTab(
-          message: 'Lineups have not been published yet.');
+      return _NotAvailableTab(
+          message: context.l10n.lineupsNotPublished);
     }
 
     return ListView(
@@ -308,7 +309,7 @@ class _LineupsTab extends StatelessWidget {
         if (homeSubs.isNotEmpty || awaySubs.isNotEmpty) ...[
           const SizedBox(height: 22),
           Text(
-            'SUBSTITUTES',
+            context.l10n.substitutes,
             style: GoogleFonts.hankenGrotesk(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w800,

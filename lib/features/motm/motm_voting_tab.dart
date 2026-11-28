@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -31,7 +32,7 @@ class _MotmVotingTabState extends ConsumerState<MotmVotingTab> {
       if (!mounted) return;
       final refusal = e is ApiException ? e.message : null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(refusal ?? 'Could not record your vote.')),
+        SnackBar(content: Text(refusal ?? context.l10n.motmVoteFailed)),
       );
     } finally {
       if (mounted) setState(() => pendingPlayerId = null);
@@ -43,15 +44,15 @@ class _MotmVotingTabState extends ConsumerState<MotmVotingTab> {
     return switch (ref.watch(motmProvider(widget.matchId))) {
       AsyncData(value: final current) => _buildSummary(current),
       AsyncError() =>
-        const _Message(text: 'Could not load Man of the Match voting.'),
+        _Message(text: context.l10n.motmLoadFailed),
       _ => const Center(child: CircularProgressIndicator(color: AppColors.coral)),
     };
   }
 
   Widget _buildSummary(MotmSummary current) {
     if (current.candidates.isEmpty) {
-      return const _Message(
-        text: 'Man of the Match voting opens once lineups are published.',
+      return _Message(
+        text: context.l10n.motmOpensWithLineups,
       );
     }
 
@@ -87,23 +88,23 @@ class _WindowBanner extends StatelessWidget {
     String subtitle;
     if (result != null) {
       if (result.isTie) {
-        title = "It's a tie!";
-        subtitle = '${result.totalVotes} votes cast';
+        title = context.l10n.motmTie;
+        subtitle = context.l10n.motmVotesCast(result.totalVotes);
       } else if (result.fanWinner != null) {
         title =
-            '${result.fanWinner!.firstname} ${result.fanWinner!.lastname} won Man of the Match';
-        subtitle = '${result.winnerVotes} of ${result.totalVotes} votes';
+            context.l10n.motmWinner('${result.fanWinner!.firstname} ${result.fanWinner!.lastname}');
+        subtitle = context.l10n.motmWinnerVotes(result.winnerVotes, result.totalVotes);
       } else {
-        title = 'Voting has closed';
-        subtitle = 'No votes were cast';
+        title = context.l10n.motmVotingClosed;
+        subtitle = context.l10n.motmNoVotes;
       }
     } else if (summary.window.isOpen) {
-      title = 'Vote for Man of the Match';
+      title = context.l10n.motmVoteTitle;
       subtitle =
-          'Voting closes ${DateFormat('MMM d, HH:mm').format(summary.window.closesAt)}';
+          context.l10n.motmVotingCloses(DateFormat.MMMd().add_Hm().format(summary.window.closesAt));
     } else {
-      title = 'Voting has closed';
-      subtitle = 'Result is being finalized';
+      title = context.l10n.motmVotingClosed;
+      subtitle = context.l10n.motmFinalizing;
     }
 
     return Container(

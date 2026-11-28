@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scoreboards/core/router.dart';
 import 'package:intl/intl.dart';
@@ -36,11 +37,11 @@ class MatchCard extends StatelessWidget {
     final String matchTime = DateFormat('HH:mm').format(match.date);
 
     final String statusLabel = isLive
-        ? 'LIVE'
+        ? context.l10n.liveBadge
         : isFinished
-            ? 'FT'
+            ? context.l10n.fullTimeShort
             : isResultUnknown
-                ? 'RESULT UNKNOWN'
+                ? context.l10n.resultUnknown
                 : isPlanned
                     ? matchTime
                     : match.status.value.toUpperCase();
@@ -98,8 +99,8 @@ class MatchCard extends StatelessWidget {
                     children: [
                       Text(
                         match.round.isNotEmpty
-                            ? roundLabel(match.round).toUpperCase()
-                            : DateFormat('MMM d').format(match.date),
+                            ? roundLabel(context.l10n, match.round).toUpperCase()
+                            : DateFormat.MMMd().format(match.date),
                         style: GoogleFonts.hankenGrotesk(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
@@ -188,7 +189,7 @@ class MatchCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    '(${match.scorePsoHome}-${match.scorePsoAway} PEN)',
+                    context.l10n.penaltiesScoreShort('${match.scorePsoHome}', '${match.scorePsoAway}'),
                     style: GoogleFonts.hankenGrotesk(
                       color: AppColors.textSecondary,
                       fontSize: 10,
@@ -291,7 +292,7 @@ class _FollowMenu extends ConsumerWidget {
 
     return PopupMenuButton<int>(
       padding: EdgeInsets.zero,
-      tooltip: 'Follow a team',
+      tooltip: context.l10n.followTeam,
       color: AppColors.surfaceAlt,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       icon: Icon(

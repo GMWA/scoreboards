@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/editions.dart';
@@ -98,7 +99,7 @@ class EditionCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'LIVE',
+                        context.l10n.liveBadge,
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,

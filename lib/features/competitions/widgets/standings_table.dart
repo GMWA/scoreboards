@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/models/editions.dart';
@@ -27,7 +28,7 @@ class _StandingsTableState extends ConsumerState<StandingsTable> {
     return AsyncView<(List<Standing>, List<EditionStandingRule>)>(
       value: ref.watch(standingsProvider(widget.editionId)),
       error: () => Center(
-        child: Text('Error loading standings.',
+        child: Text(context.l10n.standingsLoadFailed,
             style: GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
       ),
       data: (data) {
@@ -35,7 +36,7 @@ class _StandingsTableState extends ConsumerState<StandingsTable> {
 
         if (standings.isEmpty) {
           return Center(
-            child: Text('No standings available yet.',
+            child: Text(context.l10n.noStandings,
                 style:
                     GoogleFonts.hankenGrotesk(color: AppColors.textSecondary)),
           );
@@ -122,13 +123,13 @@ class _StandingsTableState extends ConsumerState<StandingsTable> {
             dataRowMaxHeight: 54,
             columns: [
               _buildHeader('#', color: AppColors.textSecondary),
-              _buildHeader('TEAM', color: AppColors.textSecondary),
-              _buildHeader('PTS', color: AppColors.coral),
-              _buildHeader('P', color: AppColors.textSecondary),
-              _buildHeader('W', color: AppColors.textSecondary),
-              _buildHeader('D', color: AppColors.textSecondary),
-              _buildHeader('L', color: AppColors.textSecondary),
-              _buildHeader('GD', color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsTeam, color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsPoints, color: AppColors.coral),
+              _buildHeader(context.l10n.standingsPlayed, color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsWon, color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsDrawn, color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsLost, color: AppColors.textSecondary),
+              _buildHeader(context.l10n.standingsGoalDifference, color: AppColors.textSecondary),
             ],
             rows: List<DataRow>.generate(rows.length, (index) {
               final item = rows[index];

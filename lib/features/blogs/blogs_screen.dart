@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -23,7 +24,7 @@ class BlogsScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
           child: Text(
-            'Blogs',
+            context.l10n.navBlogs,
             style: GoogleFonts.spaceGrotesk(
               color: AppColors.textPrimary,
               fontSize: 26,
@@ -34,12 +35,12 @@ class BlogsScreen extends ConsumerWidget {
         Expanded(
           child: AsyncView<List<ArticleBase>>(
             value: ref.watch(articlesProvider),
-            error: () => _buildErrorState(refresh),
+            error: () => _buildErrorState(context, refresh),
             data: (articles) {
               if (articles.isEmpty) {
                 return Center(
                   child: Text(
-                    'No articles found.',
+                    context.l10n.noArticles,
                     style: GoogleFonts.hankenGrotesk(
                         color: AppColors.textSecondary),
                   ),
@@ -72,7 +73,8 @@ class BlogsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(Future<void> Function() retry) {
+  Widget _buildErrorState(
+      BuildContext context, Future<void> Function() retry) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -80,13 +82,13 @@ class BlogsScreen extends ConsumerWidget {
           const Icon(Icons.error_outline, color: AppColors.border, size: 48),
           const SizedBox(height: 16),
           Text(
-            'Connection Error',
+            context.l10n.connectionError,
             style: GoogleFonts.hankenGrotesk(
                 color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           ),
           TextButton(
             onPressed: retry,
-            child: Text('RETRY',
+            child: Text(context.l10n.retry.toUpperCase(),
                 style: GoogleFonts.hankenGrotesk(
                     color: AppColors.coral, fontWeight: FontWeight.w800)),
           ),

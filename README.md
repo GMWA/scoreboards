@@ -25,6 +25,7 @@ This project aims to solve the "Data Gap" in local football. While international
 * **Framework**: Flutter (Dart)
 * **State**: Riverpod
 * **HTTP**: dio
+* **Languages**: French and English (`flutter_localizations`, ARB files)
 * **Navigation**: go_router
 
 * **Design System**: "Command Center" (High-contrast Navy & Brand Green)
@@ -71,6 +72,16 @@ example `context.push(Routes.match(slug))`), never with hand-written paths.
 3. Add its path to `Routes` and a `GoRoute` in `core/router.dart`.
 4. Test the repository with the fake backend in `test/helpers/fake_http.dart`,
    and the screen with `pumpScreen` from `test/helpers/harness.dart`.
+
+### Texts and languages
+
+The app speaks French and English. It follows the phone's language (French
+when the phone uses neither), and Settings > Language overrides it.
+
+Every text a user sees lives in `lib/l10n/app_en.arb` and `lib/l10n/app_fr.arb`:
+add the key to both, run `flutter gen-l10n`, then use `context.l10n.<key>`
+(from `core/l10n.dart`). Dates follow the language when built with
+`DateFormat`'s named formats, such as `DateFormat.yMMMd()`.
 
 ## 🚀 Deployment Protocol
 

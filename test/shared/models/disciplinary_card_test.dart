@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:scoreboards/features/match/timeline.dart';
+
+import '../../helpers/l10n.dart';
 import 'package:scoreboards/shared/models/disciplinary_card.dart';
 
 void main() {
@@ -83,7 +86,8 @@ void main() {
 
       expect(card.isStaff, isTrue);
       expect(card.staffName, 'Marc Brys');
-      expect(card.staffRoleLabel, 'Head coach');
+      expect(staffRoleLabel(en, card), 'Head coach');
+      expect(staffRoleLabel(fr, card), 'Entraîneur principal');
     });
 
     test('a player card, or one from an older backend, is not a staff card',
@@ -103,7 +107,7 @@ void main() {
 
     test('an unknown staff role shows as staff', () {
       expect(
-        DisciplinaryCard.fromJson({
+        staffRoleLabel(en, DisciplinaryCard.fromJson({
           'id': 5,
           'card_type': 'yellow',
           'minute': 10,
@@ -111,7 +115,7 @@ void main() {
           'staff_role': 'other',
           'team': {'id': 3, 'slug': 'team-a', 'name': 'Team A'},
           'is_second_yellow': false,
-        }).staffRoleLabel,
+        })),
         'Staff',
       );
     });

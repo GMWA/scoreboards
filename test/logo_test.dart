@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/assets.dart';
@@ -11,6 +12,7 @@ void main() {
     info.picture.dispose();
 
     await tester.pumpWidget(MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: Center(
           child: SvgPicture.asset(logoAsset,
               height: 26, semanticsLabel: 'Scoreboards')),

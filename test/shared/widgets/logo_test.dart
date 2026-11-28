@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scoreboards/shared/widgets/logo.dart';
 
@@ -7,6 +8,7 @@ void main() {
     testWidgets('shows default icon when url is null', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(body: Logo(url: null)),
         ),
       );
@@ -21,6 +23,7 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(body: Logo(url: testUrl)),
         ),
       );

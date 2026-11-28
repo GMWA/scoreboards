@@ -1,0 +1,288 @@
+{
+  "@@locale": "en",
+  "navScores": "Scores",
+  "navLeagues": "Leagues",
+  "navTeams": "Teams",
+  "navBlogs": "Blogs",
+  "navSettings": "Settings",
+  "retry": "Retry",
+  "connectionError": "Connection Error",
+  "loadError": "An error occurred while loading!",
+  "liveBadge": "LIVE",
+  "fullTimeShort": "FT",
+  "resultUnknown": "RESULT UNKNOWN",
+  "penaltiesScore": "({home} - {away} PEN)",
+  "@penaltiesScore": {
+    "placeholders": {
+      "home": {
+        "type": "String"
+      },
+      "away": {
+        "type": "String"
+      }
+    }
+  },
+  "penaltiesScoreShort": "({home}-{away} PEN)",
+  "@penaltiesScoreShort": {
+    "placeholders": {
+      "home": {
+        "type": "String"
+      },
+      "away": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAll": "All",
+  "filterLive": "● Live",
+  "filterUpcoming": "Upcoming",
+  "filterFinished": "Finished",
+  "noMatchesInView": "No matches in this view.",
+  "failedToLoadMatches": "Failed to load matches.",
+  "followTeam": "Follow a team",
+  "roundMatchday": "Matchday {number}",
+  "@roundMatchday": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "roundFinal": "Final",
+  "roundSemiFinal": "Semi-final",
+  "roundQuarterFinal": "Quarter-final",
+  "roundThirdPlace": "Third place",
+  "roundOf16": "Round of 16",
+  "roundOf32": "Round of 32",
+  "matchNotFound": "Could not find match details.",
+  "matchCenter": "MATCH CENTER",
+  "shareMatch": "Share match",
+  "tabTimeline": "Timeline",
+  "tabStats": "Stats",
+  "tabLineups": "Lineups",
+  "tabMotm": "MOTM",
+  "statusLive": "Live",
+  "statusFullTime": "Full Time",
+  "statusScheduled": "Scheduled",
+  "statusPostponed": "Postponed",
+  "statusCancelled": "Cancelled",
+  "statusAbandoned": "Abandoned",
+  "statusAwarded": "Awarded",
+  "noMatchEvents": "No match events yet",
+  "unknownPlayer": "Unknown Player",
+  "ownGoal": "Own Goal",
+  "assistBy": "Asst: {name}",
+  "@assistBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "secondYellow": "Second yellow",
+  "staffHeadCoach": "Head coach",
+  "staffAssistantCoach": "Assistant coach",
+  "staffOther": "Staff",
+  "lineupsNotPublished": "Lineups have not been published yet.",
+  "substitutes": "SUBSTITUTES",
+  "statPossession": "Possession",
+  "statShots": "Shots",
+  "statShotsOnTarget": "Shots on target",
+  "statCorners": "Corners",
+  "statFouls": "Fouls",
+  "statOffsides": "Offsides",
+  "statSaves": "Saves",
+  "statYellowCards": "Yellow cards",
+  "statRedCards": "Red cards",
+  "statsSource": "Source: {note}",
+  "@statsSource": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "statComparison": "{label}: {home} to {away}",
+  "@statComparison": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "home": {
+        "type": "String"
+      },
+      "away": {
+        "type": "String"
+      }
+    }
+  },
+  "motmVoteFailed": "Could not record your vote.",
+  "motmLoadFailed": "Could not load Man of the Match voting.",
+  "motmOpensWithLineups": "Man of the Match voting opens once lineups are published.",
+  "motmTie": "It's a tie!",
+  "motmVotesCast": "{count, plural, =1{1 vote cast} other{{count} votes cast}}",
+  "@motmVotesCast": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "motmWinner": "{name} won Man of the Match",
+  "@motmWinner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "motmWinnerVotes": "{votes} of {total} votes",
+  "@motmWinnerVotes": {
+    "placeholders": {
+      "votes": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "motmVotingClosed": "Voting has closed",
+  "motmNoVotes": "No votes were cast",
+  "motmVoteTitle": "Vote for Man of the Match",
+  "motmVotingCloses": "Voting closes {date}",
+  "@motmVotingCloses": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "motmFinalizing": "Result is being finalized",
+  "competitionsTitle": "Competitions",
+  "noCompetitions": "No championships found.",
+  "liveCompetitions": "Live Competitions",
+  "archive": "Archive",
+  "competitionLoadFailed": "Could not load this competition.",
+  "tabStandings": "Standings",
+  "tabTeams": "Teams",
+  "tabMatches": "Matches",
+  "tabPlayerStats": "P. Stats",
+  "matchesLoadFailed": "Error loading matches",
+  "noMatchesAvailable": "No matches available",
+  "moreMatchesLoadFailed": "Could not load more matches",
+  "statsLoadFailed": "Failed to load stats",
+  "topScorers": "TOP GOAL SCORERS",
+  "showLess": "SHOW LESS",
+  "viewFullList": "VIEW FULL LIST",
+  "standingsLoadFailed": "Error loading standings.",
+  "noStandings": "No standings available yet.",
+  "standingsTeam": "TEAM",
+  "standingsPoints": "PTS",
+  "standingsPlayed": "P",
+  "standingsWon": "W",
+  "standingsDrawn": "D",
+  "standingsLost": "L",
+  "standingsGoalDifference": "GD",
+  "participatingTeams": "PARTICIPATING TEAMS",
+  "teamsLoadFailed": "Error loading teams",
+  "noTeamsThisSeason": "No teams found for this season.",
+  "searchTeams": "Search teams",
+  "noTeamsFound": "No teams found.",
+  "teamNotFound": "Team not found.",
+  "overview": "OVERVIEW",
+  "teamType": "Team Type",
+  "homeStadium": "Home Stadium",
+  "teamTypeClub": "Club",
+  "teamTypeNational": "National",
+  "playerProfile": "Player Profile",
+  "playerLoadFailed": "Could not load this player.",
+  "jerseyNumber": "No. {number}",
+  "@jerseyNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "playerAge": "Age {age}",
+  "@playerAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "playerGoals": "Goals",
+  "playerAssists": "Assists",
+  "playerYellowCards": "Yellow Cards",
+  "playerRedCards": "Red Cards",
+  "noSeasonStats": "No season stats available for this player yet.",
+  "currentClub": "Current Club",
+  "clubSince": "Since {date}",
+  "@clubSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "positionGoalkeeper": "Goalkeeper",
+  "positionDefender": "Defender",
+  "positionMidfielder": "Midfielder",
+  "positionForward": "Forward",
+  "noArticles": "No articles found.",
+  "articleNotFound": "Article not found.",
+  "linkOpenFailed": "Could not open this link.",
+  "shareArticle": "Share article",
+  "articleViews": "{count, plural, =1{1 view} other{{count} views}}",
+  "@articleViews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relatedMatches": "Related matches",
+  "favoriteTeams": "Favorite Teams",
+  "favoriteCompetitions": "Favorite Competitions",
+  "noFavoriteTeams": "You haven't followed any teams yet. Tap the star on a team's card or profile to follow it.",
+  "noFavoriteCompetitions": "You haven't followed any competitions yet. Tap the star on a competition's card or page to follow it.",
+  "unfollow": "Unfollow",
+  "followingNotice": "You'll get notifications for {name}. Turn them off in Settings.",
+  "@followingNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "preferences": "PREFERENCES",
+  "manageFollowedTeams": "Manage your followed squads",
+  "manageFollowedCompetitions": "Manage your followed leagues",
+  "followedCount": "{count} followed",
+  "@followedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "language": "Language",
+  "languagePhone": "Phone language",
+  "about": "About",
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutOpenFailed": "Could not open the About page.",
+  "notificationsSection": "NOTIFICATIONS",
+  "matchNotifications": "Match Notifications",
+  "matchNotificationsSubtitle": "For the teams and competitions you follow",
+  "matchNotificationsHint": "Kick-off reminders, goals and results. Tap the star on a team or competition to follow it.",
+  "allowNotifications": "Allow notifications for Scoreboards in your phone settings."
+}

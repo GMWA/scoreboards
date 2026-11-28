@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -74,7 +75,8 @@ void main() {
     router = container.read(routerProvider);
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,routerConfig: router),
     ));
     await tester.pumpAndSettle();
 

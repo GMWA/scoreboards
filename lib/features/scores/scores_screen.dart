@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:scoreboards/core/l10n.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -183,7 +184,7 @@ class ScoresScreenState extends ConsumerState<ScoresScreen> {
     ref.listen(scoresProvider(_scoresKey), (_, next) {
       if (next is AsyncError && !_quietRefresh) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to load matches.")),
+          SnackBar(content: Text(context.l10n.failedToLoadMatches)),
         );
       }
       if (!next.isLoading) _quietRefresh = false;
@@ -340,10 +341,10 @@ class ScoresScreenState extends ConsumerState<ScoresScreen> {
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
       child: Row(
         children: [
-          chip('All', ScoreFilter.all),
-          chip('● Live', ScoreFilter.live),
-          chip('Upcoming', ScoreFilter.upcoming),
-          chip('Finished', ScoreFilter.finished),
+          chip(context.l10n.filterAll, ScoreFilter.all),
+          chip(context.l10n.filterLive, ScoreFilter.live),
+          chip(context.l10n.filterUpcoming, ScoreFilter.upcoming),
+          chip(context.l10n.filterFinished, ScoreFilter.finished),
         ],
       ),
     );
@@ -384,7 +385,7 @@ class ScoresScreenState extends ConsumerState<ScoresScreen> {
             ),
             const SizedBox(height: 3),
             Text(
-              'LIVE',
+              context.l10n.liveBadge,
               style: GoogleFonts.hankenGrotesk(
                 fontSize: 8.5,
                 fontWeight: FontWeight.w800,
@@ -582,7 +583,7 @@ class ScoresScreenState extends ConsumerState<ScoresScreen> {
           const Icon(Icons.sports_soccer, size: 64, color: AppColors.border),
           const SizedBox(height: 16),
           Text(
-            'No matches in this view.',
+            context.l10n.noMatchesInView,
             style: GoogleFonts.hankenGrotesk(
               color: AppColors.textSecondary,
               fontSize: 13,

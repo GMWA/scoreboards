@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:scoreboards/core/router.dart';
 import 'package:scoreboards/core/theme.dart';
 
@@ -11,22 +12,28 @@ import 'package:scoreboards/core/theme.dart';
 /// player row, same as they were in the design's prototype interactions.
 class _NavItem {
   final String path;
-  final String label;
+  final String Function(AppLocalizations) label;
   final IconData icon;
 
   const _NavItem({required this.path, required this.label, required this.icon});
 }
 
+String _scores(AppLocalizations l) => l.navScores;
+String _leagues(AppLocalizations l) => l.navLeagues;
+String _teams(AppLocalizations l) => l.navTeams;
+String _blogs(AppLocalizations l) => l.navBlogs;
+String _settings(AppLocalizations l) => l.navSettings;
+
 const List<_NavItem> _navItems = [
-  _NavItem(path: Routes.scores, label: 'Scores', icon: Icons.adjust_outlined),
+  _NavItem(path: Routes.scores, label: _scores, icon: Icons.adjust_outlined),
   _NavItem(
       path: Routes.competitions,
-      label: 'Leagues',
+      label: _leagues,
       icon: Icons.emoji_events_outlined),
-  _NavItem(path: Routes.teams, label: 'Teams', icon: Icons.groups_outlined),
-  _NavItem(path: Routes.blogs, label: 'Blogs', icon: Icons.article_outlined),
+  _NavItem(path: Routes.teams, label: _teams, icon: Icons.groups_outlined),
+  _NavItem(path: Routes.blogs, label: _blogs, icon: Icons.article_outlined),
   _NavItem(
-      path: Routes.settings, label: 'Settings', icon: Icons.settings_outlined),
+      path: Routes.settings, label: _settings, icon: Icons.settings_outlined),
 ];
 
 class AppShell extends StatelessWidget {
@@ -96,7 +103,7 @@ class AppShell extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          item.label,
+                          item.label(context.l10n),
                           style: GoogleFonts.hankenGrotesk(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,

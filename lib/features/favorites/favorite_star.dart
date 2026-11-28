@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/features/favorites/favorite_item.dart';
@@ -31,7 +32,7 @@ class FavoriteStar extends ConsumerWidget {
         context.mounted) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
         content: Text(
-            "You'll get notifications for ${item.name}. Turn them off in Settings."),
+            context.l10n.followingNotice(item.name)),
       ));
     }
   }

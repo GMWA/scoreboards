@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scoreboards/core/theme.dart';
 import 'package:scoreboards/shared/utils.dart';
@@ -72,7 +73,7 @@ class MatchHeader extends StatelessWidget {
                     ),
                     if (isResultUnknown)
                       Text(
-                        'RESULT UNKNOWN',
+                        context.l10n.resultUnknown,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.hankenGrotesk(
                           color: AppColors.textSecondary,
@@ -91,7 +92,7 @@ class MatchHeader extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '(${match.scorePsoHome} - ${match.scorePsoAway} PEN)',
+                          context.l10n.penaltiesScore('${match.scorePsoHome}', '${match.scorePsoAway}'),
                           style: GoogleFonts.hankenGrotesk(
                             color: AppColors.textSecondary,
                             fontSize: 10,
@@ -118,7 +119,7 @@ class MatchHeader extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  roundLabel(match.round).toUpperCase(),
+                  roundLabel(context.l10n, match.round).toUpperCase(),
                   style: GoogleFonts.hankenGrotesk(
                     color: AppColors.textPrimary,
                     fontSize: 10,
@@ -183,7 +184,7 @@ class _StatusBadge extends StatelessWidget {
             const SizedBox(width: 6),
           ],
           Text(
-            _getStatusText().toUpperCase(),
+            _getStatusText(context.l10n).toUpperCase(),
             style: GoogleFonts.hankenGrotesk(
               color: Colors.white,
               fontSize: 10,
@@ -196,20 +197,15 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 
-  String _getStatusText() {
-    switch (status) {
-      case MatchStatus.ongoing:
-        return 'Live';
-      case MatchStatus.completed:
-      case MatchStatus.resultUnknown:
-        return 'Full Time';
-      case MatchStatus.planned:
-      case MatchStatus.scheduled:
-        return 'Scheduled';
-      default:
-        return status.value;
-    }
-  }
+  String _getStatusText(AppLocalizations l10n) => switch (status) {
+        MatchStatus.ongoing => l10n.statusLive,
+        MatchStatus.completed || MatchStatus.resultUnknown => l10n.statusFullTime,
+        MatchStatus.planned || MatchStatus.scheduled => l10n.statusScheduled,
+        MatchStatus.postponed => l10n.statusPostponed,
+        MatchStatus.cancelled => l10n.statusCancelled,
+        MatchStatus.abandoned => l10n.statusAbandoned,
+        MatchStatus.awarded => l10n.statusAwarded,
+      };
 }
 
 /// One-line score shown in the match screen's top bar once the full header
@@ -224,11 +220,11 @@ class MatchScoreBar extends StatelessWidget {
     // One fixed-height line: cap text growth so it can't overflow.
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: 1.3,
-      child: _buildRow(),
+      child: _buildRow(context),
     );
   }
 
-  Widget _buildRow() {
+  Widget _buildRow(BuildContext context) {
     final bool isLive = match.status == MatchStatus.ongoing;
     final bool hasPens = match.wentToPenalties && match.scorePsoHome != null;
 
@@ -254,7 +250,7 @@ class MatchScoreBar extends StatelessWidget {
               ),
               if (hasPens)
                 Text(
-                  '(${match.scorePsoHome} - ${match.scorePsoAway} PEN)',
+                  context.l10n.penaltiesScore('${match.scorePsoHome}', '${match.scorePsoAway}'),
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,

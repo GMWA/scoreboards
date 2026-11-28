@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/core/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scoreboards/core/providers.dart';
 import 'package:scoreboards/core/router.dart';
+import 'package:scoreboards/core/settings/locale_controller.dart';
 import 'package:scoreboards/features/favorites/favorite_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:scoreboards/core/theme.dart';
@@ -60,7 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open the About page.')),
+        SnackBar(content: Text(context.l10n.aboutOpenFailed)),
       );
     }
   }
@@ -72,14 +74,66 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (await ref.read(pushServiceProvider).setEnabled(enabled) != enabled) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Allow notifications for Scoreboards in your phone settings.'),
+        SnackBar(
+          content: Text(context.l10n.allowNotifications),
         ),
       );
       return;
     }
     if (!mounted) return;
     setState(() => _notifMaster = enabled);
+  }
+
+  /// "Français", "English", or "Phone language" while it follows the phone.
+  String _languageName(BuildContext context, Locale? locale) =>
+      switch (locale?.languageCode) {
+        'fr' => 'Français',
+        'en' => 'English',
+        _ => context.l10n.languagePhone,
+      };
+
+  Future<void> _chooseLanguage() async {
+    final current = ref.read(localeControllerProvider)?.languageCode;
+    // Language names stay in their own language, so they can be found
+    // whatever the app is showing.
+    final options = [
+      (null, context.l10n.languagePhone),
+      ('fr', 'Français'),
+      ('en', 'English'),
+    ];
+    final chosen = await showModalBottomSheet<(String?,)>(
+      context: context,
+      // Over the bottom navigation bar, not under it.
+      useRootNavigator: true,
+      backgroundColor: AppColors.surface,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (code, name) in options)
+              ListTile(
+                title: Text(
+                  name,
+                  style: GoogleFonts.hankenGrotesk(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: code == current
+                    ? const Icon(Icons.check, color: AppColors.coral)
+                    : null,
+                onTap: () => Navigator.pop(sheetContext, (code,)),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (chosen == null) return;
+    final (code,) = chosen;
+    await ref
+        .read(localeControllerProvider.notifier)
+        .set(code == null ? null : Locale(code));
   }
 
   Future<void> _setPref(String key, bool value) async {
@@ -123,7 +177,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ]),
                 const SizedBox(height: 22),
               ],
-              _sectionLabel('PREFERENCES'),
+              _sectionLabel(context.l10n.preferences),
               const SizedBox(height: 10),
               Builder(
                 builder: (context) {
@@ -134,19 +188,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _SettingsRow(
                       icon: Icons.star_border,
                       iconColor: AppColors.textPrimary,
-                      title: 'Favorite Teams',
+                      title: context.l10n.favoriteTeams,
                       subtitle: teamCount == 0
-                          ? 'Manage your followed squads'
-                          : '$teamCount followed',
+                          ? context.l10n.manageFollowedTeams
+                          : context.l10n.followedCount(teamCount),
                       onTap: () => context.push(Routes.favorites(FavoriteKind.team)),
                     ),
                     _SettingsRow(
                       icon: Icons.emoji_events_outlined,
                       iconColor: AppColors.textPrimary,
-                      title: 'Favorite Competitions',
+                      title: context.l10n.favoriteCompetitions,
                       subtitle: compCount == 0
-                          ? 'Manage your followed leagues'
-                          : '$compCount followed',
+                          ? context.l10n.manageFollowedCompetitions
+                          : context.l10n.followedCount(compCount),
                       onTap: () =>
                           context.push(Routes.favorites(FavoriteKind.competition)),
                     ),
@@ -166,17 +220,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           },
                         ),
                       ),
-                    const _SettingsRow(
+                    _SettingsRow(
                       icon: Icons.public,
                       iconColor: AppColors.textPrimary,
-                      title: 'Language',
-                      subtitle: 'English (US)',
+                      title: context.l10n.language,
+                      subtitle: _languageName(
+                          context, ref.watch(localeControllerProvider)),
+                      onTap: _chooseLanguage,
                     ),
                     _SettingsRow(
                       icon: Icons.info_outline,
                       iconColor: AppColors.textPrimary,
-                      title: 'About',
-                      subtitle: 'Version 1.0.0',
+                      title: context.l10n.about,
+                      subtitle: context.l10n.appVersion('1.0.0'),
                       onTap: _openAbout,
                       showDivider: false,
                     ),
@@ -185,14 +241,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               if (ref.watch(pushServiceProvider).isAvailable) ...[
                 const SizedBox(height: 22),
-                _sectionLabel('NOTIFICATIONS'),
+                _sectionLabel(context.l10n.notificationsSection),
                 const SizedBox(height: 10),
                 _buildGroup([
                   _SettingsRow(
                     icon: Icons.notifications_none,
                     iconColor: AppColors.mint,
-                    title: 'Match Notifications',
-                    subtitle: 'For the teams and competitions you follow',
+                    title: context.l10n.matchNotifications,
+                    subtitle: context.l10n.matchNotificationsSubtitle,
                     showDivider: false,
                     trailing: _ToggleSwitch(
                       value: _notifMaster,
@@ -204,7 +260,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    'Kick-off reminders, goals and results. Tap the star on a team or competition to follow it.',
+                    context.l10n.matchNotificationsHint,
                     style: GoogleFonts.hankenGrotesk(
                       color: AppColors.textSecondary,
                       fontSize: 11,

@@ -77,7 +77,7 @@ class ArticleCard extends StatelessWidget {
                               size: 12, color: AppColors.textSecondary),
                           const SizedBox(width: 4),
                           Text(
-                            DateFormat('MMM d, yyyy')
+                            DateFormat.yMMMd()
                                 .format(article.publishedAt!),
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 11,

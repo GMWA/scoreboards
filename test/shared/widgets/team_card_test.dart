@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scoreboards/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:scoreboards/shared/widgets/team_card.dart';
@@ -37,6 +38,7 @@ void main() {
     testWidgets("renders team name and stadium", (WidgetTester tester) async {
       await pumpWithProviders(tester, 
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: TeamCard(team: baseTeam),
           ),
@@ -51,6 +53,7 @@ void main() {
         (WidgetTester tester) async {
       await pumpWithProviders(tester, 
         MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: TeamCard(
               team: Team(
@@ -100,6 +103,7 @@ void main() {
       await mockNetworkImagesFor(() async {
         await pumpWithProviders(tester, 
           MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
             home: Scaffold(
               body: TeamCard(team: teamWithLogo),
             ),
@@ -143,6 +147,7 @@ void main() {
 
         await pumpWithProviders(tester, 
           MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
             home: Scaffold(
               body: TeamCard(team: teamWithoutLogo),
             ),
